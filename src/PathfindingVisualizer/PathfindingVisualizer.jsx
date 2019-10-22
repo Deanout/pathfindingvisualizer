@@ -5,8 +5,8 @@ import Toolbar from "../partials/toolbar";
 
 import "./PathfindingVisualizer.css";
 
-const GRID_WIDTH = 25;
-const GRID_HEIGHT = 10;
+const GRID_WIDTH = Math.floor(window.innerWidth / 25);
+const GRID_HEIGHT = Math.floor(window.innerHeight / 25) - 3;
 
 const START_NODE_ROW = GRID_HEIGHT / 5;
 const START_NODE_COL = GRID_WIDTH / 5;
@@ -20,6 +20,11 @@ export default class PathfindingVisualizer extends Component {
       grid: [],
       mouseIsPressed: false
     };
+    console.log("Height: " + window.innerHeight.toString());
+    console.log("Width: " + window.innerWidth.toString());
+    console.log("Number of Nodes: " + getInitialGrid().length.toString());
+    console.log("grid_w: " + GRID_WIDTH.toString());
+    console.log("grid_h: " + GRID_HEIGHT.toString());
   }
 
   componentDidMount() {
@@ -144,9 +149,9 @@ export default class PathfindingVisualizer extends Component {
 
 const getInitialGrid = () => {
   const grid = [];
-  for (let row = 0; row < GRID_HEIGHT; row++) {
+  for (let row = 0; row < GRID_WIDTH; row++) {
     const currentRow = [];
-    for (let col = 0; col < GRID_WIDTH; col++) {
+    for (let col = 0; col < GRID_HEIGHT; col++) {
       currentRow.push(createNode(col, row));
     }
     grid.push(currentRow);

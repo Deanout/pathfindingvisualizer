@@ -1,3 +1,8 @@
 .grid {
-  margin: 100px 0 0;
+  margin: 1em 0.5em 0 0.5em;
+  min-width: 90%;
+  min-height: 60%;
+  max-height: 60%;
+  max-width: 90%;
+  display: flex;
 }
