@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import Node from "./Node/Node";
 import { dijkstra, getNodesInShortestPathOrder } from "../algorithms/dijkstra";
+import Toolbar from "../partials/toolbar";
 
 import "./PathfindingVisualizer.css";
 
@@ -108,10 +109,7 @@ export default class PathfindingVisualizer extends Component {
 
     return (
       <>
-        <button onClick={() => this.visualizeDijkstra()}>
-          Visualize Dijkstra's Algorithm
-        </button>
-        <button onClick={() => this.init(true)}>Clear Board</button>
+        <Toolbar pfv={this}></Toolbar>
         <div className="grid">
           {grid.map((row, rowIdx) => {
             return (
