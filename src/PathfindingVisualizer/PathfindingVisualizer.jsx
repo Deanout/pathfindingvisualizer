@@ -11,8 +11,8 @@ const GRID_HEIGHT = Math.floor(window.innerHeight / 25) - 5;
 
 const START_NODE_ROW = 3;
 const START_NODE_COL = 3;
-const FINISH_NODE_ROW = GRID_WIDTH - 4;
-const FINISH_NODE_COL = GRID_HEIGHT - 4;
+const FINISH_NODE_ROW = GRID_WIDTH - START_NODE_ROW - 1;
+const FINISH_NODE_COL = GRID_HEIGHT - START_NODE_COL - 1;
 
 export default class PathfindingVisualizer extends Component {
   constructor() {
@@ -142,14 +142,12 @@ export default class PathfindingVisualizer extends Component {
       coords.push(currentRow);
     }
 
-    var output = BuildRecursiveWalls(
-      coords,
-      0,
-      GRID_WIDTH - 1,
-      0,
-      GRID_HEIGHT - 1
-    );
-    console.log(output);
+    BuildRecursiveWalls(coords, 0, GRID_WIDTH - 1, 0, GRID_HEIGHT - 1);
+    console.log(FINISH_NODE_ROW);
+    console.log(FINISH_NODE_COL);
+    console.log(coords[0]);
+    coords[START_NODE_COL][START_NODE_ROW] = 0;
+    coords[FINISH_NODE_COL][FINISH_NODE_ROW] = 0;
     for (let x = 0; x < GRID_WIDTH; x++) {
       for (let y = 0; y < GRID_HEIGHT; y++) {
         if (coords[y][x] === 1) {
