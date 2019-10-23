@@ -1,12 +1,13 @@
 import React, { Component } from "react";
 import Node from "./Node/Node";
-import { dijkstra, getNodesInShortestPathOrder } from "../algorithms/dijkstra";
+import { dijkstra, getNodesInShortestPathOrder } from "../algorithms/Dijkstra";
 import Toolbar from "../partials/toolbar";
+import { BuildRecursiveWalls } from "../algorithms/RecursiveWalls";
 
 import "./PathfindingVisualizer.css";
 
 const GRID_WIDTH = Math.floor(window.innerWidth / 25);
-const GRID_HEIGHT = Math.floor(window.innerHeight / 25) - 3;
+const GRID_HEIGHT = Math.floor(window.innerHeight / 25) - 5;
 
 const START_NODE_ROW = 3;
 const START_NODE_COL = 3;
@@ -18,7 +19,10 @@ export default class PathfindingVisualizer extends Component {
     super();
     this.state = {
       grid: [],
-      mouseIsPressed: false
+      mouseIsPressed: false,
+      start: 0,
+      end: 0,
+      statistic: ""
     };
   }
 
@@ -28,8 +32,7 @@ export default class PathfindingVisualizer extends Component {
   }
 
   handleMouseDown(row, col) {
-    const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
-    this.setState({ grid: newGrid, mouseIsPressed: true });
+    this.buildWall(row, col);
   }
 
   handleMouseEnter(row, col) {
@@ -42,6 +45,11 @@ export default class PathfindingVisualizer extends Component {
 
   handleMouseUp() {
     this.setState({ mouseIsPressed: false });
+  }
+
+  buildWall(row, col) {
+    const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
+    this.setState({ grid: newGrid, mouseIsPressed: false });
   }
 
   animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder) {
@@ -75,7 +83,15 @@ export default class PathfindingVisualizer extends Component {
     const startNode = grid[START_NODE_ROW][START_NODE_COL];
     const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
     this.init(false);
+    let start = performance.now();
     const visitedNodesInOrder = dijkstra(grid, startNode, finishNode);
+    let end = performance.now();
+    this.setState({
+      statistic:
+        "Runtime of Dijkstra's algorithm: " + (end - start).toString() + " ms."
+    });
+    document.getElementById("statistics").innerHTML +=
+      `<p class="statistic-text">` + this.state.statistic + `</p>`;
     const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
     this.animateDijkstra(visitedNodesInOrder, nodesInShortestPathOrder);
   }
@@ -104,12 +120,52 @@ export default class PathfindingVisualizer extends Component {
     ).className = `node node-finish`;
   }
 
+  recursiveWalls() {
+    var coords = [];
+    this.init(true);
+
+    for (let row = 0; row < GRID_HEIGHT; row++) {
+      let currentRow = [];
+      for (let col = 0; col < GRID_WIDTH; col++) {
+        if (row === 0) {
+          currentRow.push(1);
+        } else if (col === 0) {
+          currentRow.push(1);
+        } else if (row === GRID_HEIGHT - 1) {
+          currentRow.push(1);
+        } else if (col === GRID_WIDTH - 1) {
+          currentRow.push(1);
+        } else {
+          currentRow.push(0);
+        }
+      }
+      coords.push(currentRow);
+    }
+
+    var output = BuildRecursiveWalls(
+      coords,
+      0,
+      GRID_WIDTH - 1,
+      0,
+      GRID_HEIGHT - 1
+    );
+    console.log(output);
+    for (let x = 0; x < GRID_WIDTH; x++) {
+      for (let y = 0; y < GRID_HEIGHT; y++) {
+        if (coords[y][x] === 1) {
+          this.buildWall(x, y);
+        }
+      }
+    }
+  }
+
   render() {
     const { grid, mouseIsPressed } = this.state;
 
     return (
       <>
         <Toolbar pfv={this}></Toolbar>
+        <div className="statistics" id="statistics"></div>
         <div className="grid">
           {grid.map((row, rowIdx) => {
             return (

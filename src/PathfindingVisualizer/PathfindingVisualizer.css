@@ -1,8 +1,27 @@
+body {
+  overflow: hidden;
+}
 .grid {
-  margin: 1em 0.5em 0 0.5em;
-  min-width: 90%;
-  min-height: 60%;
-  max-height: 60%;
-  max-width: 90%;
+  margin: 60px auto 0 auto;
   display: flex;
+  width: 99%;
+  z-index: 1;
+}
+
+.statistics {
+  position: absolute;
+  top: 64px;
+  height: 50px;
+  width: 100%;
+  z-index: 5;
+  background-color: black;
+  overflow-y: scroll;
+  resize: vertical;
+}
+.statistic-text {
+  font-size: 14px;
+  color: white;
+  margin: 0;
+  text-align: left;
+  padding-left: 5px;
 }
