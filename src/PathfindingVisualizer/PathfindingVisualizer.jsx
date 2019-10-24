@@ -70,6 +70,11 @@ export default class PathfindingVisualizer extends Component {
     this.setState({ grid: newGrid, mouseIsPressed: false });
   }
 
+  resetDistances() {
+    const newGrid = getNewGridWithDistancesReset(this.state.grid);
+    this.setState({ grid: newGrid });
+  }
+
   animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder) {
     for (let i = 0; i <= visitedNodesInOrder.length; i++) {
       if (i === visitedNodesInOrder.length) {
@@ -112,6 +117,7 @@ export default class PathfindingVisualizer extends Component {
 
     const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
     this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
+    this.resetDistances();
   }
 
   renderTextToConsole(algorithm, start, end, openingTag, closingTag) {
@@ -126,7 +132,8 @@ export default class PathfindingVisualizer extends Component {
     if (clearBoard) {
       document.getElementById(
         `node-${node.row}-${node.col}`
-      ).className = `node`;
+      ).className = `${newClass}`;
+      //console.log("[" + node.row + ", " + node.col + "] set to: " + newClass);
     } else {
       document.getElementById(
         `node-${node.row}-${node.col}`
@@ -136,10 +143,25 @@ export default class PathfindingVisualizer extends Component {
 
   init(clearBoard) {
     const { grid } = this.state;
+    let numWalls = 0;
 
-    if (clearBoard) {
-      this.componentDidMount();
+    for (let row = 0; row < GRID_HEIGHT; row++) {
+      for (let col = 0; col < GRID_WIDTH; col++) {
+        let node = grid[row][col];
+
+        if (clearBoard && node.isWall) {
+          numWalls++;
+          this.toggleWall(row, col);
+        } else if (!clearBoard && node.isWall) {
+        } else if (clearBoard && !node.isWall) {
+          this.modifyNode(node, clearBoard, `node`);
+        } else {
+          this.modifyNode(node, clearBoard, `node`);
+        }
+      }
     }
+
+    //console.log("Toggled: " + numWalls + " walls.");
 
     this.modifyNode(grid[START_NODE_ROW][START_NODE_COL], false, START_NODE);
     this.modifyNode(grid[FINISH_NODE_ROW][FINISH_NODE_COL], false, FINISH_NODE);
@@ -159,15 +181,16 @@ export default class PathfindingVisualizer extends Component {
       PASSAGE,
       AIR
     );
+    let numWalls = 0;
     for (let row = 0; row < GRID_HEIGHT; row++) {
       for (let col = 0; col < GRID_WIDTH; col++) {
         if (output[row][col] === WALL) {
-          this.makeWall(row, col);
-        } else {
-          this.removeWall(row, col);
+          this.toggleWall(row, col);
+          numWalls++;
         }
       }
     }
+    //console.log("Created: " + numWalls + " walls.");
   }
 
   render() {
@@ -232,6 +255,18 @@ const createNode = (row, col) => {
     isWall: false,
     previousNode: null
   };
+};
+
+const getNewGridWithDistancesReset = grid => {
+  const newGrid = grid.slice();
+  for (let row of newGrid) {
+    for (let node of row) {
+      node.distance = Infinity;
+      node.isVisited = false;
+      node.isShortest = false;
+    }
+  }
+  return newGrid;
 };
 
 const getNewGridWithWallToggled = (grid, row, col) => {

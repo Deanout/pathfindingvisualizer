@@ -24,6 +24,7 @@
 export function dijkstra(grid, startNode, finishNode) {
   // The list of visited nodes to animate over
   const visitedNodesInOrder = [];
+
   // Set the initial node's distance to 0.
   startNode.distance = 0;
   // The list of unvisited nodes
@@ -44,8 +45,11 @@ export function dijkstra(grid, startNode, finishNode) {
     if (closestNode === finishNode) {
       return visitedNodesInOrder;
     }
+
     updateUnvisitedNeighbors(closestNode, grid);
   }
+
+  return visitedNodesInOrder;
 }
 
 function sortNodesByDistance(unvisitedNodes) {
