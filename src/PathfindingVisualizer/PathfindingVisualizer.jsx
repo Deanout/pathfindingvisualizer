@@ -2,17 +2,19 @@ import React, { Component } from "react";
 import Node from "./Node/Node";
 import { dijkstra, getNodesInShortestPathOrder } from "../algorithms/Dijkstra";
 import Toolbar from "../partials/toolbar";
+import Console from "../partials/console";
 import { recursiveWallBuilder } from "../algorithms/RecursiveWalls";
 
 import "./PathfindingVisualizer.css";
+var GRID_WIDTH = 5;
+var GRID_HEIGHT = 5;
 
-const GRID_WIDTH = Math.floor(window.innerWidth / 25);
-const GRID_HEIGHT = Math.floor(window.innerHeight / 25) - 5;
+const NODE_SIZE = 25;
 
-const START_NODE_ROW = 3;
-const START_NODE_COL = 4;
-const FINISH_NODE_ROW = GRID_HEIGHT - START_NODE_ROW;
-const FINISH_NODE_COL = GRID_WIDTH - START_NODE_COL;
+var START_NODE_ROW = 3;
+var START_NODE_COL = 4;
+var FINISH_NODE_ROW = GRID_HEIGHT - START_NODE_ROW;
+var FINISH_NODE_COL = GRID_WIDTH - START_NODE_COL;
 
 const START_NODE = `node-start`;
 const FINISH_NODE = `node-finish`;
@@ -20,7 +22,6 @@ const NODE_VISITED = `node-visited`;
 const NODE_SHORTEST_PATH = `node-shortest-path`;
 
 const WALL = "W";
-const PASSAGE = "P";
 const AIR = "A";
 
 export default class PathfindingVisualizer extends Component {
@@ -35,8 +36,24 @@ export default class PathfindingVisualizer extends Component {
   }
 
   componentDidMount() {
-    const grid = getInitialGrid();
-    this.setState({ grid });
+    let consoleElement = document.getElementById("console");
+    if (consoleElement) {
+      let consoleBottom = consoleElement.getBoundingClientRect().bottom;
+      let veritcalNodeReduction = consoleBottom / NODE_SIZE;
+      GRID_WIDTH = Math.floor(window.innerWidth / NODE_SIZE);
+      GRID_HEIGHT = Math.floor(
+        window.innerHeight / NODE_SIZE - veritcalNodeReduction
+      );
+      console.log(GRID_HEIGHT);
+      START_NODE_ROW = 3;
+      START_NODE_COL = 4;
+      FINISH_NODE_ROW = GRID_HEIGHT - START_NODE_ROW;
+      FINISH_NODE_COL = GRID_WIDTH - START_NODE_COL;
+      document.getElementById("grid").style.height =
+        (window.innerHeight - consoleBottom).toString() + "px";
+      const grid = getInitialGrid();
+      this.setState({ grid });
+    }
   }
 
   handleMouseDown(row, col) {
@@ -99,6 +116,7 @@ export default class PathfindingVisualizer extends Component {
   }
 
   visualizeDijkstra() {
+    this.resetDistances();
     const { grid } = this.state;
     const startNode = grid[START_NODE_ROW][START_NODE_COL];
     const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
@@ -133,7 +151,6 @@ export default class PathfindingVisualizer extends Component {
       document.getElementById(
         `node-${node.row}-${node.col}`
       ).className = `${newClass}`;
-      //console.log("[" + node.row + ", " + node.col + "] set to: " + newClass);
     } else {
       document.getElementById(
         `node-${node.row}-${node.col}`
@@ -178,7 +195,6 @@ export default class PathfindingVisualizer extends Component {
       FINISH_NODE_ROW,
       FINISH_NODE_COL,
       WALL,
-      PASSAGE,
       AIR
     );
     let numWalls = 0;
@@ -195,11 +211,12 @@ export default class PathfindingVisualizer extends Component {
 
   render() {
     const { grid, mouseIsPressed } = this.state;
+    const console = <Console></Console>;
+    const toolBar = <Toolbar pfv={this} console={console}></Toolbar>;
     return (
       <>
-        <Toolbar pfv={this}></Toolbar>
-        <div className="console" id="console"></div>
-        <div className="grid">
+        {toolBar}
+        <div id="grid">
           {grid.map((row, rowIdx) => {
             return (
               <div key={rowIdx} className="row">
@@ -301,3 +318,10 @@ const getNewGridWithWall = (grid, row, col) => {
   newGrid[row][col] = newNode;
   return newGrid;
 };
+
+function offset(input) {
+  var rect = input.getBoundingClientRect(),
+    scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
+    scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+  return { top: rect.top + scrollTop, left: rect.left + scrollLeft };
+}

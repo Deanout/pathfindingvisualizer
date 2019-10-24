@@ -1,21 +1,24 @@
-body {
+html,
+body,
+#root,
+.App {
   overflow: hidden;
+  height: 100%;
 }
-.grid {
-  margin: 60px auto 0 auto;
+#grid {
+  margin: auto;
   display: flex;
   flex-direction: column;
-  width: 99%;
   z-index: 1;
 }
 .row {
   display: flex;
+  flex-grow: 1;
+  height: auto;
   flex-direction: row;
 }
 
 .console {
-  position: absolute;
-  top: 64px;
   height: 50px;
   width: 100%;
   z-index: 5;

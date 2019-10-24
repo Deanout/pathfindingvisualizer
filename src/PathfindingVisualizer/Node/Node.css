@@ -1,7 +1,5 @@
 .node {
   flex: 1;
-  width: 25px;
-  height: 25px;
   outline: 1px solid rgb(175, 200, 250);
 }
 

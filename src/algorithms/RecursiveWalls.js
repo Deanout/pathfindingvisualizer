@@ -6,7 +6,6 @@ export function recursiveWallBuilder(
   endNodeRow,
   endNodeCol,
   wall,
-  passage,
   air
 ) {
   const coords = [];
@@ -26,13 +25,13 @@ export function recursiveWallBuilder(
     coords[i][width - 1] = wall;
   }
 
-  const walls = helper(coords, 0, width - 1, 0, height - 1, wall, passage, air);
+  const walls = helper(coords, 0, width - 1, 0, height - 1, wall, air);
   walls[startNodeRow][startNodeCol] = air;
   walls[endNodeRow][endNodeCol] = air;
   return walls;
 }
 
-function helper(inputCoords, x1, x2, y1, y2, WALL, PASSAGE, AIR) {
+function helper(inputCoords, x1, x2, y1, y2, WALL, AIR) {
   let width = x2 - x1;
   let height = y2 - y1;
 
@@ -66,8 +65,8 @@ function helper(inputCoords, x1, x2, y1, y2, WALL, PASSAGE, AIR) {
           inputCoords[i][bisection] = WALL;
         }
       }
-      helper(inputCoords, x1, bisection, y1, y2, WALL, PASSAGE, AIR);
-      helper(inputCoords, bisection, x2, y1, y2, WALL, PASSAGE, AIR);
+      helper(inputCoords, x1, bisection, y1, y2, WALL, AIR);
+      helper(inputCoords, bisection, x2, y1, y2, WALL, AIR);
     }
   } else {
     if (y2 - y1 > 3) {
@@ -98,8 +97,8 @@ function helper(inputCoords, x1, x2, y1, y2, WALL, PASSAGE, AIR) {
           inputCoords[bisection][i] = WALL;
         }
       }
-      helper(inputCoords, x1, x2, y1, bisection, WALL, PASSAGE, AIR);
-      helper(inputCoords, x1, x2, bisection, y2, WALL, PASSAGE, AIR);
+      helper(inputCoords, x1, x2, y1, bisection, WALL, AIR);
+      helper(inputCoords, x1, x2, bisection, y2, WALL, AIR);
     }
   }
 
