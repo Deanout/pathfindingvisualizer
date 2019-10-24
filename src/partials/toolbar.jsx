@@ -4,6 +4,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { styled } from "@material-ui/core/styles";
+import SimpleSelect from "./SimpleSelect";
 
 const PfvToolbar = styled(Toolbar)({
   background: "linear-gradient(45deg, #2c3e50 30%, #3498db 90%)",
@@ -47,6 +48,7 @@ export default class ToolBar extends Component {
         <AppBar position="static">
           <PfvToolbar>
             <PfvBrand variant="h6">Pathfinding Visualizer</PfvBrand>
+            <SimpleSelect>Algorithms</SimpleSelect>
             <PfvButton
               color="inherit"
               onClick={() => this.state.pfv.visualizeDijkstra()}
@@ -57,7 +59,7 @@ export default class ToolBar extends Component {
               color="inherit"
               onClick={() => this.state.pfv.recursiveWalls()}
             >
-              Recursive Walls
+              Make Maze
             </PfvConfigButton>
 
             <PfvConfigButton

@@ -2,15 +2,19 @@
   flex: 1;
   width: 25px;
   height: 25px;
-  outline: 1px solid rgb(175, 216, 248);
+  outline: 1px solid rgb(175, 200, 250);
+}
+
+.node-passage {
+  background-color: black;
 }
 
 .node-finish {
-  background-color: red;
+  background-color: rgb(19, 156, 235);
 }
 
 .node-start {
-  background-color: green;
+  background-color: rgb(0, 150, 4);
 }
 
 .node-visited {
@@ -63,17 +67,70 @@
 
 @keyframes shortestPath {
   0% {
-    transform: scale(0.6);
-    background-color: rgb(255, 254, 106);
+    transform: scale(1);
+    background: radial-gradient(
+      rgb(255, 0, 0) 5%,
+      rgb(0, 255, 213) 25%,
+      rgba(0, 190, 218, 0.75) 70%
+    );
   }
 
-  50% {
-    transform: scale(1.2);
-    background-color: rgb(255, 254, 106);
+  15% {
+    transform: scale(1);
+    background: radial-gradient(
+      rgb(255, 150, 0) 10%,
+      rgb(0, 255, 213) 30%,
+      rgba(0, 190, 218, 0.75) 60%
+    );
   }
 
+  30% {
+    transform: scale(1);
+    background: radial-gradient(
+      rgb(255, 255, 0) 15%,
+      rgb(0, 255, 213) 35%,
+      rgba(0, 190, 218, 0.75) 50%
+    );
+  }
+
+  45% {
+    transform: scale(1);
+    background: radial-gradient(
+      rgb(125, 200, 0) 20%,
+      rgb(0, 255, 213) 30%,
+      rgba(0, 190, 218, 0.75) 50%
+    );
+  }
+  60% {
+    transform: scale(1);
+    background: radial-gradient(
+      rgb(0, 150, 0) 25%,
+      rgb(0, 255, 213) 25%,
+      rgba(0, 190, 218, 0.75) 50%
+    );
+  }
+  80% {
+    transform: scale(1);
+    background: radial-gradient(
+      rgb(0, 150, 0) 30%,
+      rgb(0, 255, 213) 20%,
+      rgba(0, 190, 218, 0.75) 50%
+    );
+  }
+  90% {
+    transform: scale(1);
+    background: radial-gradient(
+      rgb(0, 150, 0) 20%,
+      rgb(0, 255, 213) 30%,
+      rgba(0, 190, 218, 0.75) 50%
+    );
+  }
   100% {
     transform: scale(1);
-    background-color: rgb(255, 254, 106);
+    background: radial-gradient(
+      rgb(0, 150, 0) 25%,
+      rgb(0, 255, 213) 25%,
+      rgba(0, 190, 218, 0.75) 50%
+    );
   }
 }

@@ -4,11 +4,16 @@ body {
 .grid {
   margin: 60px auto 0 auto;
   display: flex;
+  flex-direction: column;
   width: 99%;
   z-index: 1;
 }
+.row {
+  display: flex;
+  flex-direction: row;
+}
 
-.statistics {
+.console {
   position: absolute;
   top: 64px;
   height: 50px;

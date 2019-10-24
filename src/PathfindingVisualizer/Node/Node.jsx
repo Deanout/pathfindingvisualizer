@@ -5,14 +5,14 @@ import "./Node.css";
 export default class Node extends Component {
   render() {
     const {
+      row,
       col,
-      isFinish,
       isStart,
+      isFinish,
       isWall,
       onMouseDown,
       onMouseEnter,
-      onMouseUp,
-      row
+      onMouseUp
     } = this.props;
     const extraClassName = isFinish
       ? `node-finish`
