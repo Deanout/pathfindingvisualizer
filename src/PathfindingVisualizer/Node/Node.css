@@ -9,10 +9,60 @@
 
 .node-finish {
   background-color: rgb(19, 156, 235);
+  animation-name: finishAnimation;
+  animation-duration: 0.1s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes finishAnimation {
+  0% {
+    transform: scale(0.25);
+    background-color: rgb(19, 156, 235);
+  }
+
+  50% {
+    transform: scale(0.6);
+    background-color: rgb(19, 156, 235);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgb(19, 156, 235);
+  }
 }
 
 .node-start {
   background-color: rgb(0, 150, 4);
+  animation-name: startAnimation;
+  animation-duration: 0.1s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes startAnimation {
+  0% {
+    transform: scale(0.25);
+    background-color: rgb(0, 150, 4);
+  }
+
+  50% {
+    transform: scale(0.6);
+    background-color: rgb(0, 150, 4);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgb(0, 150, 4);
+  }
 }
 
 .node-visited {
