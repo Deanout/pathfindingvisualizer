@@ -11,8 +11,10 @@ var GRID_HEIGHT = 5;
 
 const NODE_SIZE = 25;
 
-const START_NODE = `node-start`;
-const FINISH_NODE = `node-finish`;
+const NODE = `node`;
+const NODE_START = `node-start`;
+const NODE_FINISH = `node-finish`;
+const NODE_WALL = `node-wall`;
 const NODE_VISITED = `node-visited`;
 const NODE_SHORTEST_PATH = `node-shortest-path`;
 
@@ -52,6 +54,7 @@ export default class PathfindingVisualizer extends Component {
       this.setState({ grid: grid }, () => {
         this.toggleStartPosition(3, 3);
         this.toggleFinishPosition(GRID_HEIGHT - 3, GRID_WIDTH - 3);
+        this.drawGrid();
       });
     }
     document.addEventListener("keydown", event => {
@@ -69,6 +72,7 @@ export default class PathfindingVisualizer extends Component {
           this.setState({ nodeType: WALL });
           break;
       }
+      this.drawGrid();
     });
   }
 
@@ -102,6 +106,7 @@ export default class PathfindingVisualizer extends Component {
 
   handleMouseDown(row, col) {
     this.toggleNodeType(row, col);
+    this.drawGrid();
   }
 
   handleMouseEnter(row, col) {
@@ -109,6 +114,7 @@ export default class PathfindingVisualizer extends Component {
       return;
     }
     this.toggleNodeType(row, col);
+    this.drawGrid();
   }
 
   toggleNodeType(row, col) {
@@ -133,7 +139,18 @@ export default class PathfindingVisualizer extends Component {
 
   toggleNode(row, col) {
     const newGrid = getNewGridWithNodeToggled(this.state.grid, row, col);
+
     this.setState({ grid: newGrid, mouseIsPressed: false });
+  }
+
+  toggleNodeOff(row, col) {
+    const newGrid = getNewGridWithNodeToggledOff(this.state.grid, row, col);
+    this.setState({ grid: newGrid, mouseIsPressed: false });
+  }
+
+  toggleNodeAnimated(row, col) {
+    const newGrid = getNewGridWithNodeToggledOn(this.state.grid, row, col);
+    this.setState({ grid: newGrid });
   }
 
   resetDistances() {
@@ -217,33 +234,54 @@ export default class PathfindingVisualizer extends Component {
       for (let col = 0; col < GRID_WIDTH; col++) {
         let node = grid[row][col];
 
-        if (clearBoard && node.isWall) {
-          this.toggleNode(row, col);
-        } else if (!clearBoard && node.isWall) {
-        } else if (clearBoard && !node.isWall) {
-          this.modifyNode(node, clearBoard, `node`);
-        } else {
-          this.modifyNode(node, clearBoard, `node`);
+        // If you're clearing the board and the node is a wall
+        // but it is not the start node or finish node, then
+        // toggle the node.
+        if (clearBoard && node.isWall && !(node.isStart || node.isFinish)) {
+          this.toggleNodeOff(row, col);
         }
       }
     }
+    this.drawGrid(clearBoard);
+  }
 
-    this.modifyNode(
-      grid[this.state.startPosition[0]][this.state.startPosition[1]],
-      false,
-      START_NODE
-    );
-    this.modifyNode(
-      grid[this.state.finishPosition[0]][this.state.finishPosition[1]],
-      false,
-      FINISH_NODE
-    );
+  removeClassFromNode(node, classToRemove) {
+    document
+      .getElementById(`node-${node.row}-${node.col}`)
+      .classList.remove(classToRemove);
+  }
+
+  drawGrid(clearBoard) {
+    const { grid } = this.state;
+    for (let row = 0; row < GRID_HEIGHT; row++) {
+      for (let col = 0; col < GRID_WIDTH; col++) {
+        let node = grid[row][col];
+        if (node.isWall) {
+          this.modifyNode(node, true, `node node-wall`);
+        } else {
+          this.removeClassFromNode(node, NODE_WALL);
+        }
+        if (node.isStart) {
+          this.modifyNode(node, true, `node node-start`);
+        } else {
+          this.removeClassFromNode(node, NODE_START);
+        }
+        if (node.isFinish) {
+          this.modifyNode(node, true, `node node-finish`);
+        } else {
+          this.removeClassFromNode(node, NODE_FINISH);
+        }
+        if (clearBoard) {
+          this.removeClassFromNode(node, NODE_VISITED);
+          this.removeClassFromNode(node, NODE_SHORTEST_PATH);
+        }
+      }
+    }
   }
 
   recursiveWalls() {
     this.init(true);
-
-    const output = recursiveWallBuilder(
+    const nodesToAnimate = recursiveWallBuilder(
       GRID_WIDTH,
       GRID_HEIGHT,
       this.state.startPosition[0],
@@ -253,12 +291,36 @@ export default class PathfindingVisualizer extends Component {
       WALL,
       AIR
     );
-    for (let row = 0; row < GRID_HEIGHT; row++) {
-      for (let col = 0; col < GRID_WIDTH; col++) {
-        if (output[row][col] === WALL) {
-          this.toggleNode(row, col);
-        }
+
+    this.animateWalls(nodesToAnimate);
+
+    this.toggleStartPosition(
+      this.state.startPosition[0],
+      this.state.startPosition[1]
+    );
+    this.toggleFinishPosition(
+      this.state.finishPosition[0],
+      this.state.finishPosition[1]
+    );
+  }
+  animateWalls(nodesToAnimate) {
+    const context = this;
+    for (let i = 0; i < nodesToAnimate.length; i++) {
+      if (
+        this.state.grid[nodesToAnimate[i][0]][[nodesToAnimate[i][1]]].isStart ||
+        this.state.grid[nodesToAnimate[i][0]][[nodesToAnimate[i][1]]].isFinish
+      ) {
+        nodesToAnimate.splice(i, 1);
+        continue;
       }
+      setTimeout(() => {
+        context.modifyNode(
+          context.state.grid[nodesToAnimate[i][0]][nodesToAnimate[i][1]],
+          true,
+          `node node-wall`
+        );
+      }, 25 * i);
+      this.toggleNode(nodesToAnimate[i][0], nodesToAnimate[i][1]);
     }
   }
 
@@ -351,13 +413,40 @@ const getNewGridWithNodeToggled = (grid, row, col) => {
   return newGrid;
 };
 
+const getNewGridWithNodeToggledOff = (grid, row, col) => {
+  const newGrid = grid.slice();
+  const node = newGrid[row][col];
+  const newNode = {
+    ...node,
+    isWall: false
+  };
+  newGrid[row][col] = newNode;
+  return newGrid;
+};
+const getNewGridWithNodeToggledOn = (grid, row, col) => {
+  const newGrid = grid.slice();
+  const node = newGrid[row][col];
+  const newNode = {
+    ...node,
+    isStart: false,
+    isFinish: false,
+    isWall: true
+  };
+  newGrid[row][col] = newNode;
+  return newGrid;
+};
+
 const getNewGridWithStartToggled = (grid, row, col, oldPosition) => {
   grid[oldPosition[0]][oldPosition[1]].isStart = false;
+  grid[row][col].isFinish = false;
+  grid[row][col].isWall = false;
   grid[row][col].isStart = true;
   return grid;
 };
 const getNewGridWithFinishToggled = (grid, row, col, oldPosition) => {
   grid[oldPosition[0]][oldPosition[1]].isFinish = false;
+  grid[row][col].isStart = false;
+  grid[row][col].isWall = false;
   grid[row][col].isFinish = true;
   return grid;
 };

@@ -85,17 +85,20 @@ export default class ToolBar extends Component {
                   size="small"
                   onClick={() => (this.state.pfv.state.nodeType = "S")}
                 ></PfvStartNodeButton>
+                Start
               </Grid>
 
               <Grid item xs={1}>
                 <PfvFinishNodeButton
                   onClick={() => (this.state.pfv.state.nodeType = "F")}
                 ></PfvFinishNodeButton>
+                Finish
               </Grid>
               <Grid item xs={1}>
                 <PfvWallNodeButton
                   onClick={() => (this.state.pfv.state.nodeType = "W")}
                 ></PfvWallNodeButton>
+                Wall
               </Grid>
               <Grid item xs={6}>
                 <PfvConfigButton
