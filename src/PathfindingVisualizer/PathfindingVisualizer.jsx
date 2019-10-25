@@ -29,7 +29,6 @@ export default class PathfindingVisualizer extends Component {
     this.state = {
       grid: [],
       mouseIsPressed: true,
-      mouseTesta: "Undefined",
       nodeType: WALL,
       startPosition: [0, 0],
       finishPosition: [0, 1],
@@ -90,6 +89,7 @@ export default class PathfindingVisualizer extends Component {
       mouseIsPressed: false,
       startPosition: [row, col]
     });
+    return newGrid;
   }
 
   toggleFinishPosition(row, col) {
@@ -104,6 +104,7 @@ export default class PathfindingVisualizer extends Component {
       mouseIsPressed: false,
       finishPosition: [row, col]
     });
+    return newGrid;
   }
 
   componentDidUpdate() {}
@@ -114,7 +115,6 @@ export default class PathfindingVisualizer extends Component {
       previousNode: [-1, -1],
       mouseTesta: "Set By Up"
     });
-    console.log("Mouse Up yo: " + this.state.mouseIsPressed);
   }
 
   handleMouseDown(row, col) {
@@ -122,11 +122,9 @@ export default class PathfindingVisualizer extends Component {
     this.setState({
       grid: newGrid,
       mouseIsPressed: true,
-      previousNode: [row, col],
-      mouseTesta: "Set By Down"
+      previousNode: [row, col]
     });
     this.drawGrid();
-    console.log("Mouse Down yo: " + this.state.mouseIsPressed);
   }
 
   handleMouseEnter(row, col) {
@@ -134,7 +132,6 @@ export default class PathfindingVisualizer extends Component {
       !this.state.mouseIsPressed ||
       (row === this.state.previousNode[0] && col === this.state.previousNode[1])
     ) {
-      console.log("Return, you fool!" + this.state.mouseIsPressed);
       return;
     } else {
       const newGrid = this.toggleNodeType(row, col, false);
@@ -148,11 +145,9 @@ export default class PathfindingVisualizer extends Component {
       case WALL:
         return this.toggleMouseNode(row, col);
       case START:
-        this.toggleStartPosition(row, col);
-        break;
+        return this.toggleStartPosition(row, col);
       case FINISH:
-        this.toggleFinishPosition(row, col);
-        break;
+        return this.toggleFinishPosition(row, col);
       default:
         break;
     }
