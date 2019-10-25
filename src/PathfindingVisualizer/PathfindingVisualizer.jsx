@@ -28,10 +28,12 @@ export default class PathfindingVisualizer extends Component {
     super();
     this.state = {
       grid: [],
-      mouseIsPressed: false,
+      mouseIsPressed: true,
+      mouseTesta: "Undefined",
       nodeType: WALL,
       startPosition: [0, 0],
-      finishPosition: [0, 1]
+      finishPosition: [0, 1],
+      previousNode: [-1, -1]
     };
   }
 
@@ -104,24 +106,47 @@ export default class PathfindingVisualizer extends Component {
     });
   }
 
+  componentDidUpdate() {}
+
+  handleMouseUp() {
+    this.setState({
+      mouseIsPressed: false,
+      previousNode: [-1, -1],
+      mouseTesta: "Set By Up"
+    });
+    console.log("Mouse Up yo: " + this.state.mouseIsPressed);
+  }
+
   handleMouseDown(row, col) {
-    this.toggleNodeType(row, col);
+    const newGrid = this.toggleNodeType(row, col, true);
+    this.setState({
+      grid: newGrid,
+      mouseIsPressed: true,
+      previousNode: [row, col],
+      mouseTesta: "Set By Down"
+    });
     this.drawGrid();
+    console.log("Mouse Down yo: " + this.state.mouseIsPressed);
   }
 
   handleMouseEnter(row, col) {
-    if (!this.state.mouseIsPressed) {
+    if (
+      !this.state.mouseIsPressed ||
+      (row === this.state.previousNode[0] && col === this.state.previousNode[1])
+    ) {
+      console.log("Return, you fool!" + this.state.mouseIsPressed);
       return;
+    } else {
+      const newGrid = this.toggleNodeType(row, col, false);
+      this.setState({ grid: newGrid, previousNode: [row, col] });
+      this.drawGrid();
     }
-    this.toggleNodeType(row, col);
-    this.drawGrid();
   }
 
   toggleNodeType(row, col) {
     switch (this.state.nodeType) {
       case WALL:
-        this.toggleNode(row, col);
-        break;
+        return this.toggleMouseNode(row, col);
       case START:
         this.toggleStartPosition(row, col);
         break;
@@ -133,19 +158,20 @@ export default class PathfindingVisualizer extends Component {
     }
   }
 
-  handleMouseUp() {
-    this.setState({ mouseIsPressed: false });
+  toggleMouseNode(row, col) {
+    const newGrid = getNewGridWithNodeToggled(this.state.grid, row, col);
+    return newGrid;
   }
 
   toggleNode(row, col) {
     const newGrid = getNewGridWithNodeToggled(this.state.grid, row, col);
 
-    this.setState({ grid: newGrid, mouseIsPressed: false });
+    this.setState({ grid: newGrid });
   }
 
   toggleNodeOff(row, col) {
     const newGrid = getNewGridWithNodeToggledOff(this.state.grid, row, col);
-    this.setState({ grid: newGrid, mouseIsPressed: false });
+    this.setState({ grid: newGrid });
   }
 
   toggleNodeAnimated(row, col) {
@@ -293,15 +319,6 @@ export default class PathfindingVisualizer extends Component {
     );
 
     this.animateWalls(nodesToAnimate);
-
-    this.toggleStartPosition(
-      this.state.startPosition[0],
-      this.state.startPosition[1]
-    );
-    this.toggleFinishPosition(
-      this.state.finishPosition[0],
-      this.state.finishPosition[1]
-    );
   }
   animateWalls(nodesToAnimate) {
     const context = this;

@@ -62,7 +62,7 @@ export default class ToolBar extends Component {
 
   render() {
     return (
-      <div>
+      <div onMouseEnter={() => (this.state.pfv.state.mouseIsPressed = false)}>
         <AppBar position="static">
           <PfvToolbar>
             <Grid container spacing={3}>

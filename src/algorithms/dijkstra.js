@@ -42,6 +42,8 @@ export function dijkstra(grid, startNode, finishNode) {
     closestNode.isVisited = true;
     visitedNodesInOrder.push(closestNode);
     if (closestNode === finishNode) {
+      visitedNodesInOrder.pop();
+      visitedNodesInOrder.shift();
       return visitedNodesInOrder;
     }
 
@@ -57,7 +59,7 @@ function updateUnvisitedNeighbors(node, grid) {
   const unvisitedNeighbors = getUnvisitedNeighbors(node, grid);
   for (const neighbor of unvisitedNeighbors) {
     neighbor.distance = node.distance + 1;
-    neighbor.previousNode = node;
+    neighbor.parent = node;
   }
 }
 
@@ -94,7 +96,9 @@ export function getNodesInShortestPathOrder(finishNode) {
   let currentNode = finishNode;
   while (currentNode != null) {
     nodesInShortestPathOrder.unshift(currentNode);
-    currentNode = currentNode.previousNode;
+    currentNode = currentNode.parent;
   }
+  nodesInShortestPathOrder.pop();
+  nodesInShortestPathOrder.shift();
   return nodesInShortestPathOrder;
 }
