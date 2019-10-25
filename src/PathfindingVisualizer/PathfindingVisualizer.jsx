@@ -1,11 +1,11 @@
 import React, { Component } from "react";
-import Node from "./Node/Node";
-import { dijkstra, getNodesInShortestPathOrder } from "../algorithms/Dijkstra";
+import Node from "./node/node";
+import { dijkstra, getNodesInShortestPathOrder } from "../algorithms/dijkstra";
 import Toolbar from "../partials/toolbar";
 import Console from "../partials/console";
-import { recursiveWallBuilder } from "../algorithms/RecursiveWalls";
+import { recursiveWallBuilder } from "../algorithms/recursivewalls";
 
-import "./PathfindingVisualizer.css";
+import "./pathfindingvisualizer.css";
 var GRID_WIDTH = 5;
 var GRID_HEIGHT = 5;
 
