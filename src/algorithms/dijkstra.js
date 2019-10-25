@@ -33,7 +33,6 @@ export function dijkstra(grid, startNode, finishNode) {
   while (!!unvisitedNodes.length) {
     sortNodesByDistance(unvisitedNodes);
     const closestNode = unvisitedNodes.shift();
-
     if (closestNode.isWall) {
       continue;
     }
@@ -48,8 +47,6 @@ export function dijkstra(grid, startNode, finishNode) {
 
     updateUnvisitedNeighbors(closestNode, grid);
   }
-
-  return visitedNodesInOrder;
 }
 
 function sortNodesByDistance(unvisitedNodes) {

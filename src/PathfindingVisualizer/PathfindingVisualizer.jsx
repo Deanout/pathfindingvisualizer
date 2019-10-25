@@ -11,11 +11,6 @@ var GRID_HEIGHT = 5;
 
 const NODE_SIZE = 25;
 
-var START_NODE_ROW = 3;
-var START_NODE_COL = 4;
-var FINISH_NODE_ROW = GRID_HEIGHT - START_NODE_ROW;
-var FINISH_NODE_COL = GRID_WIDTH - START_NODE_COL;
-
 const START_NODE = `node-start`;
 const FINISH_NODE = `node-finish`;
 const NODE_VISITED = `node-visited`;
@@ -23,6 +18,8 @@ const NODE_SHORTEST_PATH = `node-shortest-path`;
 
 const WALL = "W";
 const AIR = "A";
+const START = "S";
+const FINISH = "F";
 
 export default class PathfindingVisualizer extends Component {
   constructor() {
@@ -30,8 +27,9 @@ export default class PathfindingVisualizer extends Component {
     this.state = {
       grid: [],
       mouseIsPressed: false,
-      start: 0,
-      end: 0
+      nodeType: WALL,
+      startPosition: [0, 0],
+      finishPosition: [0, 1]
     };
   }
 
@@ -44,46 +42,97 @@ export default class PathfindingVisualizer extends Component {
       GRID_HEIGHT = Math.floor(
         window.innerHeight / NODE_SIZE - veritcalNodeReduction
       );
-      console.log(GRID_HEIGHT);
-      START_NODE_ROW = 3;
-      START_NODE_COL = 4;
-      FINISH_NODE_ROW = GRID_HEIGHT - START_NODE_ROW;
-      FINISH_NODE_COL = GRID_WIDTH - START_NODE_COL;
+
       document.getElementById("grid").style.height =
         (window.innerHeight - consoleBottom).toString() + "px";
-      const grid = getInitialGrid();
-      this.setState({ grid });
+      const grid = getInitialGrid(
+        this.state.startPosition,
+        this.state.finishPosition
+      );
+      this.setState({ grid: grid }, () => {
+        this.toggleStartPosition(3, 3);
+        this.toggleFinishPosition(GRID_HEIGHT - 3, GRID_WIDTH - 3);
+      });
     }
+    document.addEventListener("keydown", event => {
+      switch (event.key.toLowerCase()) {
+        case "s":
+          this.setState({ nodeType: START });
+          break;
+        case "w":
+          this.setState({ nodeType: WALL });
+          break;
+        case "f":
+          this.setState({ nodeType: FINISH });
+          break;
+        default:
+          this.setState({ nodeType: WALL });
+          break;
+      }
+    });
+  }
+
+  toggleStartPosition(row, col) {
+    const newGrid = getNewGridWithStartToggled(
+      this.state.grid,
+      row,
+      col,
+      this.state.startPosition
+    );
+    this.setState({
+      grid: newGrid,
+      mouseIsPressed: false,
+      startPosition: [row, col]
+    });
+  }
+
+  toggleFinishPosition(row, col) {
+    const newGrid = getNewGridWithFinishToggled(
+      this.state.grid,
+      row,
+      col,
+      this.state.finishPosition
+    );
+    this.setState({
+      grid: newGrid,
+      mouseIsPressed: false,
+      finishPosition: [row, col]
+    });
   }
 
   handleMouseDown(row, col) {
-    this.toggleWall(row, col);
+    this.toggleNodeType(row, col);
   }
 
   handleMouseEnter(row, col) {
     if (!this.state.mouseIsPressed) {
       return;
     }
-    const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
-    this.setState({ grid: newGrid });
+    this.toggleNodeType(row, col);
+  }
+
+  toggleNodeType(row, col) {
+    switch (this.state.nodeType) {
+      case WALL:
+        this.toggleNode(row, col);
+        break;
+      case START:
+        this.toggleStartPosition(row, col);
+        break;
+      case FINISH:
+        this.toggleFinishPosition(row, col);
+        break;
+      default:
+        break;
+    }
   }
 
   handleMouseUp() {
     this.setState({ mouseIsPressed: false });
   }
 
-  toggleWall(row, col) {
-    const newGrid = getNewGridWithWallToggled(this.state.grid, row, col);
-    this.setState({ grid: newGrid, mouseIsPressed: false });
-  }
-
-  removeWall(row, col) {
-    const newGrid = getNewGridWithoutWall(this.state.grid, row, col);
-    this.setState({ grid: newGrid, mouseIsPressed: false });
-  }
-
-  makeWall(row, col) {
-    const newGrid = getNewGridWithWall(this.state.grid, row, col);
+  toggleNode(row, col) {
+    const newGrid = getNewGridWithNodeToggled(this.state.grid, row, col);
     this.setState({ grid: newGrid, mouseIsPressed: false });
   }
 
@@ -118,15 +167,17 @@ export default class PathfindingVisualizer extends Component {
   visualizeDijkstra() {
     this.resetDistances();
     const { grid } = this.state;
-    const startNode = grid[START_NODE_ROW][START_NODE_COL];
-    const finishNode = grid[FINISH_NODE_ROW][FINISH_NODE_COL];
+    const startNode =
+      grid[this.state.startPosition[0]][this.state.startPosition[1]];
+    const finishNode =
+      grid[this.state.finishPosition[0]][this.state.finishPosition[1]];
     this.init(false);
     let start = performance.now();
     const visitedNodesInOrder = dijkstra(grid, startNode, finishNode);
     let end = performance.now();
-    let algorithm = "Dijkstra's Algorithm";
+
     this.renderTextToConsole(
-      algorithm,
+      "Dijkstra's Algorithm",
       start,
       end,
       `<p class="statistic-text">`,
@@ -134,6 +185,7 @@ export default class PathfindingVisualizer extends Component {
     );
 
     const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
+
     this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
     this.resetDistances();
   }
@@ -141,9 +193,9 @@ export default class PathfindingVisualizer extends Component {
   renderTextToConsole(algorithm, start, end, openingTag, closingTag) {
     let time = (end - start).toFixed(2).toString();
     let content = "Runtime of " + algorithm + ": " + time + " ms.";
-    let console = document.getElementById("console");
-    console.innerHTML += openingTag + content + closingTag;
-    console.scrollTo(0, console.scrollHeight);
+    let consoleElement = document.getElementById("console");
+    consoleElement.innerHTML += openingTag + content + closingTag;
+    consoleElement.scrollTo(0, consoleElement.scrollHeight);
   }
 
   modifyNode(node, clearBoard, newClass) {
@@ -160,15 +212,13 @@ export default class PathfindingVisualizer extends Component {
 
   init(clearBoard) {
     const { grid } = this.state;
-    let numWalls = 0;
 
     for (let row = 0; row < GRID_HEIGHT; row++) {
       for (let col = 0; col < GRID_WIDTH; col++) {
         let node = grid[row][col];
 
         if (clearBoard && node.isWall) {
-          numWalls++;
-          this.toggleWall(row, col);
+          this.toggleNode(row, col);
         } else if (!clearBoard && node.isWall) {
         } else if (clearBoard && !node.isWall) {
           this.modifyNode(node, clearBoard, `node`);
@@ -178,10 +228,16 @@ export default class PathfindingVisualizer extends Component {
       }
     }
 
-    //console.log("Toggled: " + numWalls + " walls.");
-
-    this.modifyNode(grid[START_NODE_ROW][START_NODE_COL], false, START_NODE);
-    this.modifyNode(grid[FINISH_NODE_ROW][FINISH_NODE_COL], false, FINISH_NODE);
+    this.modifyNode(
+      grid[this.state.startPosition[0]][this.state.startPosition[1]],
+      false,
+      START_NODE
+    );
+    this.modifyNode(
+      grid[this.state.finishPosition[0]][this.state.finishPosition[1]],
+      false,
+      FINISH_NODE
+    );
   }
 
   recursiveWalls() {
@@ -190,23 +246,20 @@ export default class PathfindingVisualizer extends Component {
     const output = recursiveWallBuilder(
       GRID_WIDTH,
       GRID_HEIGHT,
-      START_NODE_ROW,
-      START_NODE_COL,
-      FINISH_NODE_ROW,
-      FINISH_NODE_COL,
+      this.state.startPosition[0],
+      this.state.startPosition[1],
+      this.state.finishPosition[0],
+      this.state.finishPosition[1],
       WALL,
       AIR
     );
-    let numWalls = 0;
     for (let row = 0; row < GRID_HEIGHT; row++) {
       for (let col = 0; col < GRID_WIDTH; col++) {
         if (output[row][col] === WALL) {
-          this.toggleWall(row, col);
-          numWalls++;
+          this.toggleNode(row, col);
         }
       }
     }
-    //console.log("Created: " + numWalls + " walls.");
   }
 
   render() {
@@ -248,24 +301,24 @@ export default class PathfindingVisualizer extends Component {
   }
 }
 
-const getInitialGrid = () => {
+const getInitialGrid = (startPosition, finishPosition) => {
   const grid = [];
   for (let row = 0; row < GRID_HEIGHT; row++) {
     const currentRow = [];
     for (let col = 0; col < GRID_WIDTH; col++) {
-      currentRow.push(createNode(row, col));
+      currentRow.push(createNode(row, col, startPosition, finishPosition));
     }
     grid.push(currentRow);
   }
   return grid;
 };
 
-const createNode = (row, col) => {
+const createNode = (row, col, startPosition, finishPosition) => {
   return {
     row,
     col,
-    isStart: row === START_NODE_ROW && col === START_NODE_COL,
-    isFinish: row === FINISH_NODE_ROW && col === FINISH_NODE_COL,
+    isStart: row === startPosition[0] && col === startPosition[1],
+    isFinish: row === finishPosition[0] && col === finishPosition[1],
     distance: Infinity,
     isVisited: false,
     isShortest: false,
@@ -281,12 +334,13 @@ const getNewGridWithDistancesReset = grid => {
       node.distance = Infinity;
       node.isVisited = false;
       node.isShortest = false;
+      node.previousNode = null;
     }
   }
   return newGrid;
 };
 
-const getNewGridWithWallToggled = (grid, row, col) => {
+const getNewGridWithNodeToggled = (grid, row, col) => {
   const newGrid = grid.slice();
   const node = newGrid[row][col];
   const newNode = {
@@ -297,31 +351,13 @@ const getNewGridWithWallToggled = (grid, row, col) => {
   return newGrid;
 };
 
-const getNewGridWithoutWall = (grid, row, col) => {
-  const newGrid = grid.slice();
-  const node = newGrid[row][col];
-  const newNode = {
-    ...node,
-    isWall: false
-  };
-  newGrid[row][col] = newNode;
-  return newGrid;
+const getNewGridWithStartToggled = (grid, row, col, oldPosition) => {
+  grid[oldPosition[0]][oldPosition[1]].isStart = false;
+  grid[row][col].isStart = true;
+  return grid;
 };
-
-const getNewGridWithWall = (grid, row, col) => {
-  const newGrid = grid.slice();
-  const node = newGrid[row][col];
-  const newNode = {
-    ...node,
-    isWall: true
-  };
-  newGrid[row][col] = newNode;
-  return newGrid;
+const getNewGridWithFinishToggled = (grid, row, col, oldPosition) => {
+  grid[oldPosition[0]][oldPosition[1]].isFinish = false;
+  grid[row][col].isFinish = true;
+  return grid;
 };
-
-function offset(input) {
-  var rect = input.getBoundingClientRect(),
-    scrollLeft = window.pageXOffset || document.documentElement.scrollLeft,
-    scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-  return { top: rect.top + scrollTop, left: rect.left + scrollLeft };
-}
