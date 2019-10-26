@@ -5,7 +5,7 @@ import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { styled } from "@material-ui/core/styles";
-import SimpleSelect from "./simpleselect";
+import SimpleSelect from "./simpleselect.jsx";
 import IconButton from "@material-ui/core/IconButton";
 
 const PfvToolbar = styled(Toolbar)({

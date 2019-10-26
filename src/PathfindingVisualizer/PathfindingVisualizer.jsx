@@ -1,11 +1,14 @@
 import React, { Component } from "react";
-import Node from "./node/node";
-import { dijkstra, getNodesInShortestPathOrder } from "../algorithms/dijkstra";
-import Toolbar from "../partials/toolbar";
-import Console from "../partials/console";
+import Node from "./node/node.jsx";
+import {
+  dijkstra,
+  getNodesInShortestPathOrder
+} from "../algorithms/dijkstra.js";
+import Toolbar from "../partials/toolbar.jsx";
+import Console from "../partials/console.jsx";
 import { decorate, observable } from "mobx";
 
-import { recursiveWallBuilder } from "../algorithms/recursivewalls";
+import { recursiveWallBuilder } from "../algorithms/recursivewalls.js";
 
 import "./pathfindingvisualizer.css";
 
@@ -112,6 +115,9 @@ export default class PathfindingVisualizer extends Component {
           this.setState({ nodeType: WALL });
           break;
       }
+      // Draw the grid on key press. This allows you to skip
+      // the maze generation if you'd like.
+      this.drawGrid();
     });
     /* Add the mousemove event listener.
      * NODE_WIDTH: The width of each node in pixels, at the time of the event.
