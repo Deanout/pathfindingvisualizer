@@ -6,13 +6,13 @@ export default class Node extends Component {
   render() {
     const {
       row,
-      col,
+      col /*
       isStart,
       isFinish,
       isWall,
       onMouseDown,
       onMouseEnter,
-      onMouseUp
+      onMouseUp*/
     } = this.props;
     /*
     const extraClassName = isFinish
@@ -23,14 +23,6 @@ export default class Node extends Component {
       ? `node-wall`
       : "";*/
 
-    return (
-      <div
-        id={`node-${row}-${col}`}
-        className={`node`}
-        onMouseDown={() => onMouseDown(row, col)}
-        onMouseEnter={() => onMouseEnter(row, col)}
-        onMouseUp={() => onMouseUp()}
-      ></div>
-    );
+    return <div id={`node-${row}-${col}`} className={`node`}></div>;
   }
 }

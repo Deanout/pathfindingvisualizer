@@ -7,6 +7,8 @@
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
     "gh-pages": "^2.1.1",
+    "mobx": "^5.14.2",
+    "mobx-react": "^6.1.4",
     "react": "^16.10.2",
     "react-dom": "^16.10.2",
     "react-draggable": "^4.0.3",
@@ -14,7 +16,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
-    "build": "react-scripts build",
+    "build": "webpack --mode production",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "yarn run build",
@@ -34,5 +36,35 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "babel": {
+    "presets": [
+      [
+        "@babel/preset-react",
+        {
+          "pragma": "dom",
+          "pragmaFrag": "DomFrag",
+          "throwIfNamespace": false
+        }
+      ]
+    ],
+    "plugins": [
+      [
+        "@babel/plugin-proposal-decorators",
+        {
+          "legacy": true
+        }
+      ]
+    ]
+  },
+  "devDependencies": {
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3",
+    "@babel/preset-react": "^7.6.3",
+    "@babel/plugin-proposal-class-properties": "^7.6.0",
+    "@babel/plugin-proposal-decorators": "^7.6.0",
+    "babel-loader": "^8.0.6",
+    "prop-types": "^15.7.2",
+    "webpack-cli": "^3.3.9"
   }
 }

@@ -61,8 +61,9 @@ export default class ToolBar extends Component {
   }
 
   render() {
+    const { pfv } = this.state;
     return (
-      <div onMouseEnter={() => (this.state.pfv.state.mouseIsPressed = false)}>
+      <div onMouseEnter={() => (pfv.state.mouseIsPressed = false)}>
         <AppBar position="static">
           <PfvToolbar>
             <Grid container spacing={3}>
@@ -75,7 +76,7 @@ export default class ToolBar extends Component {
               <Grid item xs={6}>
                 <PfvButton
                   color="inherit"
-                  onClick={() => this.state.pfv.visualizeDijkstra()}
+                  onClick={() => pfv.visualizeDijkstra()}
                 >
                   Visualize Algo
                 </PfvButton>
@@ -83,36 +84,33 @@ export default class ToolBar extends Component {
               <Grid item xs={1}>
                 <PfvStartNodeButton
                   size="small"
-                  onClick={() => (this.state.pfv.state.nodeType = "S")}
+                  onClick={() => pfv.setNodeType("start")}
                 ></PfvStartNodeButton>
                 Start
               </Grid>
 
               <Grid item xs={1}>
                 <PfvFinishNodeButton
-                  onClick={() => (this.state.pfv.state.nodeType = "F")}
+                  onClick={() => pfv.setNodeType("finish")}
                 ></PfvFinishNodeButton>
                 Finish
               </Grid>
               <Grid item xs={1}>
                 <PfvWallNodeButton
-                  onClick={() => (this.state.pfv.state.nodeType = "W")}
+                  onClick={() => pfv.setNodeType("wall")}
                 ></PfvWallNodeButton>
                 Wall
               </Grid>
               <Grid item xs={6}>
                 <PfvConfigButton
                   color="inherit"
-                  onClick={() => this.state.pfv.recursiveWalls()}
+                  onClick={() => pfv.recursiveWalls()}
                 >
                   Make Maze
                 </PfvConfigButton>
               </Grid>
               <Grid item xs={6}>
-                <PfvConfigButton
-                  color="inherit"
-                  onClick={() => this.state.pfv.init(true)}
-                >
+                <PfvConfigButton color="inherit" onClick={() => pfv.init(true)}>
                   Clear Board
                 </PfvConfigButton>
               </Grid>

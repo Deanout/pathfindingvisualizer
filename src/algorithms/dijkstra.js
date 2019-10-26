@@ -42,8 +42,6 @@ export function dijkstra(grid, startNode, finishNode) {
     closestNode.isVisited = true;
     visitedNodesInOrder.push(closestNode);
     if (closestNode === finishNode) {
-      visitedNodesInOrder.pop();
-      visitedNodesInOrder.shift();
       return visitedNodesInOrder;
     }
 
@@ -98,7 +96,5 @@ export function getNodesInShortestPathOrder(finishNode) {
     nodesInShortestPathOrder.unshift(currentNode);
     currentNode = currentNode.parent;
   }
-  nodesInShortestPathOrder.pop();
-  nodesInShortestPathOrder.shift();
   return nodesInShortestPathOrder;
 }
