@@ -1,7 +1,7 @@
 {
   "name": "pfvisualizer",
-  "version": "0.1.0",
-  "private": true,
+  "version": "0.1.1",
+  "private": false,
   "homepage": "https://deanout.github.io/pathfindingvisualizer",
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.25",
