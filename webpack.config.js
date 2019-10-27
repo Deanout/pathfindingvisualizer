@@ -1,8 +1,8 @@
+const path = require("path");
+const HtmlWebPackPlugin = require("html-webpack-plugin");
+
 module.exports = {
-  entry: "./src/index.js",
-  output: {
-    filename: "bundle.[hash].js"
-  },
+  entry: path.join(__dirname, "/src/index.js"),
   module: {
     rules: [
       {
@@ -24,5 +24,10 @@ module.exports = {
         use: ["style-loader", "css-loader"]
       }
     ]
-  }
+  },
+  plugins: [
+    new HtmlWebPackPlugin({
+      template: path.join(__dirname, "./public/index.html")
+    })
+  ]
 };
