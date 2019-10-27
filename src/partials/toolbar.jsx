@@ -8,8 +8,12 @@ import { styled } from "@material-ui/core/styles";
 import SimpleSelect from "./simpleselect.jsx";
 import IconButton from "@material-ui/core/IconButton";
 
+const theme = {
+  spacing: 8
+};
+
 const PfvToolbar = styled(Toolbar)({
-  background: "linear-gradient(45deg, #2c3e50 30%, #3498db 90%)",
+  background: "#194B4B",
   border: 0,
   borderRadius: 3,
   boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)",
@@ -17,37 +21,66 @@ const PfvToolbar = styled(Toolbar)({
 });
 
 const PfvBrand = styled(Typography)({
-  marginTop: "auto",
-  marginBottom: "auto",
-  marginRight: "1em"
+  margin: theme.spacing,
+  fontSize: 20,
+  fontFamily: ["Open Sans", "sans-serif"],
+  textTransform: "capitalize"
 });
 
-const PfvButton = styled(Button)({
+const PfvVisualizeAlgorithmButton = styled(Button)({
+  margin: theme.spacing,
+  height: 32,
   width: 140,
-  margin: "auto",
-  background: "#3EC3FF"
+  fontSize: 15,
+  fontFamily: ["Open Sans", "sans-serif"],
+  textTransform: "capitalize",
+  background: "#3EC3FF",
+  "& span": {
+    height: 0
+  }
 });
 
 const PfvConfigButton = styled(Button)({
+  margin: theme.spacing,
+  height: 32,
   width: 140,
-  marginTop: "auto",
-  marginBottom: "auto",
-  marginRight: "1em"
+  fontSize: 15,
+  fontFamily: ["Open Sans", "sans-serif"],
+  textTransform: "capitalize",
+  background: "#0C1824",
+  "& span": {
+    height: 0
+  }
 });
 
 const PfvStartNodeButton = styled(IconButton)({
-  height: 24,
-  width: 24,
+  margin: theme.spacing,
+  height: 32,
+  width: 32,
+  fontSize: 12,
+  fontFamily: ["Open Sans", "sans-serif"],
+  textTransform: "capitalize",
+  color: "white",
   background: "#009605"
 });
 const PfvFinishNodeButton = styled(IconButton)({
-  height: 24,
-  width: 24,
-  background: "#139ceb"
+  margin: theme.spacing,
+  height: 32,
+  width: 32,
+  fontSize: 12,
+  fontFamily: ["Open Sans", "sans-serif"],
+  textTransform: "capitalize",
+  color: "#fff",
+  background: "#0C1824"
 });
 const PfvWallNodeButton = styled(IconButton)({
-  height: 24,
-  width: 24,
+  margin: theme.spacing,
+  height: 32,
+  width: 32,
+  fontSize: 12,
+  fontFamily: ["Open Sans", "sans-serif"],
+  textTransform: "capitalize",
+  color: "white",
   background: "#0c3547"
 });
 
@@ -66,42 +99,16 @@ export default class ToolBar extends Component {
       <div onMouseEnter={() => (pfv.state.mouseIsPressed = false)}>
         <AppBar position="static">
           <PfvToolbar>
-            <Grid container spacing={3}>
-              <Grid item xs={6}>
-                <PfvBrand variant="h6">Pathfinding Visualizer</PfvBrand>
+            <Grid container spacing={1}>
+              <Grid item xs={6} sm={3} md={3}>
+                <PfvBrand variant="h6" m="auto">
+                  Pathfinding Visualizer
+                </PfvBrand>
               </Grid>
-              <Grid item xs={6}>
-                <SimpleSelect>Algorithms</SimpleSelect>
+              <Grid item xs={6} sm={3} md={2}>
+                <SimpleSelect></SimpleSelect>
               </Grid>
-              <Grid item xs={6}>
-                <PfvButton
-                  color="inherit"
-                  onClick={() => pfv.visualizeDijkstra()}
-                >
-                  Visualize Algo
-                </PfvButton>
-              </Grid>
-              <Grid item xs={1}>
-                <PfvStartNodeButton
-                  size="small"
-                  onClick={() => pfv.setNodeType("start")}
-                ></PfvStartNodeButton>
-                Start
-              </Grid>
-
-              <Grid item xs={1}>
-                <PfvFinishNodeButton
-                  onClick={() => pfv.setNodeType("finish")}
-                ></PfvFinishNodeButton>
-                Finish
-              </Grid>
-              <Grid item xs={1}>
-                <PfvWallNodeButton
-                  onClick={() => pfv.setNodeType("wall")}
-                ></PfvWallNodeButton>
-                Wall
-              </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={6} sm={3} md={2}>
                 <PfvConfigButton
                   color="inherit"
                   onClick={() => pfv.recursiveWalls()}
@@ -109,10 +116,43 @@ export default class ToolBar extends Component {
                   Make Maze
                 </PfvConfigButton>
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={6} sm={3} md={2}>
+                <PfvVisualizeAlgorithmButton
+                  color="inherit"
+                  onClick={() => pfv.visualizeDijkstra()}
+                >
+                  Visualize
+                </PfvVisualizeAlgorithmButton>
+              </Grid>
+              <Grid item xs={6} sm={3} md={2}>
                 <PfvConfigButton color="inherit" onClick={() => pfv.init(true)}>
                   Clear Board
                 </PfvConfigButton>
+              </Grid>
+              <Grid item xs={2} sm={1}>
+                <PfvStartNodeButton
+                  size="small"
+                  onClick={() => pfv.setNodeType("start")}
+                >
+                  Start
+                </PfvStartNodeButton>
+              </Grid>
+
+              <Grid item xs={2} sm={1}>
+                <PfvFinishNodeButton
+                  size="small"
+                  onClick={() => pfv.setNodeType("finish")}
+                >
+                  End
+                </PfvFinishNodeButton>
+              </Grid>
+              <Grid item xs={2} sm={1}>
+                <PfvWallNodeButton
+                  size="small"
+                  onClick={() => pfv.setNodeType("wall")}
+                >
+                  Wall
+                </PfvWallNodeButton>
               </Grid>
             </Grid>
           </PfvToolbar>

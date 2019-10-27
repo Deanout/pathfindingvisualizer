@@ -1,14 +1,11 @@
 .node {
   flex: 1;
-  outline: 1px solid rgb(175, 200, 250);
-}
-
-.node-passage {
-  background-color: black;
+  border-right: 1px solid rgb(175, 200, 250);
+  border-bottom: 1px solid rgb(175, 200, 250);
 }
 
 .node-finish {
-  background-color: rgb(19, 156, 235);
+  background-color: rgb(12, 24, 36);
   animation-name: finishAnimation;
   animation-duration: 0.1s;
   animation-timing-function: ease-out;
@@ -22,22 +19,22 @@
 @keyframes finishAnimation {
   0% {
     transform: scale(0.25);
-    background-color: rgb(19, 156, 235);
+    background-color: rgb(12, 24, 36);
   }
 
   50% {
     transform: scale(0.6);
-    background-color: rgb(19, 156, 235);
+    background-color: rgb(12, 24, 36);
   }
 
   100% {
     transform: scale(1);
-    background-color: rgb(19, 156, 235);
+    background-color: rgb(12, 24, 36);
   }
 }
 
 .node-start {
-  background-color: rgb(0, 150, 4);
+  background-color: #009605;
   animation-name: startAnimation;
   animation-duration: 0.1s;
   animation-timing-function: ease-out;
@@ -51,17 +48,17 @@
 @keyframes startAnimation {
   0% {
     transform: scale(0.25);
-    background-color: rgb(0, 150, 4);
+    background-color: #009605;
   }
 
   50% {
     transform: scale(0.6);
-    background-color: rgb(0, 150, 4);
+    background-color: #009605;
   }
 
   100% {
     transform: scale(1);
-    background-color: rgb(0, 150, 4);
+    background-color: #009605;
   }
 }
 

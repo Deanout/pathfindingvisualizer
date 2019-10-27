@@ -10,6 +10,8 @@ body,
   display: flex;
   flex-direction: column;
   z-index: 1;
+  border-left: 1px solid rgb(175, 200, 250);
+  border-top: 1px solid rgb(175, 200, 250);
 }
 .row {
   display: flex;

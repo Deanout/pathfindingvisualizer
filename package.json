@@ -4,6 +4,11 @@
   "private": true,
   "homepage": "https://deanout.github.io/pathfindingvisualizer",
   "dependencies": {
+    "@fortawesome/fontawesome-svg-core": "^1.2.25",
+    "@fortawesome/free-brands-svg-icons": "^5.11.2",
+    "@fortawesome/free-regular-svg-icons": "^5.11.2",
+    "@fortawesome/free-solid-svg-icons": "^5.11.2",
+    "@fortawesome/react-fontawesome": "^0.1.7",
     "@material-ui/core": "^4.5.1",
     "@material-ui/icons": "^4.5.1",
     "gh-pages": "^2.1.1",

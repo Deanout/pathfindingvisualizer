@@ -7,36 +7,23 @@ import InputBase from "@material-ui/core/InputBase";
 
 const BootstrapInput = withStyles(theme => ({
   root: {
-    width: 140,
-    margin: "auto"
+    width: 140
   },
   input: {
     borderRadius: 4,
     position: "relative",
-    backgroundColor: "#3EC3FF",
+    backgroundColor: "#194B4B",
     color: "white",
     border: "1px solid #ced4da",
     fontSize: 16,
-    padding: "10px 26px 10px 12px",
     transition: theme.transitions.create(["border-color", "box-shadow"]),
     // Use the system font instead of the default Roboto font.
-    fontFamily: [
-      "-apple-system",
-      "BlinkMacSystemFont",
-      '"Segoe UI"',
-      "Roboto",
-      '"Helvetica Neue"',
-      "Arial",
-      "sans-serif",
-      '"Apple Color Emoji"',
-      '"Segoe UI Emoji"',
-      '"Segoe UI Symbol"'
-    ].join(","),
+    fontFamily: ["Open Sans", "sans-serif"].join(","),
     "&:focus": {
       borderRadius: 4,
       borderColor: "#80bdff",
       boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)",
-      backgroundColor: "#3EC3FF",
+      backgroundColor: "#4B4B4B",
       color: "white"
     }
   }
@@ -44,7 +31,6 @@ const BootstrapInput = withStyles(theme => ({
 
 const useStyles = makeStyles(theme => ({
   root: {
-    display: "flex",
     flexWrap: "wrap"
   },
   margin: {

@@ -24,7 +24,7 @@ var NODE_HEIGHT = 25;
 const NODES_TO_ANIMATE = [];
 
 // Constants used to retrieve class names of different node types.
-//const NODE = `node`;
+const NODE = `node`;
 const NODE_START = `node-start`;
 const NODE_FINISH = `node-finish`;
 const NODE_WALL = `node-wall`;
@@ -363,17 +363,17 @@ export default class PathfindingVisualizer extends Component {
 
   drawNode(node) {
     if (node.isWall) {
-      this.modifyNode(node, true, `node node-wall`);
+      this.modifyNode(node, true, NODE + " " + NODE_WALL);
     } else {
       this.removeClassFromNode(node, NODE_WALL);
     }
     if (node.isStart) {
-      this.modifyNode(node, true, `node node-start`);
+      this.modifyNode(node, true, NODE + " " + NODE_START);
     } else {
       this.removeClassFromNode(node, NODE_START);
     }
     if (node.isFinish) {
-      this.modifyNode(node, true, `node node-finish`);
+      this.modifyNode(node, true, NODE + " " + NODE_FINISH);
     } else {
       this.removeClassFromNode(node, NODE_FINISH);
     }
@@ -384,17 +384,17 @@ export default class PathfindingVisualizer extends Component {
       for (let col = 0; col < GRID_WIDTH; col++) {
         let node = this.mobGrid[row][col];
         if (node.isWall) {
-          this.modifyNode(node, true, `node node-wall`);
+          this.modifyNode(node, true, NODE + " " + NODE_WALL);
         } else {
           this.removeClassFromNode(node, NODE_WALL);
         }
         if (node.isStart) {
-          this.modifyNode(node, true, `node node-start`);
+          this.modifyNode(node, true, NODE + " " + NODE_START);
         } else {
           this.removeClassFromNode(node, NODE_START);
         }
         if (node.isFinish) {
-          this.modifyNode(node, true, `node node-finish`);
+          this.modifyNode(node, true, NODE + " " + NODE_FINISH);
         } else {
           this.removeClassFromNode(node, NODE_FINISH);
         }
@@ -439,7 +439,7 @@ export default class PathfindingVisualizer extends Component {
           true,
           `node node-wall`
         );
-      }, 25 * i);
+      }, 10 * i);
       this.toggleNode(nodesToAnimate[i][0], nodesToAnimate[i][1]);
     }
   }
