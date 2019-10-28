@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import store from "../pathfindingvisualizer/gridstore.js";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Grid from "@material-ui/core/Grid";
@@ -132,7 +133,7 @@ export default class ToolBar extends Component {
               <Grid item xs={2} sm={1}>
                 <PfvStartNodeButton
                   size="small"
-                  onClick={() => pfv.setNodeType("start")}
+                  onClick={() => (store.nodeType = "start")}
                 >
                   Start
                 </PfvStartNodeButton>
@@ -141,7 +142,7 @@ export default class ToolBar extends Component {
               <Grid item xs={2} sm={1}>
                 <PfvFinishNodeButton
                   size="small"
-                  onClick={() => pfv.setNodeType("finish")}
+                  onClick={() => (store.nodeType = "finish")}
                 >
                   End
                 </PfvFinishNodeButton>
@@ -149,7 +150,7 @@ export default class ToolBar extends Component {
               <Grid item xs={2} sm={1}>
                 <PfvWallNodeButton
                   size="small"
-                  onClick={() => pfv.setNodeType("wall")}
+                  onClick={() => (store.nodeType = "wall")}
                 >
                   Wall
                 </PfvWallNodeButton>

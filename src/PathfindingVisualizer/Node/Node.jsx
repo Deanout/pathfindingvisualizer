@@ -4,16 +4,7 @@ import "./node.css";
 
 export default class Node extends Component {
   render() {
-    const {
-      row,
-      col /*
-      isStart,
-      isFinish,
-      isWall,
-      onMouseDown,
-      onMouseEnter,
-      onMouseUp*/
-    } = this.props;
+    const { row, col, isStart, isFinish, isWall } = this.props;
     /*
     const extraClassName = isFinish
       ? `node-finish`

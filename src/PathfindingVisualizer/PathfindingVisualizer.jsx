@@ -6,7 +6,8 @@ import {
 } from "../algorithms/dijkstra.js";
 import Toolbar from "../partials/toolbar.jsx";
 import Console from "../partials/console.jsx";
-import { decorate, observable } from "mobx";
+import store from "./gridstore.js";
+import { observer } from "mobx-react";
 
 import { recursiveWallBuilder } from "../algorithms/recursivewalls.js";
 
@@ -37,28 +38,13 @@ const AIR = "air";
 const START = "start";
 const FINISH = "finish";
 
+@observer
 export default class PathfindingVisualizer extends Component {
   constructor() {
     super();
-    /*
-     * initialized: Used for the initial grid draw
-     * wall: Used to determine what class to give nodes
-     * startPosition: The start node position, initialized in componentDidMount.
-     * finishPosition: The initial finish node position, initialized in componentDidMount.
-     * mousePosition: The [row, col] position of the mouse
-     * previousNode: Used to limit the mouse function calls
-     */
     this.state = {
-      mouseIsPressed: false,
-      initialized: false, //
-      nodeType: WALL, //
-      startPosition: [0, 0], //
-      finishPosition: [0, 1], //
-      mousePosition: [-1, -1], //
-      previousNode: [-1, -1] //
+      initialized: false // Used for the initial grid draw
     };
-    // Initialize the MobX Grid here, so that the first render call is not null.
-    this.mobGrid = [];
   }
 
   /* After the initial render, this function runs.
@@ -89,30 +75,32 @@ export default class PathfindingVisualizer extends Component {
     // Set the grid's height to occupy all space below the console.
     grid.style.height = (window.innerHeight - consoleBottom).toString() + "px";
 
+    // Set the state of the start and finish node positions declared above.
+    store.startPosition = [3, 3];
+    store.finishPosition = [GRID_HEIGHT - 3, GRID_WIDTH - 3];
+
     // Get the initial grid with start and finish node positions, and assign it to
     // the MobX grid.
-    this.mobGrid = getInitialGrid([3, 3], [GRID_HEIGHT - 3, GRID_WIDTH - 3]);
+    store.grid = getInitialGrid(store.startPosition, store.finishPosition);
 
-    // Set the state of the start and finish node positions declared above.
-    this.setState({
-      startPosition: [3, 3],
-      finishPosition: [GRID_HEIGHT - 3, GRID_WIDTH - 3]
-    });
-
+    //this.setState({ initialized: false });
     // Add the hotkey event listener, setting the desired nodeTypes for each.
+    window.requestAnimationFrame(() => {
+      this.drawGrid();
+    });
     document.addEventListener("keydown", event => {
       switch (event.key.toLowerCase()) {
         case "s":
-          this.setState({ nodeType: START });
+          store.nodeType = START;
           break;
         case "w":
-          this.setState({ nodeType: WALL });
+          store.nodeType = WALL;
           break;
         case "f":
-          this.setState({ nodeType: FINISH });
+          store.nodeType = FINISH;
           break;
         default:
-          this.setState({ nodeType: WALL });
+          store.nodeType = WALL;
           break;
       }
       // Draw the grid on key press. This allows you to skip
@@ -137,21 +125,13 @@ export default class PathfindingVisualizer extends Component {
       var y = event.clientY;
       var row = Math.floor((y - consoleBottom) / NODE_HEIGHT);
       var col = Math.floor(x / NODE_WIDTH);
-      let oldMousePosition = this.state.mousePosition;
+      let oldMousePosition = store.mousePosition;
       row = Math.clamp(row, 0, GRID_HEIGHT - 1);
       col = Math.clamp(col, 0, GRID_WIDTH - 1);
       if (row !== oldMousePosition[0] || col !== oldMousePosition[1]) {
-        this.setState({ mousePosition: [row, col] });
+        store.mousePosition = [row, col];
         this.handleMouseEnter(row, col);
       }
-    });
-  }
-
-  // Called once to draw the initial nodes after the grid is initialized.
-  onGridRendered() {
-    window.requestAnimationFrame(() => {
-      this.drawGrid();
-      this.setState({ initialized: true });
     });
   }
 
@@ -164,101 +144,78 @@ export default class PathfindingVisualizer extends Component {
   }
 
   handleMouseUp() {
-    this.setState({ mouseIsPressed: false });
+    store.mouseIsPressed = false;
   }
 
   // Toggle the node, set the previous node, then draw the node.
   handleMouseDown(row, col) {
-    this.mobGrid = this.toggleNodeType(row, col, true);
-    this.setState(
-      {
-        mouseIsPressed: true,
-        previousNode: [row, col]
-      },
-      () => {
-        this.drawNode(this.mobGrid[row][col]);
-      }
-    );
+    this.toggleNodeType(row, col);
+    store.mouseIsPressed = true;
+    store.previousNode = [row, col];
+    this.drawNode(store.grid[row][col]);
   }
 
   handleMouseEnter(row, col) {
-    if (!this.state.mouseIsPressed) {
+    if (!store.mouseIsPressed) {
       return;
     } else {
-      this.mobGrid = this.toggleNodeType(row, col);
-      NODES_TO_ANIMATE.push(this.mobGrid[row][col]);
-      this.setState({ previousNode: [row, col] });
+      this.toggleNodeType(row, col);
+      NODES_TO_ANIMATE.push(store.grid[row][col]);
+      store.previousNode = [row, col];
     }
   }
 
-  setNodeType(nodeType) {
-    this.setState({ nodeType: nodeType });
-  }
-
   toggleNodeType(row, col) {
-    switch (this.state.nodeType) {
+    console.log(store.nodeType);
+    switch (store.nodeType) {
       case WALL:
-        return this.toggleMouseNode(row, col);
+        toggleWall(row, col);
+        break;
       case START:
-        return this.toggleStartPosition(row, col);
+        this.toggleStartPosition(row, col);
+        break;
       case FINISH:
-        return this.toggleFinishPosition(row, col);
+        this.toggleFinishPosition(row, col);
+        break;
       default:
         break;
     }
   }
 
   toggleStartPosition(row, col) {
-    let oldRow = this.state.startPosition[0];
-    let oldCol = this.state.startPosition[1];
-    this.mobGrid = getNewGridWithStartToggled(
-      this.mobGrid,
-      row,
-      col,
-      this.state.startPosition
-    );
+    let oldRow = store.startPosition[0];
+    let oldCol = store.startPosition[1];
+
+    store.grid[oldRow][oldCol].isStart = false;
+    store.grid[row][col].isFinish = false;
+    store.grid[row][col].isWall = false;
+    store.grid[row][col].isStart = true;
+
     // Now we need to turn off the previous start node's class.
-    this.drawNode(this.mobGrid[oldRow][oldCol]);
-    this.setState({
-      mouseIsPressed: false,
-      startPosition: [row, col]
-    });
-    return this.mobGrid;
+    this.drawNode(store.grid[oldRow][oldCol]);
+    this.drawNode(store.grid[row][col]);
+
+    store.startPosition = [row, col];
   }
 
   toggleFinishPosition(row, col) {
-    let oldRow = this.state.finishPosition[0];
-    let oldCol = this.state.finishPosition[1];
-    this.mobGrid = getNewGridWithFinishToggled(
-      this.mobGrid,
-      row,
-      col,
-      this.state.finishPosition
-    );
+    let oldRow = store.finishPosition[0];
+    let oldCol = store.finishPosition[1];
+
+    store.grid[oldRow][oldCol].isFinish = false;
+    store.grid[row][col].isStart = false;
+    store.grid[row][col].isWall = false;
+    store.grid[row][col].isFinish = true;
+
     // Now we need to turn off the previous finish node's class.
-    this.drawNode(this.mobGrid[oldRow][oldCol]);
-    this.setState({
-      mouseIsPressed: false,
-      finishPosition: [row, col]
-    });
-    return this.mobGrid;
-  }
+    this.drawNode(store.grid[oldRow][oldCol]);
+    this.drawNode(store.grid[row][col]);
 
-  toggleMouseNode(row, col) {
-    this.mobGrid = getNewGridWithNodeToggled(this.mobGrid, row, col);
-    return this.mobGrid;
-  }
-
-  toggleNode(row, col) {
-    this.mobGrid = getNewGridWithNodeToggled(this.mobGrid, row, col);
-  }
-
-  toggleNodeOff(row, col) {
-    this.mobGrid = getNewGridWithNodeToggledOff(this.mobGrid, row, col);
+    store.finishPosition = [row, col];
   }
 
   resetDistances() {
-    this.mobGrid = getNewGridWithDistancesReset(this.mobGrid);
+    store.grid = getNewGridWithDistancesReset(store.grid);
   }
 
   animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder) {
@@ -294,15 +251,13 @@ export default class PathfindingVisualizer extends Component {
   visualizeDijkstra() {
     this.resetDistances();
 
-    const startNode = this.mobGrid[this.state.startPosition[0]][
-      this.state.startPosition[1]
-    ];
-    const finishNode = this.mobGrid[this.state.finishPosition[0]][
-      this.state.finishPosition[1]
-    ];
+    const startNode =
+      store.grid[store.startPosition[0]][store.startPosition[1]];
+    const finishNode =
+      store.grid[store.finishPosition[0]][store.finishPosition[1]];
     this.init(false);
     let start = performance.now();
-    const visitedNodesInOrder = dijkstra(this.mobGrid, startNode, finishNode);
+    const visitedNodesInOrder = dijkstra(store.grid, startNode, finishNode);
     let end = performance.now();
 
     this.renderTextToConsole(
@@ -342,13 +297,13 @@ export default class PathfindingVisualizer extends Component {
   init(clearBoard) {
     for (let row = 0; row < GRID_HEIGHT; row++) {
       for (let col = 0; col < GRID_WIDTH; col++) {
-        let node = this.mobGrid[row][col];
+        let node = store.grid[row][col];
 
         // If you're clearing the board and the node is a wall
         // but it is not the start node or finish node, then
         // toggle the node.
         if (clearBoard && node.isWall && !(node.isStart || node.isFinish)) {
-          this.toggleNodeOff(row, col);
+          toggleWallOff(row, col);
         }
       }
     }
@@ -382,7 +337,7 @@ export default class PathfindingVisualizer extends Component {
   drawGrid(clearBoard) {
     for (let row = 0; row < GRID_HEIGHT; row++) {
       for (let col = 0; col < GRID_WIDTH; col++) {
-        let node = this.mobGrid[row][col];
+        let node = store.grid[row][col];
         if (node.isWall) {
           this.modifyNode(node, true, NODE + " " + NODE_WALL);
         } else {
@@ -411,10 +366,10 @@ export default class PathfindingVisualizer extends Component {
     const nodesToAnimate = recursiveWallBuilder(
       GRID_WIDTH,
       GRID_HEIGHT,
-      this.state.startPosition[0],
-      this.state.startPosition[1],
-      this.state.finishPosition[0],
-      this.state.finishPosition[1],
+      store.startPosition[0],
+      store.startPosition[1],
+      store.finishPosition[0],
+      store.finishPosition[1],
       WALL,
       AIR
     );
@@ -426,24 +381,22 @@ export default class PathfindingVisualizer extends Component {
   animateWalls(nodesToAnimate) {
     const context = this;
     for (let i = 0; i < nodesToAnimate.length; i++) {
-      if (
-        this.mobGrid[nodesToAnimate[i][0]][[nodesToAnimate[i][1]]].isStart ||
-        this.mobGrid[nodesToAnimate[i][0]][[nodesToAnimate[i][1]]].isFinish
-      ) {
+      let row = nodesToAnimate[i][0];
+      let col = [nodesToAnimate[i][1]];
+      if (store.grid[row][col].isStart || store.grid[row][col].isFinish) {
         nodesToAnimate.splice(i, 1);
         continue;
       }
       setTimeout(() => {
-        context.modifyNode(
-          context.mobGrid[nodesToAnimate[i][0]][nodesToAnimate[i][1]],
-          true,
-          `node node-wall`
-        );
+        context.modifyNode(store.grid[row][col], true, `node node-wall`);
       }, 10 * i);
-      this.toggleNode(nodesToAnimate[i][0], nodesToAnimate[i][1]);
+      toggleWall(nodesToAnimate[i][0], nodesToAnimate[i][1]);
     }
   }
 
+  // Too many calls to render means this is expensive to compute.
+  // Could increase speed if the grid generation is only done once
+  // maybe?
   render() {
     const consoleElement = <Console></Console>;
     const toolBar = <Toolbar pfv={this} console={consoleElement}></Toolbar>;
@@ -454,14 +407,11 @@ export default class PathfindingVisualizer extends Component {
         <div
           id="grid"
           onMouseDown={() =>
-            this.handleMouseDown(
-              this.state.mousePosition[0],
-              this.state.mousePosition[1]
-            )
+            this.handleMouseDown(store.mousePosition[0], store.mousePosition[1])
           }
           onMouseUp={() => this.handleMouseUp()}
         >
-          {this.mobGrid.map((row, rowIdx) => {
+          {store.grid.map((row, rowIdx) => {
             return (
               <div key={rowIdx} className="row">
                 {row.map((node, nodeIdx) => {
@@ -481,7 +431,6 @@ export default class PathfindingVisualizer extends Component {
             );
           })}
         </div>
-        {this.state.initialized ? "" : this.onGridRendered()}
       </>
     );
   }
@@ -526,48 +475,13 @@ const getNewGridWithDistancesReset = grid => {
   return newGrid;
 };
 
-const getNewGridWithNodeToggled = (grid, row, col) => {
-  const newGrid = grid.slice();
-  const node = newGrid[row][col];
-  const newNode = {
-    ...node,
-    isWall: !node.isWall
-  };
-  newGrid[row][col] = newNode;
-  return newGrid;
+const toggleWall = (row, col) => {
+  store.grid[row][col].isWall = !store.grid[row][col].isWall;
 };
 
-const getNewGridWithNodeToggledOff = (grid, row, col) => {
-  const newGrid = grid.slice();
-  const node = newGrid[row][col];
-  const newNode = {
-    ...node,
-    isWall: false
-  };
-  newGrid[row][col] = newNode;
-  return newGrid;
+const toggleWallOff = (row, col) => {
+  store.grid[row][col].isWall = false;
 };
-
-const getNewGridWithStartToggled = (grid, row, col, oldPosition) => {
-  grid[oldPosition[0]][oldPosition[1]].isStart = false;
-  grid[row][col].isFinish = false;
-  grid[row][col].isWall = false;
-  grid[row][col].isStart = true;
-  return grid;
-};
-const getNewGridWithFinishToggled = (grid, row, col, oldPosition) => {
-  grid[oldPosition[0]][oldPosition[1]].isFinish = false;
-  grid[row][col].isStart = false;
-  grid[row][col].isWall = false;
-  grid[row][col].isFinish = true;
-  return grid;
-};
-
-decorate(PathfindingVisualizer, {
-  mobGrid: observable([]),
-  startPosition: observable([]),
-  finishPosition: observable([])
-});
 
 Math.clamp = (value, min, max) => {
   return Math.min(Math.max(min, value), max);
