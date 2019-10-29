@@ -38,9 +38,7 @@ const FINISH = "finish";
 export default class PathfindingVisualizer extends Component {
   constructor() {
     super();
-    this.state = {
-      algorithm: 0
-    };
+    this.state = {};
   }
 
   /* After the initial render, this function runs.
@@ -95,11 +93,11 @@ export default class PathfindingVisualizer extends Component {
           store.nodeType = FINISH;
           break;
         case "1":
-          this.setState({ algorithm: 1 });
+          store.algorithm = 1;
           this.visualizeAlgorithm(1);
           break;
         case "2":
-          this.setState({ algorithm: 2 });
+          store.algorithm = 2;
           this.visualizeAlgorithm(2);
           break;
         case " ":

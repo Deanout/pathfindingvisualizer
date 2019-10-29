@@ -10,6 +10,7 @@ import { observable } from "mobx";
  */
 class GridStore {
   @observable grid = [];
+  @observable algorithm = 0;
   @observable nodeType = "wall";
   @observable mouseIsPressed = false;
   @observable startPosition = [0, 0];

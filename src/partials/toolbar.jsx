@@ -8,6 +8,7 @@ import Button from "@material-ui/core/Button";
 import { styled } from "@material-ui/core/styles";
 import SimpleSelect from "./simpleselect.jsx";
 import IconButton from "@material-ui/core/IconButton";
+import { observer } from "mobx-react";
 
 const theme = {
   spacing: 8
@@ -84,28 +85,19 @@ const PfvWallNodeButton = styled(IconButton)({
   color: "white",
   background: "#0c3547"
 });
-
+@observer
 export default class ToolBar extends Component {
   constructor(props) {
     super();
     this.state = {
       pfv: props.pfv,
-      console: props.console,
-      algorithm: props.algorithm
+      console: props.console
     };
     this.algorithmHandler = this.algorithmHandler.bind(this);
   }
 
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.algorithm !== prevState.algorithm) {
-      return { algorithm: nextProps.algorithm };
-    } else return null;
-  }
-
   algorithmHandler(algorithm) {
-    this.setState({
-      algorithm: algorithm
-    });
+    store.algorithm = algorithm;
   }
 
   render() {
@@ -113,10 +105,9 @@ export default class ToolBar extends Component {
     const simpleSelect = (
       <SimpleSelect
         algorithmHandler={this.algorithmHandler}
-        visualizeClicked={this.state.algorithm}
+        visualizeClicked={store.algorithm}
       ></SimpleSelect>
     );
-
     return (
       <div onMouseEnter={() => (pfv.state.mouseIsPressed = false)}>
         <AppBar position="static">
@@ -142,8 +133,8 @@ export default class ToolBar extends Component {
                 <PfvVisualizeAlgorithmButton
                   color="inherit"
                   onClick={() => {
-                    pfv.visualizeAlgorithm(this.state.algorithm);
-                    this.state.algorithm === 0
+                    pfv.visualizeAlgorithm(store.algorithm);
+                    store.algorithm === 0
                       ? this.setState({ algorithm: 1 })
                       : "";
                   }}
