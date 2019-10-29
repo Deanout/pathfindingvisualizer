@@ -1,9 +1,8 @@
 import React, { Component } from "react";
 import Node from "./node/node.jsx";
-import {
-  dijkstra,
-  getNodesInShortestPathOrder
-} from "../algorithms/dijkstra.js";
+import { dijkstra, getShortestDijkstraPath } from "../algorithms/dijkstra.js";
+import { AStar, getShortestAStarPath } from "../algorithms/astar.js";
+
 import Toolbar from "../partials/toolbar.jsx";
 import Console from "../partials/console.jsx";
 import store from "./gridstore.js";
@@ -20,9 +19,6 @@ var GRID_WIDTH = 5;
 var GRID_HEIGHT = 5;
 var NODE_WIDTH = 25;
 var NODE_HEIGHT = 25;
-
-// The list of nodes that are looped through and animated.
-const NODES_TO_ANIMATE = [];
 
 // Constants used to retrieve class names of different node types.
 const NODE = `node`;
@@ -81,7 +77,7 @@ export default class PathfindingVisualizer extends Component {
 
     // Get the initial grid with start and finish node positions, and assign it to
     // the MobX grid.
-    store.grid = getInitialGrid(store.startPosition, store.finishPosition);
+    getInitialGrid(store.startPosition, store.finishPosition);
 
     //this.setState({ initialized: false });
     // Add the hotkey event listener, setting the desired nodeTypes for each.
@@ -99,6 +95,12 @@ export default class PathfindingVisualizer extends Component {
         case "f":
           store.nodeType = FINISH;
           break;
+        case "1":
+          this.visualizeDijkstra();
+          break;
+        case "2":
+          this.visualizeAStar();
+          break;
         default:
           store.nodeType = WALL;
           break;
@@ -114,6 +116,10 @@ export default class PathfindingVisualizer extends Component {
      * col: Clamped between 0 and NODE_WIDTH.
      *
      * Before handling mouse enter, make sure we've entered a different node.
+     *
+     * TODO: Draw lines tracing the mouse movement and add the nodes
+     * according to which nodes the line touches. This would fix the
+     * mouse move event not updating fast enough.
      */
     document.addEventListener("mousemove", event => {
       NODE_WIDTH = grid.firstElementChild.firstElementChild.getBoundingClientRect()
@@ -135,19 +141,11 @@ export default class PathfindingVisualizer extends Component {
     });
   }
 
-  // Meant to loop through the nodes and animate x amount per frame.
-  componentDidUpdate() {
-    if (NODES_TO_ANIMATE.length > 0) {
-      let node = NODES_TO_ANIMATE.shift();
-      this.drawNode(node);
-    }
-  }
-
   handleMouseUp() {
     store.mouseIsPressed = false;
   }
 
-  // Toggle the node, set the previous node, then draw the node.
+  // Toggle the node, set the previous node location, then draw the node.
   handleMouseDown(row, col) {
     this.toggleNodeType(row, col);
     store.mouseIsPressed = true;
@@ -160,7 +158,7 @@ export default class PathfindingVisualizer extends Component {
       return;
     } else {
       this.toggleNodeType(row, col);
-      NODES_TO_ANIMATE.push(store.grid[row][col]);
+      this.drawNode(store.grid[row][col]);
       store.previousNode = [row, col];
     }
   }
@@ -215,11 +213,22 @@ export default class PathfindingVisualizer extends Component {
   }
 
   resetDistances() {
-    store.grid = getNewGridWithDistancesReset(store.grid);
+    for (let row of store.grid) {
+      for (let node of row) {
+        node.distance = Infinity;
+        node.isVisited = false;
+        node.isShortest = false;
+        node.parent = null;
+        node.neighbor = null;
+        node.fScore = Infinity;
+        node.hScore = Infinity;
+        node.gScore = Infinity;
+      }
+    }
   }
 
   animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder) {
-    for (let i = 1; i <= visitedNodesInOrder.length; i++) {
+    for (let i = 0; i <= visitedNodesInOrder.length; i++) {
       if (i === visitedNodesInOrder.length) {
         setTimeout(() => {
           this.animateShortestPath(nodesInShortestPathOrder);
@@ -240,7 +249,7 @@ export default class PathfindingVisualizer extends Component {
     }
   }
   animateShortestPath(nodesInShortestPathOrder) {
-    for (let i = 1; i < nodesInShortestPathOrder.length - 1; i++) {
+    for (let i = 0; i < nodesInShortestPathOrder.length - 1; i++) {
       setTimeout(() => {
         const node = nodesInShortestPathOrder[i];
         this.modifyNode(node, false, NODE_SHORTEST_PATH);
@@ -248,35 +257,87 @@ export default class PathfindingVisualizer extends Component {
     }
   }
 
-  visualizeDijkstra() {
+  visualizeAlgorithm(algorithm) {
     this.resetDistances();
-
-    const startNode =
-      store.grid[store.startPosition[0]][store.startPosition[1]];
-    const finishNode =
-      store.grid[store.finishPosition[0]][store.finishPosition[1]];
     this.init(false);
+    let startNode = store.grid[store.startPosition[0]][store.startPosition[1]];
+    let finishNode =
+      store.grid[store.finishPosition[0]][store.finishPosition[1]];
+    switch (algorithm) {
+      case 1:
+        this.visualizeDijkstra(startNode, finishNode);
+        break;
+      case 2:
+        this.visualizeAStar(startNode, finishNode);
+        break;
+      default:
+        this.visualizeDijkstra(startNode, finishNode);
+        break;
+    }
+    this.resetDistances();
+  }
+
+  visualizeDijkstra(startNode, finishNode) {
     let start = performance.now();
     const visitedNodesInOrder = dijkstra(store.grid, startNode, finishNode);
     let end = performance.now();
-
+    const nodesInShortestPathOrder = getShortestDijkstraPath(finishNode);
     this.renderTextToConsole(
-      "Dijkstra's Algorithm",
+      "Dijkstra's",
+      visitedNodesInOrder,
+      nodesInShortestPathOrder,
       start,
       end,
       `<p class="statistic-text">`,
       `</p>`
     );
 
-    const nodesInShortestPathOrder = getNodesInShortestPathOrder(finishNode);
-
     this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
-    this.resetDistances();
   }
 
-  renderTextToConsole(algorithm, start, end, openingTag, closingTag) {
+  visualizeAStar(startNode, finishNode) {
+    let start = performance.now();
+    let visitedNodesInOrder = AStar(
+      store.grid,
+      startNode,
+      finishNode,
+      GRID_WIDTH,
+      GRID_HEIGHT
+    );
+    let end = performance.now();
+    let nodesInShortestPathOrder = getShortestAStarPath(finishNode);
+    this.renderTextToConsole(
+      "A*",
+      visitedNodesInOrder,
+      nodesInShortestPathOrder,
+      start,
+      end,
+      `<p class="statistic-text">`,
+      `</p>`
+    );
+    this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
+  }
+
+  renderTextToConsole(
+    algorithm,
+    total,
+    path,
+    start,
+    end,
+    openingTag,
+    closingTag
+  ) {
     let time = (end - start).toFixed(2).toString();
-    let content = "Runtime of " + algorithm + ": " + time + " ms.";
+    let content =
+      algorithm +
+      " visited " +
+      total.length +
+      " nodes in: " +
+      time +
+      " ms. Path length = " +
+      path.length +
+      ".";
+
     let consoleElement = document.getElementById("console");
     consoleElement.innerHTML += openingTag + content + closingTag;
     consoleElement.scrollTo(0, consoleElement.scrollHeight);
@@ -298,6 +359,8 @@ export default class PathfindingVisualizer extends Component {
     for (let row = 0; row < GRID_HEIGHT; row++) {
       for (let col = 0; col < GRID_WIDTH; col++) {
         let node = store.grid[row][col];
+        this.removeClassFromNode(node, NODE_VISITED);
+        this.removeClassFromNode(node, NODE_SHORTEST_PATH);
 
         // If you're clearing the board and the node is a wall
         // but it is not the start node or finish node, then
@@ -437,15 +500,13 @@ export default class PathfindingVisualizer extends Component {
 }
 
 const getInitialGrid = (startPosition, finishPosition) => {
-  const grid = [];
   for (let row = 0; row < GRID_HEIGHT; row++) {
     const currentRow = [];
     for (let col = 0; col < GRID_WIDTH; col++) {
       currentRow.push(createNode(row, col, startPosition, finishPosition));
     }
-    grid.push(currentRow);
+    store.grid.push(currentRow);
   }
-  return grid;
 };
 
 const createNode = (row, col, startPosition, finishPosition) => {
@@ -457,22 +518,12 @@ const createNode = (row, col, startPosition, finishPosition) => {
     distance: Infinity,
     isVisited: false,
     isShortest: false,
+    fScore: Infinity,
+    gScore: Infinity,
+    hScore: Infinity,
     isWall: false,
     parent: null
   };
-};
-
-const getNewGridWithDistancesReset = grid => {
-  const newGrid = grid.slice();
-  for (let row of newGrid) {
-    for (let node of row) {
-      node.distance = Infinity;
-      node.isVisited = false;
-      node.isShortest = false;
-      node.parent = null;
-    }
-  }
-  return newGrid;
 };
 
 const toggleWall = (row, col) => {

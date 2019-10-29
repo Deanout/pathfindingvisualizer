@@ -92,10 +92,21 @@ export default class ToolBar extends Component {
       pfv: props.pfv,
       console: props.console
     };
+    this.algorithmHandler = this.algorithmHandler.bind(this);
+  }
+
+  algorithmHandler(algorithm) {
+    this.setState({
+      algorithm: algorithm
+    });
   }
 
   render() {
     const { pfv } = this.state;
+    const simpleSelect = (
+      <SimpleSelect algorithmHandler={this.algorithmHandler}></SimpleSelect>
+    );
+    console.log(this.state.algorithm);
     return (
       <div onMouseEnter={() => (pfv.state.mouseIsPressed = false)}>
         <AppBar position="static">
@@ -107,7 +118,7 @@ export default class ToolBar extends Component {
                 </PfvBrand>
               </Grid>
               <Grid item xs={6} sm={3} md={2}>
-                <SimpleSelect></SimpleSelect>
+                {simpleSelect}
               </Grid>
               <Grid item xs={6} sm={3} md={2}>
                 <PfvConfigButton
@@ -120,7 +131,7 @@ export default class ToolBar extends Component {
               <Grid item xs={6} sm={3} md={2}>
                 <PfvVisualizeAlgorithmButton
                   color="inherit"
-                  onClick={() => pfv.visualizeDijkstra()}
+                  onClick={() => pfv.visualizeAlgorithm(this.state.algorithm)}
                 >
                   Visualize
                 </PfvVisualizeAlgorithmButton>

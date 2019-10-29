@@ -38,11 +38,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function SimpleSelect() {
+export default function SimpleSelect(props) {
   const classes = useStyles();
   const [algorithm, setAlgorithm] = React.useState(0);
   const handleChange = event => {
     setAlgorithm(event.target.value);
+    props.algorithmHandler(event.target.value);
   };
   return (
     <form className={classes.root} autoComplete="off">
@@ -50,7 +51,7 @@ export default function SimpleSelect() {
         <Select
           value={algorithm}
           onChange={handleChange}
-          input={<BootstrapInput name="algorithm" id="age-customized-select" />}
+          input={<BootstrapInput name="algorithm" id="algorithm" />}
         >
           <MenuItem value={0}>
             <em>Algorithms</em>

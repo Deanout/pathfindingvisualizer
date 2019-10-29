@@ -37,16 +37,21 @@ export function dijkstra(grid, startNode, finishNode) {
       continue;
     }
     if (closestNode.distance === Infinity) {
-      return visitedNodesInOrder;
+      return computeVisitedNodes(visitedNodesInOrder);
     }
     closestNode.isVisited = true;
     visitedNodesInOrder.push(closestNode);
     if (closestNode === finishNode) {
-      return visitedNodesInOrder;
+      return computeVisitedNodes(visitedNodesInOrder);
     }
 
     updateUnvisitedNeighbors(closestNode, grid);
   }
+}
+
+function computeVisitedNodes(visitedNodesInOrder) {
+  visitedNodesInOrder.shift();
+  return visitedNodesInOrder;
 }
 
 function sortNodesByDistance(unvisitedNodes) {
@@ -89,10 +94,10 @@ function getAllNodes(grid) {
   return nodes;
 }
 
-export function getNodesInShortestPathOrder(finishNode) {
+export function getShortestDijkstraPath(finishNode) {
   const nodesInShortestPathOrder = [];
   let currentNode = finishNode;
-  while (currentNode != null) {
+  while (currentNode.parent != null) {
     nodesInShortestPathOrder.unshift(currentNode);
     currentNode = currentNode.parent;
   }
