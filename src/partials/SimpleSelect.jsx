@@ -59,6 +59,8 @@ export default function SimpleSelect(props) {
           </MenuItem>
           <MenuItem value={1}>Dijkstra's Algorithm</MenuItem>
           <MenuItem value={2}>A* Search</MenuItem>
+          <MenuItem value={3}>Breadth First Search</MenuItem>
+          <MenuItem value={4}>Depth First Search</MenuItem>
         </Select>
       </FormControl>
     </form>

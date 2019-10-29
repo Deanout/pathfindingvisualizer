@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import Node from "./node/node.jsx";
 import { dijkstra, getShortestDijkstraPath } from "../algorithms/dijkstra.js";
 import { AStar, getShortestAStarPath } from "../algorithms/astar.js";
+import { BFS, getShortestBFSPath } from "../algorithms/bfs.js";
+import { DFS, getShortestDFSPath } from "../algorithms/dfs.js";
 
 import Toolbar from "../partials/toolbar.jsx";
 import Console from "../partials/console.jsx";
@@ -99,6 +101,14 @@ export default class PathfindingVisualizer extends Component {
         case "2":
           store.algorithm = 2;
           this.visualizeAlgorithm(2);
+          break;
+        case "3":
+          store.algorithm = 3;
+          this.visualizeAlgorithm(3);
+          break;
+        case "4":
+          store.algorithm = 4;
+          this.visualizeAlgorithm(4);
           break;
         case " ":
           document.activeElement.blur();
@@ -273,6 +283,12 @@ export default class PathfindingVisualizer extends Component {
       case 2:
         this.visualizeAStar(startNode, finishNode);
         break;
+      case 3:
+        this.visualizeBFS(startNode, finishNode);
+        break;
+      case 4:
+        this.visualizeDFS(startNode, finishNode);
+        break;
       default:
         this.visualizeDijkstra(startNode, finishNode);
         break;
@@ -300,7 +316,7 @@ export default class PathfindingVisualizer extends Component {
 
   visualizeAStar(startNode, finishNode) {
     let start = performance.now();
-    let visitedNodesInOrder = AStar(
+    const visitedNodesInOrder = AStar(
       store.grid,
       startNode,
       finishNode,
@@ -308,9 +324,55 @@ export default class PathfindingVisualizer extends Component {
       GRID_HEIGHT
     );
     let end = performance.now();
-    let nodesInShortestPathOrder = getShortestAStarPath(finishNode);
+    const nodesInShortestPathOrder = getShortestAStarPath(finishNode);
     this.renderTextToConsole(
       "A*",
+      visitedNodesInOrder,
+      nodesInShortestPathOrder,
+      start,
+      end,
+      `<p class="statistic-text">`,
+      `</p>`
+    );
+    this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
+  }
+
+  visualizeBFS(startNode, finishNode) {
+    let start = performance.now();
+    const visitedNodesInOrder = BFS(
+      store.grid,
+      startNode,
+      finishNode,
+      GRID_WIDTH,
+      GRID_HEIGHT
+    );
+    let end = performance.now();
+    const nodesInShortestPathOrder = getShortestBFSPath(finishNode);
+    this.renderTextToConsole(
+      "BFS",
+      visitedNodesInOrder,
+      nodesInShortestPathOrder,
+      start,
+      end,
+      `<p class="statistic-text">`,
+      `</p>`
+    );
+    this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
+  }
+
+  visualizeDFS(startNode, finishNode) {
+    let start = performance.now();
+    const visitedNodesInOrder = (window.dfs = DFS(
+      store.grid,
+      startNode,
+      finishNode,
+      GRID_WIDTH,
+      GRID_HEIGHT
+    ));
+    let end = performance.now();
+    const nodesInShortestPathOrder = getShortestDFSPath(finishNode);
+    this.renderTextToConsole(
+      "DFS",
       visitedNodesInOrder,
       nodesInShortestPathOrder,
       start,

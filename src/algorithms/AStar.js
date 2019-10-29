@@ -1,5 +1,3 @@
-import { globalAgent } from "http";
-
 export function AStar(grid, startNode, finishNode, width, height) {
   // Should be a Priority Queue.
   const openSet = [];
