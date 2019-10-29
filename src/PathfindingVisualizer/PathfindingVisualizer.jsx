@@ -39,7 +39,7 @@ export default class PathfindingVisualizer extends Component {
   constructor() {
     super();
     this.state = {
-      initialized: false // Used for the initial grid draw
+      algorithm: 0
     };
   }
 
@@ -79,7 +79,6 @@ export default class PathfindingVisualizer extends Component {
     // the MobX grid.
     getInitialGrid(store.startPosition, store.finishPosition);
 
-    //this.setState({ initialized: false });
     // Add the hotkey event listener, setting the desired nodeTypes for each.
     window.requestAnimationFrame(() => {
       this.drawGrid();
@@ -96,10 +95,16 @@ export default class PathfindingVisualizer extends Component {
           store.nodeType = FINISH;
           break;
         case "1":
-          this.visualizeDijkstra();
+          this.setState({ algorithm: 1 });
+          this.visualizeAlgorithm(1);
           break;
         case "2":
-          this.visualizeAStar();
+          this.setState({ algorithm: 2 });
+          this.visualizeAlgorithm(2);
+          break;
+        case " ":
+          document.activeElement.blur();
+          this.init(false);
           break;
         default:
           store.nodeType = WALL;
@@ -462,7 +467,13 @@ export default class PathfindingVisualizer extends Component {
   // maybe?
   render() {
     const consoleElement = <Console></Console>;
-    const toolBar = <Toolbar pfv={this} console={consoleElement}></Toolbar>;
+    const toolBar = (
+      <Toolbar
+        pfv={this}
+        console={consoleElement}
+        algorithm={this.state.algorithm}
+      ></Toolbar>
+    );
 
     return (
       <>

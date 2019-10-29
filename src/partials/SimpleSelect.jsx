@@ -45,11 +45,12 @@ export default function SimpleSelect(props) {
     setAlgorithm(event.target.value);
     props.algorithmHandler(event.target.value);
   };
+
   return (
     <form className={classes.root} autoComplete="off">
       <FormControl className={classes.margin}>
         <Select
-          value={algorithm}
+          value={props.visualizeClicked}
           onChange={handleChange}
           input={<BootstrapInput name="algorithm" id="algorithm" />}
         >
