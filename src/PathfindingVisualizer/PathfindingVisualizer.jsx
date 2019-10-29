@@ -96,19 +96,19 @@ export default class PathfindingVisualizer extends Component {
           break;
         case "1":
           store.algorithm = 1;
-          this.visualizeAlgorithm(1);
+          this.visualizeAlgorithm(1); // Dijkstra's
           break;
         case "2":
           store.algorithm = 2;
-          this.visualizeAlgorithm(2);
+          this.visualizeAlgorithm(2); // A*
           break;
         case "3":
           store.algorithm = 3;
-          this.visualizeAlgorithm(3);
+          this.visualizeAlgorithm(3); // BFS
           break;
         case "4":
           store.algorithm = 4;
-          this.visualizeAlgorithm(4);
+          this.visualizeAlgorithm(4); // DFS
           break;
         case " ":
           document.activeElement.blur();
@@ -177,7 +177,6 @@ export default class PathfindingVisualizer extends Component {
   }
 
   toggleNodeType(row, col) {
-    console.log(store.nodeType);
     switch (store.nodeType) {
       case WALL:
         toggleWall(row, col);
@@ -225,6 +224,81 @@ export default class PathfindingVisualizer extends Component {
     store.finishPosition = [row, col];
   }
 
+  visualizeAlgorithm(algorithm) {
+    this.resetDistances();
+    this.init(false);
+    switch (algorithm) {
+      case 1:
+        //this.visualizeDijkstra(startNode, finishNode);
+        this.findPath(dijkstra, "Dijkstra's", getShortestDijkstraPath);
+        break;
+      case 2:
+        this.findPath(AStar, "A*", getShortestAStarPath);
+        break;
+      case 3:
+        this.findPath(BFS, "BFS", getShortestBFSPath);
+        break;
+      case 4:
+        this.findPath(DFS, "DFS", getShortestDFSPath);
+        break;
+      default:
+        this.findPath(dijkstra, "Dijkstra's", getShortestDijkstraPath);
+        break;
+    }
+    this.resetDistances();
+  }
+
+  findPath(algorithm, name, shortestPath) {
+    let startNode = store.grid[store.startPosition[0]][store.startPosition[1]];
+    let finishNode =
+      store.grid[store.finishPosition[0]][store.finishPosition[1]];
+    let start = performance.now();
+    const visitedNodesInOrder = algorithm(
+      store.grid,
+      startNode,
+      finishNode,
+      GRID_WIDTH,
+      GRID_HEIGHT
+    );
+    let end = performance.now();
+    const nodesInShortestPathOrder = shortestPath(finishNode);
+    this.renderTextToConsole(
+      name,
+      visitedNodesInOrder,
+      nodesInShortestPathOrder,
+      start,
+      end,
+      `<p class="statistic-text">`,
+      `</p>`
+    );
+
+    this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
+  }
+
+  renderTextToConsole(
+    algorithm,
+    total,
+    path,
+    start,
+    end,
+    openingTag,
+    closingTag
+  ) {
+    let time = (end - start).toFixed(2).toString();
+    let content =
+      algorithm +
+      " visited " +
+      total.length +
+      " nodes in: " +
+      time +
+      " ms. Path length = " +
+      path.length +
+      ".";
+
+    let consoleElement = document.getElementById("console");
+    consoleElement.innerHTML += openingTag + content + closingTag;
+    consoleElement.scrollTo(0, consoleElement.scrollHeight);
+  }
   resetDistances() {
     for (let row of store.grid) {
       for (let node of row) {
@@ -270,156 +344,6 @@ export default class PathfindingVisualizer extends Component {
     }
   }
 
-  visualizeAlgorithm(algorithm) {
-    this.resetDistances();
-    this.init(false);
-    let startNode = store.grid[store.startPosition[0]][store.startPosition[1]];
-    let finishNode =
-      store.grid[store.finishPosition[0]][store.finishPosition[1]];
-    switch (algorithm) {
-      case 1:
-        this.visualizeDijkstra(startNode, finishNode);
-        break;
-      case 2:
-        this.visualizeAStar(startNode, finishNode);
-        break;
-      case 3:
-        this.visualizeBFS(startNode, finishNode);
-        break;
-      case 4:
-        this.visualizeDFS(startNode, finishNode);
-        break;
-      default:
-        this.visualizeDijkstra(startNode, finishNode);
-        break;
-    }
-    this.resetDistances();
-  }
-
-  visualizeDijkstra(startNode, finishNode) {
-    let start = performance.now();
-    const visitedNodesInOrder = dijkstra(store.grid, startNode, finishNode);
-    let end = performance.now();
-    const nodesInShortestPathOrder = getShortestDijkstraPath(finishNode);
-    this.renderTextToConsole(
-      "Dijkstra's",
-      visitedNodesInOrder,
-      nodesInShortestPathOrder,
-      start,
-      end,
-      `<p class="statistic-text">`,
-      `</p>`
-    );
-
-    this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
-  }
-
-  visualizeAStar(startNode, finishNode) {
-    let start = performance.now();
-    const visitedNodesInOrder = AStar(
-      store.grid,
-      startNode,
-      finishNode,
-      GRID_WIDTH,
-      GRID_HEIGHT
-    );
-    let end = performance.now();
-    const nodesInShortestPathOrder = getShortestAStarPath(finishNode);
-    this.renderTextToConsole(
-      "A*",
-      visitedNodesInOrder,
-      nodesInShortestPathOrder,
-      start,
-      end,
-      `<p class="statistic-text">`,
-      `</p>`
-    );
-    this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
-  }
-
-  visualizeBFS(startNode, finishNode) {
-    let start = performance.now();
-    const visitedNodesInOrder = BFS(
-      store.grid,
-      startNode,
-      finishNode,
-      GRID_WIDTH,
-      GRID_HEIGHT
-    );
-    let end = performance.now();
-    const nodesInShortestPathOrder = getShortestBFSPath(finishNode);
-    this.renderTextToConsole(
-      "BFS",
-      visitedNodesInOrder,
-      nodesInShortestPathOrder,
-      start,
-      end,
-      `<p class="statistic-text">`,
-      `</p>`
-    );
-    this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
-  }
-
-  visualizeDFS(startNode, finishNode) {
-    let start = performance.now();
-    const visitedNodesInOrder = (window.dfs = DFS(
-      store.grid,
-      startNode,
-      finishNode,
-      GRID_WIDTH,
-      GRID_HEIGHT
-    ));
-    let end = performance.now();
-    const nodesInShortestPathOrder = getShortestDFSPath(finishNode);
-    this.renderTextToConsole(
-      "DFS",
-      visitedNodesInOrder,
-      nodesInShortestPathOrder,
-      start,
-      end,
-      `<p class="statistic-text">`,
-      `</p>`
-    );
-    this.animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder);
-  }
-
-  renderTextToConsole(
-    algorithm,
-    total,
-    path,
-    start,
-    end,
-    openingTag,
-    closingTag
-  ) {
-    let time = (end - start).toFixed(2).toString();
-    let content =
-      algorithm +
-      " visited " +
-      total.length +
-      " nodes in: " +
-      time +
-      " ms. Path length = " +
-      path.length +
-      ".";
-
-    let consoleElement = document.getElementById("console");
-    consoleElement.innerHTML += openingTag + content + closingTag;
-    consoleElement.scrollTo(0, consoleElement.scrollHeight);
-  }
-
-  modifyNode(node, clearBoard, newClass) {
-    if (clearBoard) {
-      document.getElementById(
-        `node-${node.row}-${node.col}`
-      ).className = `${newClass}`;
-    } else {
-      document.getElementById(
-        `node-${node.row}-${node.col}`
-      ).className += ` ${newClass}`;
-    }
-  }
-
   init(clearBoard) {
     for (let row = 0; row < GRID_HEIGHT; row++) {
       for (let col = 0; col < GRID_WIDTH; col++) {
@@ -436,6 +360,18 @@ export default class PathfindingVisualizer extends Component {
       }
     }
     this.drawGrid(clearBoard);
+  }
+
+  modifyNode(node, clearBoard, newClass) {
+    if (clearBoard) {
+      document.getElementById(
+        `node-${node.row}-${node.col}`
+      ).className = `${newClass}`;
+    } else {
+      document.getElementById(
+        `node-${node.row}-${node.col}`
+      ).className += ` ${newClass}`;
+    }
   }
 
   removeClassFromNode(node, classToRemove) {
