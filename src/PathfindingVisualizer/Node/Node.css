@@ -4,6 +4,15 @@
   border-bottom: 1px solid rgb(175, 200, 250);
 }
 
+.node:hover {
+  background-color: rgb(200, 225, 225);
+}
+.node-text {
+  margin: none;
+  font-size: 0.75vh;
+  color: black;
+}
+
 .node-finish {
   background-color: rgb(12, 24, 36);
   animation-name: finishAnimation;

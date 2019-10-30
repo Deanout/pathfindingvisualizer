@@ -130,6 +130,22 @@ export default class ToolBar extends Component {
                 </PfvConfigButton>
               </Grid>
               <Grid item xs={6} sm={3} md={2}>
+                <PfvConfigButton
+                  color="inherit"
+                  onClick={() => pfv.noiseWalls()}
+                >
+                  Perlin Walls
+                </PfvConfigButton>
+              </Grid>
+              <Grid item xs={6} sm={3} md={2}>
+                <PfvConfigButton
+                  color="inherit"
+                  onClick={() => pfv.randomWalls()}
+                >
+                  Random Walls
+                </PfvConfigButton>
+              </Grid>
+              <Grid item xs={6} sm={3} md={2}>
                 <PfvVisualizeAlgorithmButton
                   color="inherit"
                   onClick={() => {

@@ -2,6 +2,8 @@ import React, { Component } from "react";
 import Node from "./node/node.jsx";
 import { dijkstra, getShortestDijkstraPath } from "../algorithms/dijkstra.js";
 import { AStar, getShortestAStarPath } from "../algorithms/astar.js";
+import { AStarPQ, getShortestAStarPQPath } from "../algorithms/astarpq.js";
+
 import { BFS, getShortestBFSPath } from "../algorithms/bfs.js";
 import { DFS, getShortestDFSPath } from "../algorithms/dfs.js";
 
@@ -11,6 +13,8 @@ import store from "./gridstore.js";
 import { observer } from "mobx-react";
 
 import { recursiveWallBuilder } from "../algorithms/recursivewalls.js";
+import { noiseWalls } from "../algorithms/noisewalls.js";
+import { randomWalls } from "../algorithms/randomwalls.js";
 
 import "./pathfindingvisualizer.css";
 
@@ -109,6 +113,10 @@ export default class PathfindingVisualizer extends Component {
         case "4":
           store.algorithm = 4;
           this.visualizeAlgorithm(4); // DFS
+          break;
+        case "5":
+          store.algorithm = 5;
+          this.visualizeAlgorithm(5); // DFS
           break;
         case " ":
           document.activeElement.blur();
@@ -241,6 +249,9 @@ export default class PathfindingVisualizer extends Component {
       case 4:
         this.findPath(DFS, "DFS", getShortestDFSPath);
         break;
+      case 5:
+        this.findPath(AStarPQ, "A*PQ", getShortestAStarPQPath);
+        break;
       default:
         this.findPath(dijkstra, "Dijkstra's", getShortestDijkstraPath);
         break;
@@ -307,6 +318,7 @@ export default class PathfindingVisualizer extends Component {
         node.isShortest = false;
         node.parent = null;
         node.neighbor = null;
+        node.closed = false;
         node.fScore = Infinity;
         node.hScore = Infinity;
         node.gScore = Infinity;
@@ -351,10 +363,7 @@ export default class PathfindingVisualizer extends Component {
         this.removeClassFromNode(node, NODE_VISITED);
         this.removeClassFromNode(node, NODE_SHORTEST_PATH);
 
-        // If you're clearing the board and the node is a wall
-        // but it is not the start node or finish node, then
-        // toggle the node.
-        if (clearBoard && node.isWall && !(node.isStart || node.isFinish)) {
+        if (clearBoard && node.isWall) {
           toggleWallOff(row, col);
         }
       }
@@ -440,13 +449,25 @@ export default class PathfindingVisualizer extends Component {
 
     this.animateWalls(nodesToAnimate);
   }
+
+  noiseWalls() {
+    this.init(true);
+    const nodesToAnimate = noiseWalls(GRID_WIDTH, GRID_HEIGHT);
+    this.animateWalls(nodesToAnimate);
+  }
+
+  randomWalls() {
+    this.init(true);
+    const nodesToAnimate = randomWalls(GRID_WIDTH, GRID_HEIGHT);
+    this.animateWalls(nodesToAnimate);
+  }
   // Change this context.modify to use drawnode maybe?
   // Might remove the need to splice or something
   animateWalls(nodesToAnimate) {
     const context = this;
     for (let i = 0; i < nodesToAnimate.length; i++) {
       let row = nodesToAnimate[i][0];
-      let col = [nodesToAnimate[i][1]];
+      let col = nodesToAnimate[i][1];
       if (store.grid[row][col].isStart || store.grid[row][col].isFinish) {
         nodesToAnimate.splice(i, 1);
         continue;

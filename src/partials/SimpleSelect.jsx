@@ -61,6 +61,7 @@ export default function SimpleSelect(props) {
           <MenuItem value={2}>A* Search</MenuItem>
           <MenuItem value={3}>Breadth First Search</MenuItem>
           <MenuItem value={4}>Depth First Search</MenuItem>
+          <MenuItem value={5}>A* Priority Queue</MenuItem>
         </Select>
       </FormControl>
     </form>

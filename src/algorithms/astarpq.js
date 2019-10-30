@@ -1,35 +1,30 @@
-export function AStar(grid, startNode, finishNode, width, height) {
-  // Should be a Priority Queue.
-  const openSet = [];
+import { MinHeapPriorityQueue } from "../datastructures/binaryheap.js";
+
+export function AStarPQ(grid, startNode, finishNode, width, height) {
+  const openSet = new MinHeapPriorityQueue();
   const visitedNodesInOrder = [];
 
   startNode.gScore = 0;
   startNode.hScore = heuristic_cost_estimate(startNode, startNode, finishNode);
   startNode.fScore = startNode.hScore;
-  openSet.push(startNode);
 
-  while (openSet.length > 0) {
-    var lowestFScore = 0;
-    for (let i = 1; i < openSet.length; i++) {
-      if (openSet[i].fScore < openSet[lowestFScore].fScore) {
-        lowestFScore = i;
-      }
-    }
-    var currentNode = openSet[lowestFScore];
-    //printScores(currentNode);
+  openSet.push(startNode);
+  while (openSet.size() > 0) {
+    var currentNode = openSet.popMin();
+
     visitedNodesInOrder.push(currentNode);
     if (currentNode == finishNode) {
       return computeVisitedNodes(visitedNodesInOrder);
     }
-    openSet.splice(lowestFScore, 1);
     currentNode.closed = true;
 
-    //printScores(counter, currentNode);
+    //printScores(currentNode);
     for (let neighbor of getNeighbors(grid, currentNode, width, height)) {
       if (neighbor.isWall || neighbor.closed) {
         continue;
       }
       let tentative_gScore = currentNode.gScore + 1;
+
       if (tentative_gScore < neighbor.gScore) {
         neighbor.gScore = tentative_gScore;
         neighbor.hScore = heuristic_cost_estimate(
@@ -39,23 +34,13 @@ export function AStar(grid, startNode, finishNode, width, height) {
         );
         neighbor.fScore = neighbor.gScore + neighbor.hScore;
         neighbor.parent = currentNode;
-        if (!isInSet(neighbor, openSet)) {
+        if (!openSet.find(neighbor)) {
           openSet.push(neighbor);
         }
       }
     }
   }
   return computeVisitedNodes(visitedNodesInOrder);
-}
-
-function isInSet(node, set) {
-  for (let i = set.length - 1; i >= 0; i++) {
-    if (set[i].row === node.row && set[i].col === node.col) {
-      return true;
-    } else {
-      return false;
-    }
-  }
 }
 
 function computeVisitedNodes(visitedNodesInOrder) {
@@ -128,7 +113,7 @@ function heuristic_cost_estimate(start, current, finish) {
   return heuristic;
 }
 
-export function getShortestAStarPath(finishNode) {
+export function getShortestAStarPQPath(finishNode) {
   const path = [];
   let currentNode = finishNode;
 
