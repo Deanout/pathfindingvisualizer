@@ -30,8 +30,10 @@ class GridStore {
     configured: false,
     seed: 1337,
     threshold: 0.5,
+    scale: 10,
     defaultSeed: 1337,
-    defaultThreshold: 0.5
+    defaultThreshold: 0.5,
+    defaultScale: 10
   };
 
   getAlgorithmName() {

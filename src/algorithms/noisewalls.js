@@ -7,7 +7,7 @@ export function noiseWalls(width, height) {
 
   for (let row = 0; row < height; row++) {
     for (let col = 0; col < width; col++) {
-      var noise2D = simplex.noise2D(row / 10, col / 10);
+      var noise2D = simplex.noise2D(row / config.scale, col / config.scale);
       if (noise2D > config.threshold) {
         wallsToBuild.push([row, col]);
       }

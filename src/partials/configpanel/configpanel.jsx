@@ -77,6 +77,7 @@ export default class ConfigPanel extends Component {
         noiseWallsHandler={this.noiseWallsHandler}
         minimize={store.configPanel.minimize}
         threshold={store.simplex.threshold}
+        scale={store.simplex.scale}
         seed={store.simplex.seed}
         pfv={this.state.pfv}
       ></NoiseWallsConfig>

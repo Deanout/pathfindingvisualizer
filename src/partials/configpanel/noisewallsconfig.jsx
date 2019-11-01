@@ -28,49 +28,57 @@ export default function NoiseWallsConfig(props) {
   const classes = useStyles();
   const handleThresholdChange = (event, newValue) => {
     store.simplex.threshold = newValue;
-    props.noiseWallsHandler();
   };
   const handleSeedChange = (event, newValue) => {
     store.simplex.seed = newValue;
-    props.noiseWallsHandler();
+  };
+  const handleScaleChange = (event, newValue) => {
+    store.simplex.scale = newValue;
   };
   const handleThresholdInputChange = event => {
     if (event.target.value === "") {
     } else {
       store.simplex.threshold = Number(event.target.value);
-      props.noiseWallsHandler();
     }
   };
   const handleSeedInputChange = event => {
     if (event.target.value === "") {
     } else {
       store.simplex.seed = Number(event.target.value);
-      props.noiseWallsHandler();
+    }
+  };
+  const handleScaleInputChange = event => {
+    if (event.target.value === "") {
+    } else {
+      store.simplex.scale = Number(event.target.value);
     }
   };
 
   const handleThresholdBlur = () => {
     if (props.threshold < -1) {
       store.simplex.threshold = -1;
-      props.noiseWallsHandler();
     } else if (props.threshold > 1) {
       store.simplex.threshold = 1;
-      props.noiseWallsHandler();
     }
   };
   const handleSeedBlur = () => {
     if (props.seed < 0) {
       store.simplex.seed = 0;
-      props.noiseWallsHandler();
     } else if (props.seed > 1000000) {
       store.simplex.seed = 1000000;
-      props.noiseWallsHandler();
+    }
+  };
+  const handleScaleBlur = () => {
+    if (props.scale < 1) {
+      store.simplex.scale = 1;
+    } else if (props.scale > 25) {
+      store.simplex.scale = 25;
     }
   };
   const resetSimplex = () => {
     store.simplex.seed = store.simplex.defaultSeed;
     store.simplex.threshold = store.simplex.defaultThreshold;
-    props.noiseWallsHandler();
+    store.simplex.scale = store.simplex.defaultScale;
   };
   return (
     <Collapse
@@ -137,6 +145,37 @@ export default function NoiseWallsConfig(props) {
                 max: 1000000,
                 type: "number",
                 "aria-labelledby": "seed-input"
+              }}
+            />
+          </Grid>
+        </Grid>
+        <Typography id="threshold-slider" gutterBottom>
+          Scale
+        </Typography>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={9}>
+            <Slider
+              value={props.scale}
+              onChange={handleScaleChange}
+              aria-labelledby="scale-slider"
+              step={1}
+              min={1}
+              max={25}
+            />
+          </Grid>
+
+          <Grid item xs={3}>
+            <Input
+              value={props.scale}
+              margin="dense"
+              onChange={handleScaleInputChange}
+              onBlur={handleScaleBlur}
+              inputProps={{
+                step: 1,
+                min: 1,
+                max: 25,
+                type: "number",
+                "aria-labelledby": "threshold-input"
               }}
             />
           </Grid>
