@@ -135,19 +135,12 @@ export default function NoiseWallsConfig(props) {
         minAllowed
       );
     }
-    // Main loop
-    function main(tframe) {
-      // Request animation frames
-      window.requestAnimationFrame(main);
-
+    window.requestAnimationFrame(() => {
       // Create the image
-      createImage(Math.floor(tframe / 10));
-
+      createImage();
       // Draw the image data to the canvas
       context.putImageData(imagedata, 0, 0);
-    }
-    // Call the main loop
-    main(0);
+    });
   };
   if (props.minimize) {
     requestAnimationFrame(() => {
