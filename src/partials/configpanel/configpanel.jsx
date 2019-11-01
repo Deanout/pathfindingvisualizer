@@ -143,7 +143,6 @@ export default class ConfigPanel extends Component {
     }
 
     function dragMouseDown(e) {
-      console.log("Touched");
       if (source == "touch") {
         if (e.touches.length == 1) {
           // Only deal with one finger
@@ -153,6 +152,8 @@ export default class ConfigPanel extends Component {
         document.ontouchend = closeDragElement;
         document.ontouchmove = elementDrag;
       } else {
+        e = e || window.event;
+        e.preventDefault();
         // get the mouse cursor position at startup:
         pos3 = e.clientX;
         pos4 = e.clientY;
@@ -172,6 +173,8 @@ export default class ConfigPanel extends Component {
           pos4 = e.touches[0].pageY;
         }
       } else {
+        e = e || window.event;
+        e.preventDefault();
         pos1 = pos3 - e.clientX;
         pos2 = pos4 - e.clientY;
         pos3 = e.clientX;
