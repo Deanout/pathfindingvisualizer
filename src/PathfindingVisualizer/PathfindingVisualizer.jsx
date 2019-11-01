@@ -19,14 +19,6 @@ import { randomWalls } from "../algorithms/randomwalls.js";
 
 import "./pathfindingvisualizer.css";
 
-// Initialize these values to something runnable, then
-// update them after the component mounts.
-
-var GRID_WIDTH = 5;
-var GRID_HEIGHT = 5;
-var NODE_WIDTH = 25;
-var NODE_HEIGHT = 25;
-
 // Constants used to retrieve class names of different node types.
 const NODE = `node`;
 const NODE_START = `node-start`;
@@ -63,31 +55,29 @@ export default class PathfindingVisualizer extends Component {
    *
    */
   componentDidMount() {
-    var consoleElement = document.getElementById("console");
-    store.consoleBottom = consoleElement.getBoundingClientRect().bottom;
-    var grid = document.getElementById("grid");
-
-    // Recalculate the grid's height and width in terms of node size.
-    GRID_WIDTH = Math.floor(window.innerWidth / NODE_WIDTH);
-    GRID_HEIGHT = Math.floor(
-      (window.innerHeight - store.consoleBottom) / NODE_HEIGHT
-    );
-
-    // Set the grid's height to occupy all space below the console.
-    grid.style.height =
-      (window.innerHeight - store.consoleBottom).toString() + "px";
-
-    // Set the state of the start and finish node positions declared above.
-    store.startPosition = [3, 3];
-    store.finishPosition = [GRID_HEIGHT - 3, GRID_WIDTH - 3];
-
-    // Get the initial grid with start and finish node positions, and assign it to
-    // the MobX grid.
-    getInitialGrid(store.startPosition, store.finishPosition);
-
-    // Add the hotkey event listener, setting the desired nodeTypes for each.
+    this.setup();
     window.requestAnimationFrame(() => {
       this.drawGrid();
+    });
+    window.addEventListener("resize", event => {
+      if (
+        Math.floor(window.innerWidth / store.nodeWidth) > store.gridWidth + 1 ||
+        Math.floor(window.innerWidth / store.nodeWidth) < store.gridWidth - 1 ||
+        Math.floor(
+          (window.innerHeight - store.consoleBottom) / store.nodeHeight
+        ) >
+          store.gridHeight + 1 ||
+        Math.floor(
+          (window.innerHeight - store.consoleBottom) / store.nodeHeight
+        ) <
+          store.gridHeight - 1
+      ) {
+        this.setup();
+
+        requestAnimationFrame(() => {
+          this.drawGrid();
+        });
+      }
     });
     document.addEventListener("keydown", event => {
       switch (event.key.toLowerCase()) {
@@ -100,28 +90,6 @@ export default class PathfindingVisualizer extends Component {
         case "f":
           store.nodeType = FINISH;
           break;
-        /*
-        case "1":
-          store.algorithm = 1;
-          this.visualizeAlgorithm(1); // Dijkstra's
-          break;
-        case "2":
-          store.algorithm = 2;
-          this.visualizeAlgorithm(2); // A*
-          break;
-        case "3":
-          store.algorithm = 3;
-          this.visualizeAlgorithm(3); // BFS
-          break;
-        case "4":
-          store.algorithm = 4;
-          this.visualizeAlgorithm(4); // DFS
-          break;
-        case "5":
-          store.algorithm = 5;
-          this.visualizeAlgorithm(5); // DFS
-          break;
-          */
         case " ":
           document.activeElement.blur();
           this.init(false);
@@ -135,10 +103,10 @@ export default class PathfindingVisualizer extends Component {
       this.drawGrid();
     });
     /* Add the mousemove event listener.
-     * NODE_WIDTH: The width of each node in pixels, at the time of the event.
-     * NODE_HEIGHT: The width of each node in pixels, at the time of the event.
-     * row: Clamped between 0 and NODE_HEIGHT.
-     * col: Clamped between 0 and NODE_WIDTH.
+     * store.nodeWidth: The width of each node in pixels, at the time of the event.
+     * store.nodeHeight: The width of each node in pixels, at the time of the event.
+     * row: Clamped between 0 and store.nodeHeight.
+     * col: Clamped between 0 and store.nodeWidth.
      *
      * Before handling mouse enter, make sure we've entered a different node.
      *
@@ -147,23 +115,57 @@ export default class PathfindingVisualizer extends Component {
      * mouse move event not updating fast enough.
      */
     document.addEventListener("mousemove", event => {
-      NODE_WIDTH = grid.firstElementChild.firstElementChild.getBoundingClientRect()
-        .width;
-      NODE_HEIGHT = grid.firstElementChild.firstElementChild.getBoundingClientRect()
-        .height;
-
-      var x = event.clientX;
-      var y = event.clientY;
-      var row = Math.floor((y - store.consoleBottom) / NODE_HEIGHT);
-      var col = Math.floor(x / NODE_WIDTH);
-      let oldMousePosition = store.mousePosition;
-      row = Math.clamp(row, 0, GRID_HEIGHT - 1);
-      col = Math.clamp(col, 0, GRID_WIDTH - 1);
-      if (row !== oldMousePosition[0] || col !== oldMousePosition[1]) {
-        store.mousePosition = [row, col];
-        this.handleMouseEnter(row, col);
+      if (
+        grid.firstElementChild != null &&
+        grid.firstElementChild.firstElementChild != null
+      ) {
+        store.nodeWidth = grid.firstElementChild.firstElementChild.getBoundingClientRect().width;
+        store.nodeHeight = grid.firstElementChild.firstElementChild.getBoundingClientRect().height;
+        var x = event.clientX;
+        var y = event.clientY;
+        var row = Math.floor((y - store.consoleBottom) / store.nodeHeight);
+        var col = Math.floor(x / store.nodeWidth);
+        let oldMousePosition = store.mousePosition;
+        row = Math.clamp(row, 0, store.gridHeight - 1);
+        col = Math.clamp(col, 0, store.gridWidth - 1);
+        if (row !== oldMousePosition[0] || col !== oldMousePosition[1]) {
+          store.mousePosition = [row, col];
+          this.handleMouseEnter(row, col);
+        }
       }
     });
+  }
+
+  setup() {
+    store.nodeWidth = 25;
+    store.nodeHeight = 25;
+    var grid = document.getElementById("grid");
+
+    grid.firstElementChild != null &&
+      grid.firstElementChild.firstElementChild != null;
+
+    var consoleElement = document.getElementById("console");
+    store.consoleBottom = consoleElement.getBoundingClientRect().bottom;
+
+    // Recalculate the grid's height and width in terms of node size.
+    store.gridWidth = Math.floor(window.innerWidth / store.nodeWidth);
+    store.gridHeight = Math.floor(
+      (window.innerHeight - store.consoleBottom) / store.nodeHeight
+    );
+    // Set the grid's height to occupy all space below the console.
+    grid.style.height =
+      (window.innerHeight - store.consoleBottom).toString() + "px";
+
+    // Set the state of the start and finish node positions declared above.
+    store.startPosition = [3, 3];
+    store.finishPosition = [store.gridHeight - 3, store.gridWidth - 3];
+
+    // Get the initial grid with start and finish node positions, and assign it to
+    // the MobX grid.
+
+    store.grid.replace(
+      getInitialGrid(store.startPosition, store.finishPosition)
+    );
   }
 
   handleMouseUp() {
@@ -272,8 +274,8 @@ export default class PathfindingVisualizer extends Component {
       store.grid,
       startNode,
       finishNode,
-      GRID_WIDTH,
-      GRID_HEIGHT
+      store.gridWidth,
+      store.gridHeight
     );
     let end = performance.now();
     const nodesInShortestPathOrder = shortestPath(finishNode);
@@ -361,8 +363,8 @@ export default class PathfindingVisualizer extends Component {
   }
 
   init(clearBoard) {
-    for (let row = 0; row < GRID_HEIGHT; row++) {
-      for (let col = 0; col < GRID_WIDTH; col++) {
+    for (let row = 0; row < store.gridHeight; row++) {
+      for (let col = 0; col < store.gridWidth; col++) {
         let node = store.grid[row][col];
         this.removeClassFromNode(node, NODE_VISITED);
         this.removeClassFromNode(node, NODE_SHORTEST_PATH);
@@ -412,8 +414,8 @@ export default class PathfindingVisualizer extends Component {
   }
 
   drawGrid(clearBoard) {
-    for (let row = 0; row < GRID_HEIGHT; row++) {
-      for (let col = 0; col < GRID_WIDTH; col++) {
+    for (let row = 0; row < store.gridHeight; row++) {
+      for (let col = 0; col < store.gridWidth; col++) {
         let node = store.grid[row][col];
         if (node.isWall) {
           this.modifyNode(node, true, NODE + " " + NODE_WALL);
@@ -441,8 +443,8 @@ export default class PathfindingVisualizer extends Component {
   recursiveWalls() {
     this.init(true);
     const nodesToAnimate = recursiveWallBuilder(
-      GRID_WIDTH,
-      GRID_HEIGHT,
+      store.gridWidth,
+      store.gridHeight,
       store.startPosition[0],
       store.startPosition[1],
       store.finishPosition[0],
@@ -456,13 +458,13 @@ export default class PathfindingVisualizer extends Component {
 
   noiseWalls() {
     this.init(true);
-    const nodesToAnimate = noiseWalls(GRID_WIDTH, GRID_HEIGHT);
+    const nodesToAnimate = noiseWalls(store.gridWidth, store.gridHeight);
     this.animateWalls(nodesToAnimate);
   }
 
   randomWalls() {
     this.init(true);
-    const nodesToAnimate = randomWalls(GRID_WIDTH, GRID_HEIGHT);
+    const nodesToAnimate = randomWalls(store.gridWidth, store.gridHeight);
     this.animateWalls(nodesToAnimate);
   }
 
@@ -503,6 +505,7 @@ export default class PathfindingVisualizer extends Component {
           onMouseDown={() =>
             this.handleMouseDown(store.mousePosition[0], store.mousePosition[1])
           }
+          key={store.gridId}
           onMouseUp={() => this.handleMouseUp()}
         >
           {store.grid.map((row, rowIdx) => {
@@ -531,13 +534,15 @@ export default class PathfindingVisualizer extends Component {
 }
 
 const getInitialGrid = (startPosition, finishPosition) => {
-  for (let row = 0; row < GRID_HEIGHT; row++) {
+  const output = [];
+  for (let row = 0; row < store.gridHeight; row++) {
     const currentRow = [];
-    for (let col = 0; col < GRID_WIDTH; col++) {
+    for (let col = 0; col < store.gridWidth; col++) {
       currentRow.push(createNode(row, col, startPosition, finishPosition));
     }
-    store.grid.push(currentRow);
+    output.push(currentRow);
   }
+  return output;
 };
 
 const createNode = (row, col, startPosition, finishPosition) => {

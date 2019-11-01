@@ -194,7 +194,7 @@ export default class ToolBar extends Component {
                     color="inherit"
                     onClick={this.toggleConfigPanel}
                   >
-                    Configure
+                    Configure Noise
                   </PfvConfigButton>
                 </Grid>
                 <Grid item xs={2} sm={1}>

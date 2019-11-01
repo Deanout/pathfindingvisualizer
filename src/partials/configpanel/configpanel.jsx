@@ -50,10 +50,12 @@ export default class ConfigPanel extends Component {
     this.state = {
       pfv: props.pfv
     };
-    this.noiseWallsHandler = this.noiseWallsHandler.bind(this);
+    this.noiseWallsRedrawRequestHandler = this.noiseWallsRedrawRequestHandler.bind(
+      this
+    );
   }
 
-  noiseWallsHandler() {}
+  noiseWallsRedrawRequestHandler() {}
 
   handleMinimizeClick(input) {
     if (store.configPanel.minimize != input) {
@@ -74,7 +76,7 @@ export default class ConfigPanel extends Component {
     });
     var noiseWallsConfig = (
       <NoiseWallsConfig
-        noiseWallsHandler={this.noiseWallsHandler}
+        noiseWallsRedrawRequestHandler={this.noiseWallsRedrawRequestHandler}
         minimize={store.configPanel.minimize}
         threshold={store.simplex.threshold}
         scale={store.simplex.scale}
