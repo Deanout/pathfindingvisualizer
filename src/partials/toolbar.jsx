@@ -7,6 +7,7 @@ import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { styled } from "@material-ui/core/styles";
 import SimpleSelect from "./simpleselect.jsx";
+import ConfigPanel from "./configpanel/configpanel.jsx";
 import IconButton from "@material-ui/core/IconButton";
 import { observer } from "mobx-react";
 
@@ -26,7 +27,14 @@ const PfvBrand = styled(Typography)({
   margin: theme.spacing,
   fontSize: 20,
   fontFamily: ["Open Sans", "sans-serif"],
-  textTransform: "capitalize"
+  textTransform: "capitalize",
+  "& a": {
+    textDecoration: "none",
+    color: "inherit"
+  },
+  "& a:hover": {
+    color: "#ddd"
+  }
 });
 
 const PfvVisualizeAlgorithmButton = styled(Button)({
@@ -100,6 +108,10 @@ export default class ToolBar extends Component {
     store.algorithm = algorithm;
   }
 
+  toggleConfigPanel() {
+    store.configPanel.toggle = !store.configPanel.toggle;
+  }
+
   render() {
     const { pfv } = this.state;
     const simpleSelect = (
@@ -108,90 +120,113 @@ export default class ToolBar extends Component {
         visualizeClicked={store.algorithm}
       ></SimpleSelect>
     );
-    return (
-      <div onMouseEnter={() => (pfv.state.mouseIsPressed = false)}>
-        <AppBar position="static">
-          <PfvToolbar>
-            <Grid container spacing={1}>
-              <Grid item xs={6} sm={3} md={3}>
-                <PfvBrand variant="h6" m="auto">
-                  Pathfinding Visualizer
-                </PfvBrand>
-              </Grid>
-              <Grid item xs={6} sm={3} md={2}>
-                {simpleSelect}
-              </Grid>
-              <Grid item xs={6} sm={3} md={2}>
-                <PfvConfigButton
-                  color="inherit"
-                  onClick={() => pfv.recursiveWalls()}
-                >
-                  Make Maze
-                </PfvConfigButton>
-              </Grid>
-              <Grid item xs={6} sm={3} md={2}>
-                <PfvConfigButton
-                  color="inherit"
-                  onClick={() => pfv.noiseWalls()}
-                >
-                  Perlin Walls
-                </PfvConfigButton>
-              </Grid>
-              <Grid item xs={6} sm={3} md={2}>
-                <PfvConfigButton
-                  color="inherit"
-                  onClick={() => pfv.randomWalls()}
-                >
-                  Random Walls
-                </PfvConfigButton>
-              </Grid>
-              <Grid item xs={6} sm={3} md={2}>
-                <PfvVisualizeAlgorithmButton
-                  color="inherit"
-                  onClick={() => {
-                    pfv.visualizeAlgorithm(store.algorithm);
-                    store.algorithm === 0
-                      ? this.setState({ algorithm: 1 })
-                      : "";
-                  }}
-                >
-                  Visualize
-                </PfvVisualizeAlgorithmButton>
-              </Grid>
-              <Grid item xs={6} sm={3} md={2}>
-                <PfvConfigButton color="inherit" onClick={() => pfv.init(true)}>
-                  Clear Board
-                </PfvConfigButton>
-              </Grid>
-              <Grid item xs={2} sm={1}>
-                <PfvStartNodeButton
-                  size="small"
-                  onClick={() => (store.nodeType = "start")}
-                >
-                  Start
-                </PfvStartNodeButton>
-              </Grid>
 
-              <Grid item xs={2} sm={1}>
-                <PfvFinishNodeButton
-                  size="small"
-                  onClick={() => (store.nodeType = "finish")}
-                >
-                  End
-                </PfvFinishNodeButton>
+    var configPanel = (
+      <ConfigPanel
+        algorithm={this.state.algorithm}
+        toggleClicked={store.configPanel.toggle}
+        pfv={pfv}
+      ></ConfigPanel>
+    );
+    return (
+      <div>
+        {configPanel}
+
+        <div onMouseEnter={() => (pfv.state.mouseIsPressed = false)}>
+          <AppBar position="static">
+            <PfvToolbar>
+              <Grid container spacing={1}>
+                <Grid item xs={6} sm={3} md={3}>
+                  <PfvBrand variant="h6" m="auto">
+                    <a href="/">Pathfinding Visualizer</a>
+                  </PfvBrand>
+                </Grid>
+                <Grid item xs={6} sm={3} md={2}>
+                  {simpleSelect}
+                </Grid>
+                <Grid item xs={6} sm={3} md={2}>
+                  <PfvConfigButton
+                    color="inherit"
+                    onClick={() => pfv.recursiveWalls()}
+                  >
+                    Make Maze
+                  </PfvConfigButton>
+                </Grid>
+                <Grid item xs={6} sm={3} md={2}>
+                  <PfvConfigButton
+                    color="inherit"
+                    onClick={() => pfv.noiseWalls()}
+                  >
+                    Simplex Walls
+                  </PfvConfigButton>
+                </Grid>
+                <Grid item xs={6} sm={3} md={2}>
+                  <PfvConfigButton
+                    color="inherit"
+                    onClick={() => pfv.randomWalls()}
+                  >
+                    Random Walls
+                  </PfvConfigButton>
+                </Grid>
+                <Grid item xs={6} sm={3} md={2}>
+                  <PfvVisualizeAlgorithmButton
+                    color="inherit"
+                    onClick={() => {
+                      pfv.visualizeAlgorithm(store.algorithm);
+                      store.algorithm === 0
+                        ? this.setState({ algorithm: 1 })
+                        : "";
+                    }}
+                  >
+                    Visualize
+                  </PfvVisualizeAlgorithmButton>
+                </Grid>
+                <Grid item xs={6} sm={3} md={2}>
+                  <PfvConfigButton
+                    color="inherit"
+                    onClick={() => pfv.init(true)}
+                  >
+                    Clear Board
+                  </PfvConfigButton>
+                </Grid>
+                <Grid item xs={6} sm={3} md={2}>
+                  <PfvConfigButton
+                    color="inherit"
+                    onClick={this.toggleConfigPanel}
+                  >
+                    Configure
+                  </PfvConfigButton>
+                </Grid>
+                <Grid item xs={2} sm={1}>
+                  <PfvStartNodeButton
+                    size="small"
+                    onClick={() => (store.nodeType = "start")}
+                  >
+                    Start
+                  </PfvStartNodeButton>
+                </Grid>
+
+                <Grid item xs={2} sm={1}>
+                  <PfvFinishNodeButton
+                    size="small"
+                    onClick={() => (store.nodeType = "finish")}
+                  >
+                    End
+                  </PfvFinishNodeButton>
+                </Grid>
+                <Grid item xs={2} sm={1}>
+                  <PfvWallNodeButton
+                    size="small"
+                    onClick={() => (store.nodeType = "wall")}
+                  >
+                    Wall
+                  </PfvWallNodeButton>
+                </Grid>
               </Grid>
-              <Grid item xs={2} sm={1}>
-                <PfvWallNodeButton
-                  size="small"
-                  onClick={() => (store.nodeType = "wall")}
-                >
-                  Wall
-                </PfvWallNodeButton>
-              </Grid>
-            </Grid>
-          </PfvToolbar>
-        </AppBar>
-        {this.state.console}
+            </PfvToolbar>
+          </AppBar>
+          {this.state.console}
+        </div>
       </div>
     );
   }

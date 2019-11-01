@@ -8,6 +8,7 @@ import { BFS, getShortestBFSPath } from "../algorithms/bfs.js";
 import { DFS, getShortestDFSPath } from "../algorithms/dfs.js";
 
 import Toolbar from "../partials/toolbar.jsx";
+
 import Console from "../partials/console.jsx";
 import store from "./gridstore.js";
 import { observer } from "mobx-react";
@@ -63,17 +64,18 @@ export default class PathfindingVisualizer extends Component {
    */
   componentDidMount() {
     var consoleElement = document.getElementById("console");
-    var consoleBottom = consoleElement.getBoundingClientRect().bottom;
+    store.consoleBottom = consoleElement.getBoundingClientRect().bottom;
     var grid = document.getElementById("grid");
 
     // Recalculate the grid's height and width in terms of node size.
     GRID_WIDTH = Math.floor(window.innerWidth / NODE_WIDTH);
     GRID_HEIGHT = Math.floor(
-      (window.innerHeight - consoleBottom) / NODE_HEIGHT
+      (window.innerHeight - store.consoleBottom) / NODE_HEIGHT
     );
 
     // Set the grid's height to occupy all space below the console.
-    grid.style.height = (window.innerHeight - consoleBottom).toString() + "px";
+    grid.style.height =
+      (window.innerHeight - store.consoleBottom).toString() + "px";
 
     // Set the state of the start and finish node positions declared above.
     store.startPosition = [3, 3];
@@ -98,6 +100,7 @@ export default class PathfindingVisualizer extends Component {
         case "f":
           store.nodeType = FINISH;
           break;
+        /*
         case "1":
           store.algorithm = 1;
           this.visualizeAlgorithm(1); // Dijkstra's
@@ -118,6 +121,7 @@ export default class PathfindingVisualizer extends Component {
           store.algorithm = 5;
           this.visualizeAlgorithm(5); // DFS
           break;
+          */
         case " ":
           document.activeElement.blur();
           this.init(false);
@@ -150,7 +154,7 @@ export default class PathfindingVisualizer extends Component {
 
       var x = event.clientX;
       var y = event.clientY;
-      var row = Math.floor((y - consoleBottom) / NODE_HEIGHT);
+      var row = Math.floor((y - store.consoleBottom) / NODE_HEIGHT);
       var col = Math.floor(x / NODE_WIDTH);
       let oldMousePosition = store.mousePosition;
       row = Math.clamp(row, 0, GRID_HEIGHT - 1);
@@ -461,10 +465,8 @@ export default class PathfindingVisualizer extends Component {
     const nodesToAnimate = randomWalls(GRID_WIDTH, GRID_HEIGHT);
     this.animateWalls(nodesToAnimate);
   }
-  // Change this context.modify to use drawnode maybe?
-  // Might remove the need to splice or something
+
   animateWalls(nodesToAnimate) {
-    const context = this;
     for (let i = 0; i < nodesToAnimate.length; i++) {
       let row = nodesToAnimate[i][0];
       let col = nodesToAnimate[i][1];
@@ -473,7 +475,7 @@ export default class PathfindingVisualizer extends Component {
         continue;
       }
       setTimeout(() => {
-        context.modifyNode(store.grid[row][col], true, `node node-wall`);
+        this.modifyNode(store.grid[row][col], true, `node node-wall`);
       }, 10 * i);
       toggleWall(nodesToAnimate[i][0], nodesToAnimate[i][1]);
     }
@@ -495,6 +497,7 @@ export default class PathfindingVisualizer extends Component {
     return (
       <>
         {toolBar}
+
         <div
           id="grid"
           onMouseDown={() =>

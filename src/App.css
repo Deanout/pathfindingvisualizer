@@ -1,6 +1,7 @@
 .App {
   text-align: center;
   user-select: none;
+  touch-action: none;
 }
 
 .App-logo {
