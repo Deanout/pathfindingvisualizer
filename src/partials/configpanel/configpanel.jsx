@@ -4,10 +4,10 @@ import Header from "@material-ui/core/CardHeader";
 import Collapse from "@material-ui/core/Collapse";
 import IconButton from "@material-ui/core/IconButton";
 import MinimizeIcon from "@material-ui/icons/Minimize";
-import store from "../../pathfindingvisualizer/gridstore";
 import { styled } from "@material-ui/core/styles";
 import { observer } from "mobx-react";
 import NoiseWallsConfig from "./noisewallsconfig.jsx";
+import store from "../../store/gridstore.js";
 
 const theme = {
   spacing: 8
@@ -42,7 +42,6 @@ const PanelHeader = styled(Header)({
   }
 });
 
-// const getInitialGrid = (startPosition, finishPosition) => {
 @observer
 export default class ConfigPanel extends Component {
   constructor(props) {
@@ -50,12 +49,7 @@ export default class ConfigPanel extends Component {
     this.state = {
       pfv: props.pfv
     };
-    this.noiseWallsRedrawRequestHandler = this.noiseWallsRedrawRequestHandler.bind(
-      this
-    );
   }
-
-  noiseWallsRedrawRequestHandler() {}
 
   handleMinimizeClick(input) {
     if (store.configPanel.minimize != input) {
@@ -74,13 +68,21 @@ export default class ConfigPanel extends Component {
       this.setDraggable("mouse");
       this.setDraggable("touch");
     });
+    var fields = [
+      store.simplex.threshold.value,
+      store.simplex.seed.value,
+      store.simplex.scale.value,
+      store.simplex.octave.value,
+      store.simplex.persistence.value,
+      store.simplex.lacunarity.value
+    ];
     var noiseWallsConfig = (
       <NoiseWallsConfig
         noiseWallsRedrawRequestHandler={this.noiseWallsRedrawRequestHandler}
         minimize={store.configPanel.minimize}
-        threshold={store.simplex.threshold}
-        scale={store.simplex.scale}
-        seed={store.simplex.seed}
+        fields={fields}
+        gridWidth={store.gridWidth}
+        gridHeight={store.gridHeight}
         pfv={this.state.pfv}
       ></NoiseWallsConfig>
     );
@@ -112,7 +114,7 @@ export default class ConfigPanel extends Component {
                   <MinimizeIcon />
                 </IconButton>
               }
-              title={store.getAlgorithmName()}
+              title={store.algorithmName}
             ></PanelHeader>
             {noiseWallsConfig}
           </PanelCard>

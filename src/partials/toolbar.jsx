@@ -1,14 +1,15 @@
 import React, { Component } from "react";
-import store from "../pathfindingvisualizer/gridstore.js";
 import AppBar from "@material-ui/core/AppBar";
 import Toolbar from "@material-ui/core/Toolbar";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Button from "@material-ui/core/Button";
 import { styled } from "@material-ui/core/styles";
-import SimpleSelect from "./simpleselect.jsx";
+import AlgorithmSelect from "./algorithmselect.jsx";
+import TerrainSelect from "./terrainselect.jsx";
 import ConfigPanel from "./configpanel/configpanel.jsx";
 import IconButton from "@material-ui/core/IconButton";
+import Tooltip from "@material-ui/core/Tooltip";
 import { observer } from "mobx-react";
 
 const theme = {
@@ -102,10 +103,15 @@ export default class ToolBar extends Component {
       console: props.console
     };
     this.algorithmHandler = this.algorithmHandler.bind(this);
+    this.terrainHandler = this.terrainHandler.bind(this);
   }
 
   algorithmHandler(algorithm) {
     store.algorithm = algorithm;
+  }
+
+  terrainHandler(terrain) {
+    store.terrain = terrain;
   }
 
   toggleConfigPanel() {
@@ -114,11 +120,17 @@ export default class ToolBar extends Component {
 
   render() {
     const { pfv } = this.state;
-    const simpleSelect = (
-      <SimpleSelect
+    const algorithmSelect = (
+      <AlgorithmSelect
         algorithmHandler={this.algorithmHandler}
         visualizeClicked={store.algorithm}
-      ></SimpleSelect>
+      ></AlgorithmSelect>
+    );
+    const terrainSelect = (
+      <TerrainSelect
+        terrainHandler={this.terrainHandler}
+        makeTerrainClicked={store.terrain}
+      ></TerrainSelect>
     );
 
     var configPanel = (
@@ -142,45 +154,34 @@ export default class ToolBar extends Component {
                   </PfvBrand>
                 </Grid>
                 <Grid item xs={6} sm={3} md={2}>
-                  {simpleSelect}
-                </Grid>
-                <Grid item xs={6} sm={3} md={2}>
-                  <PfvConfigButton
-                    color="inherit"
-                    onClick={() => pfv.recursiveWalls()}
-                  >
-                    Make Maze
-                  </PfvConfigButton>
-                </Grid>
-                <Grid item xs={6} sm={3} md={2}>
-                  <PfvConfigButton
-                    color="inherit"
-                    onClick={() => pfv.noiseWalls()}
-                  >
-                    Simplex Walls
-                  </PfvConfigButton>
-                </Grid>
-                <Grid item xs={6} sm={3} md={2}>
-                  <PfvConfigButton
-                    color="inherit"
-                    onClick={() => pfv.randomWalls()}
-                  >
-                    Random Walls
-                  </PfvConfigButton>
+                  {algorithmSelect}
                 </Grid>
                 <Grid item xs={6} sm={3} md={2}>
                   <PfvVisualizeAlgorithmButton
                     color="inherit"
                     onClick={() => {
                       pfv.visualizeAlgorithm(store.algorithm);
-                      store.algorithm === 0
-                        ? this.setState({ algorithm: 1 })
-                        : "";
+                      store.algorithm === 0 ? (store.algorithm = 1) : "";
                     }}
                   >
                     Visualize
                   </PfvVisualizeAlgorithmButton>
                 </Grid>
+                <Grid item xs={6} sm={3} md={2}>
+                  {terrainSelect}
+                </Grid>
+                <Grid item xs={6} sm={3} md={2}>
+                  <PfvVisualizeAlgorithmButton
+                    color="inherit"
+                    onClick={() => {
+                      pfv.generateTerrain(store.terrain);
+                      store.terrain === 0 ? (store.terrain = 1) : "";
+                    }}
+                  >
+                    Make Terrain
+                  </PfvVisualizeAlgorithmButton>
+                </Grid>
+
                 <Grid item xs={6} sm={3} md={2}>
                   <PfvConfigButton
                     color="inherit"

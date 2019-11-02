@@ -4,6 +4,7 @@ import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import InputBase from "@material-ui/core/InputBase";
+import Tooltip from "@material-ui/core/Tooltip";
 
 const BootstrapInput = withStyles(theme => ({
   root: {
@@ -38,31 +39,46 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-export default function SimpleSelect(props) {
+export default function TerrainSelect(props) {
   const classes = useStyles();
-  const [algorithm, setAlgorithm] = React.useState(0);
+  const [terrain, setTerrain] = React.useState(0);
+  const [open, setOpen] = React.useState(false);
+
+  const handleTooltipClose = () => {
+    setOpen(false);
+  };
+
+  const handleTooltipOpen = () => {
+    setOpen(true);
+  };
   const handleChange = event => {
-    setAlgorithm(event.target.value);
-    props.algorithmHandler(event.target.value);
+    setTerrain(event.target.value);
+    props.terrainHandler(event.target.value);
   };
 
   return (
     <form className={classes.root} autoComplete="off">
       <FormControl className={classes.margin}>
-        <Select
-          value={props.visualizeClicked}
-          onChange={handleChange}
-          input={<BootstrapInput name="algorithm" id="algorithm" />}
+        <Tooltip
+          open={open}
+          title="Select a terrain generator. This will overwrite any changes to the current grid and create a terrain based on the algorithm. The default is an animated, recursively generated maze."
         >
-          <MenuItem value={0}>
-            <em>Algorithms</em>
-          </MenuItem>
-          <MenuItem value={1}>Dijkstra's Algorithm</MenuItem>
-          <MenuItem value={2}>A* Search</MenuItem>
-          <MenuItem value={3}>Breadth First Search</MenuItem>
-          <MenuItem value={4}>Depth First Search</MenuItem>
-          <MenuItem value={5}>A* Priority Queue</MenuItem>
-        </Select>
+          <Select
+            value={props.makeTerrainClicked}
+            onChange={handleChange}
+            onMouseEnter={handleTooltipOpen}
+            onMouseLeave={handleTooltipClose}
+            onMouseDown={handleTooltipClose}
+            input={<BootstrapInput name="terrain" id="terrain" />}
+          >
+            <MenuItem value={0}>
+              <em>Terrain</em>
+            </MenuItem>
+            <MenuItem value={1}>Recursive Walls</MenuItem>
+            <MenuItem value={2}>Simplex Walls</MenuItem>
+            <MenuItem value={3}>Random Walls</MenuItem>
+          </Select>
+        </Tooltip>
       </FormControl>
     </form>
   );

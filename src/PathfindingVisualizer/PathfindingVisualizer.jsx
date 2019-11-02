@@ -3,16 +3,12 @@ import Node from "./node/node.jsx";
 import { dijkstra, getShortestDijkstraPath } from "../algorithms/dijkstra.js";
 import { AStar, getShortestAStarPath } from "../algorithms/astar.js";
 import { AStarPQ, getShortestAStarPQPath } from "../algorithms/astarpq.js";
-
 import { BFS, getShortestBFSPath } from "../algorithms/bfs.js";
 import { DFS, getShortestDFSPath } from "../algorithms/dfs.js";
-
 import Toolbar from "../partials/toolbar.jsx";
-
 import Console from "../partials/console.jsx";
-import store from "./gridstore.js";
+import store from "../store/gridstore.js";
 import { observer } from "mobx-react";
-
 import { recursiveWallBuilder } from "../algorithms/recursivewalls.js";
 import { noiseWalls } from "../algorithms/noisewalls.js";
 import { randomWalls } from "../algorithms/randomwalls.js";
@@ -82,20 +78,20 @@ export default class PathfindingVisualizer extends Component {
     document.addEventListener("keydown", event => {
       switch (event.key.toLowerCase()) {
         case "s":
-          store.nodeType = START;
+          store.nodeType = store.start;
           break;
         case "w":
-          store.nodeType = WALL;
+          store.nodeType = store.wall;
           break;
         case "f":
-          store.nodeType = FINISH;
+          store.nodeType = store.finish;
           break;
         case " ":
           document.activeElement.blur();
           this.init(false);
           break;
         default:
-          store.nodeType = WALL;
+          store.nodeType = store.wall;
           break;
       }
       // Draw the grid on key press. This allows you to skip
@@ -192,13 +188,13 @@ export default class PathfindingVisualizer extends Component {
 
   toggleNodeType(row, col) {
     switch (store.nodeType) {
-      case WALL:
+      case store.wall:
         toggleWall(row, col);
         break;
-      case START:
+      case store.start:
         this.toggleStartPosition(row, col);
         break;
-      case FINISH:
+      case store.finish:
         this.toggleFinishPosition(row, col);
         break;
       default:
@@ -440,31 +436,27 @@ export default class PathfindingVisualizer extends Component {
     }
   }
 
-  recursiveWalls() {
-    this.init(true);
-    const nodesToAnimate = recursiveWallBuilder(
-      store.gridWidth,
-      store.gridHeight,
-      store.startPosition[0],
-      store.startPosition[1],
-      store.finishPosition[0],
-      store.finishPosition[1],
-      WALL,
-      AIR
-    );
-
-    this.animateWalls(nodesToAnimate);
+  generateTerrain(terrain) {
+    switch (terrain) {
+      case 1:
+        //this.visualizeDijkstra(startNode, finishNode);
+        this.handleTerrainGeneration(recursiveWallBuilder);
+        break;
+      case 2:
+        this.handleTerrainGeneration(noiseWalls);
+        break;
+      case 3:
+        this.handleTerrainGeneration(randomWalls);
+        break;
+      default:
+        this.handleTerrainGeneration(recursiveWallBuilder);
+        break;
+    }
   }
 
-  noiseWalls() {
+  handleTerrainGeneration(terrain) {
     this.init(true);
-    const nodesToAnimate = noiseWalls(store.gridWidth, store.gridHeight);
-    this.animateWalls(nodesToAnimate);
-  }
-
-  randomWalls() {
-    this.init(true);
-    const nodesToAnimate = randomWalls(store.gridWidth, store.gridHeight);
+    const nodesToAnimate = terrain();
     this.animateWalls(nodesToAnimate);
   }
 

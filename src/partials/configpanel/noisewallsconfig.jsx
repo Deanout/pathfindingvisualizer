@@ -1,15 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Button from "@material-ui/core/Button";
 import Slider from "@material-ui/core/Slider";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
-import { noiseWalls } from "../../algorithms/noisewalls";
-import CardMedia from "@material-ui/core/CardMedia";
 import CardContent from "@material-ui/core/CardContent";
 import Input from "@material-ui/core/Input";
 import Collapse from "@material-ui/core/Collapse";
 import Typography from "@material-ui/core/Typography";
-import store from "../../pathfindingvisualizer/gridstore";
+import store from "../../store/gridstore";
 var SimplexNoise = require("../../libraries/simplex-noise.js");
 
 const useStyles = makeStyles(theme => ({
@@ -24,115 +22,83 @@ const useStyles = makeStyles(theme => ({
     background: "#fffb"
   },
   noisePreview: {
-    maxHeight: 200,
+    width: 350,
+    height: "auto",
+    maxHeight: 175,
     maxWidth: 350,
     backgroundColor: "black"
+  },
+  cardContent: {
+    maxHeight: 175,
+    overflow: "auto"
   }
 }));
 
 export default function NoiseWallsConfig(props) {
   const classes = useStyles();
-  const handleThresholdChange = (event, newValue) => {
-    store.simplex.threshold = newValue;
-  };
-  const handleSeedChange = (event, newValue) => {
-    store.simplex.seed = newValue;
-  };
-  const handleScaleChange = (event, newValue) => {
-    store.simplex.scale = newValue;
-  };
-  const handleThresholdInputChange = event => {
-    if (event.target.value === "") {
-    } else {
-      store.simplex.threshold = Number(event.target.value);
-    }
-  };
-  const handleSeedInputChange = event => {
-    if (event.target.value === "") {
-    } else {
-      store.simplex.seed = Number(event.target.value);
-    }
-  };
-  const handleScaleInputChange = event => {
-    if (event.target.value === "") {
-    } else {
-      store.simplex.scale = Number(event.target.value);
-    }
+
+  const fields = [
+    store.simplex.threshold,
+    store.simplex.seed,
+    store.simplex.scale,
+    store.simplex.octave,
+    store.simplex.persistence,
+    store.simplex.lacunarity
+  ];
+
+  const resetSimplex = () => {
+    store.simplex.resetValues();
   };
 
-  const handleThresholdBlur = () => {
-    if (props.threshold < store.simplex.minThreshold) {
-      store.simplex.threshold = store.simplex.minThreshold;
-    } else if (props.threshold > store.simplex.maxThreshold) {
-      store.simplex.threshold = store.simplex.maxThreshold;
-    }
-  };
-  const handleSeedBlur = () => {
-    if (props.seed < store.simplex.minSeed) {
-      store.simplex.seed = store.simplex.minSeed;
-    } else if (props.seed > store.simplex.maxSeed) {
-      store.simplex.seed = store.simplex.maxSeed;
-    }
-  };
-  const handleScaleBlur = () => {
-    if (props.scale < store.simplex.minScale) {
-      store.simplex.scale = store.simplex.minScale;
-    } else if (props.scale > store.simplex.maxScale) {
-      store.simplex.scale = store.simplex.maxScale;
-    }
-  };
-  const resetSimplex = () => {
-    store.simplex.seed = store.simplex.defaultSeed;
-    store.simplex.threshold = store.simplex.defaultThreshold;
-    store.simplex.scale = store.simplex.defaultScale;
-  };
   const paintCanvas = () => {
     var canvas = document.getElementById("noisewallscanvas");
     var context = canvas.getContext("2d");
-    /*
-       canvas.width = 958;
-      canvas.height = 748;
-    */
     var width = canvas.width;
     var height = canvas.height;
     var imagedata = context.createImageData(width, height);
     let config = store.simplex;
-    var simplex = new SimplexNoise(config.seed);
-    var noise2D;
-    var scaledNoise2D;
-    var nodes = [];
+    var simplex = new SimplexNoise(config.seed.value);
+    let persistence = config.persistence.value;
+    let lacunarity = config.lacunarity.value;
+    var translatedHeight = config.scale.value * (height / props.gridHeight);
+    var translatedWidth = config.scale.value * (width / props.gridWidth);
 
     // Create the image
     function createImage(offset) {
       // Loop over all of the pixels
-      // 29*38
       for (var row = 0; row < height; row++) {
         for (var col = 0; col < width; col++) {
-          noise2D = simplex.noise2D(
-            row / (config.scale * (height / store.gridHeight)),
-            col / (config.scale * (width / store.gridWidth))
-          );
-          noise2D = noise2D > store.simplex.threshold ? noise2D : 1;
-          scaledNoise2D = scaleBetween(noise2D, 0, 255, -1, 1);
-          if (scaledNoise2D < config.threshold) {
-            scaledNoise2D = 0;
+          let total = 0;
+          let frequency = 1;
+          let amplitude = 1;
+          let maxValue = 0;
+          for (let octave = 0; octave < config.octave.value; octave++) {
+            total +=
+              simplex.noise2D(
+                (row / translatedHeight) * frequency,
+                (col / translatedWidth) * frequency
+              ) * amplitude;
+            maxValue += amplitude;
+            amplitude *= persistence;
+            frequency *= lacunarity;
           }
-
+          let scaled2D = scaleBetween(total, 0, 1, -maxValue, maxValue);
+          let evaluatedThreshold =
+            scaled2D > config.threshold.value ? scaled2D * 255 : 0;
           // Get the pixel index
           var pixelindex = (row * width + col) * 4;
-          var result = scaledNoise2D;
           // Set the pixel data
-          imagedata.data[pixelindex] = result; // Red
-          imagedata.data[pixelindex + 1] = result; // Green
-          imagedata.data[pixelindex + 2] = result; // Blue
+          imagedata.data[pixelindex] = evaluatedThreshold; // Red
+          imagedata.data[pixelindex + 1] = evaluatedThreshold; // Green
+          imagedata.data[pixelindex + 2] = evaluatedThreshold; // Blue
           imagedata.data[pixelindex + 3] = 255; // Alpha
         }
       }
     }
-    function scaleBetween(unscaledNum, minAllowed, maxAllowed, min, max) {
+    function scaleBetween(unscaledNum, newMin, newMax, oldMin, oldMax) {
       return (
-        ((maxAllowed - minAllowed) * (unscaledNum - min)) / (max - min) +
-        minAllowed
+        ((newMax - newMin) * (unscaledNum - oldMin)) / (oldMax - oldMin) +
+        newMin
       );
     }
     window.requestAnimationFrame(() => {
@@ -148,6 +114,17 @@ export default function NoiseWallsConfig(props) {
     });
   }
 
+  const handleChange = (param, event, newValue) => {
+    let value = isNaN(event.target.value) ? newValue : event.target.value;
+    store.simplex.setValueByName(param.name, Number(value));
+  };
+  const handleBlur = (param, event) => {
+    store.simplex.setValueByName(
+      param.name,
+      Math.clamp(event.target.value, param.min, param.max)
+    );
+  };
+
   return (
     <Collapse
       in={props.minimize}
@@ -157,104 +134,61 @@ export default function NoiseWallsConfig(props) {
     >
       {<canvas id="noisewallscanvas" className={classes.noisePreview}></canvas>}
       <CardContent className={classes.cardContent}>
-        <Typography id="threshold-slider" gutterBottom>
-          Threshold
-        </Typography>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={9}>
-            <Slider
-              value={props.threshold}
-              onChange={handleThresholdChange}
-              aria-labelledby="threshold-slider"
-              step={store.simplex.stepThreshold}
-              min={store.simplex.minThreshold}
-              max={store.simplex.maxThreshold}
-            />
+        {fields.map((field, fieldIdx) => {
+          return (
+            <Grid container alignItems="center" key={fieldIdx}>
+              <Grid item xs={3}>
+                <Typography variant="body2" id="threshold-slider" gutterBottom>
+                  {field.name}
+                </Typography>
+              </Grid>
+              <Grid item xs={5}>
+                <Slider
+                  value={props.fields[fieldIdx]}
+                  onChange={(newValue, event) =>
+                    handleChange(field, newValue, event)
+                  }
+                  aria-labelledby="threshold-slider"
+                  step={field.step}
+                  min={field.min}
+                  max={field.max}
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <Input
+                  value={props.fields[fieldIdx]}
+                  margin="dense"
+                  onChange={(newValue, event) =>
+                    handleChange(field, newValue, event)
+                  }
+                  onBlur={(event, newValue) => handleBlur(field)}
+                  inputProps={{
+                    step: field.step,
+                    min: field.min,
+                    max: field.max,
+                    type: "number",
+                    "aria-labelledby": "threshold-input"
+                  }}
+                />
+              </Grid>
+            </Grid>
+          );
+        })}
+        <Grid container alignItems="center" spacing={2}>
+          <Grid item xs={6}>
+            <Button
+              color="inherit"
+              onClick={() => props.pfv.generateTerrain(2)}
+            >
+              Make Terrain
+            </Button>
           </Grid>
-
-          <Grid item xs={3}>
-            <Input
-              value={props.threshold}
-              margin="dense"
-              onChange={handleThresholdInputChange}
-              onBlur={handleThresholdBlur}
-              inputProps={{
-                step: store.simplex.stepThreshold,
-                min: store.simplex.minThreshold,
-                max: store.simplex.maxThreshold,
-                type: "number",
-                "aria-labelledby": "threshold-input"
-              }}
-            />
-          </Grid>
-        </Grid>
-        <Typography id="seed-slider" gutterBottom>
-          Seed
-        </Typography>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={9}>
-            <Slider
-              value={props.seed}
-              onChange={handleSeedChange}
-              aria-labelledby="seed-slider"
-              step={store.simplex.stepSeed}
-              min={store.simplex.minSeed}
-              max={store.simplex.maxSeed}
-            />
-          </Grid>
-          <Grid item xs={3}>
-            <Input
-              value={props.seed}
-              margin="dense"
-              onChange={handleSeedInputChange}
-              onBlur={handleSeedBlur}
-              inputProps={{
-                step: store.simplex.stepSeed,
-                min: store.simplex.minSeed,
-                max: store.simplex.maxSeed,
-                type: "number",
-                "aria-labelledby": "seed-input"
-              }}
-            />
+          <Grid item xs={6}>
+            <Button color="inherit" onClick={() => resetSimplex()}>
+              Reset Noise
+            </Button>
           </Grid>
         </Grid>
-        <Typography id="threshold-slider" gutterBottom>
-          Scale
-        </Typography>
-        <Grid container spacing={2} alignItems="center">
-          <Grid item xs={9}>
-            <Slider
-              value={props.scale}
-              onChange={handleScaleChange}
-              aria-labelledby="scale-slider"
-              step={store.simplex.stepScale}
-              min={store.simplex.minScale}
-              max={store.simplex.maxScale}
-            />
-          </Grid>
-
-          <Grid item xs={3}>
-            <Input
-              value={props.scale}
-              margin="dense"
-              onChange={handleScaleInputChange}
-              onBlur={handleScaleBlur}
-              inputProps={{
-                step: store.simplex.stepScale,
-                min: store.simplex.minScale,
-                max: store.simplex.maxScale,
-                type: "number",
-                "aria-labelledby": "threshold-input"
-              }}
-            />
-          </Grid>
-        </Grid>
-        <Button color="inherit" onClick={() => props.pfv.noiseWalls()}>
-          Run Simplex Noise
-        </Button>
-        <Button color="inherit" onClick={() => resetSimplex()}>
-          Reset Simplex Noise
-        </Button>
       </CardContent>
     </Collapse>
   );

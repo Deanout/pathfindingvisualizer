@@ -1,44 +1,43 @@
 var nodesToAnimate = [];
-export function recursiveWallBuilder(
-  width,
-  height,
-  startNodeRow,
-  startNodeCol,
-  endNodeRow,
-  endNodeCol,
-  wall,
-  air
-) {
+export function recursiveWallBuilder() {
   const coords = [];
   nodesToAnimate = [];
 
-  for (let row = 0; row < height; row++) {
+  for (let row = 0; row < store.gridHeight; row++) {
     let currentRow = [];
-    for (let col = 0; col < width; col++) {
-      currentRow.push(air);
+    for (let col = 0; col < store.gridWidth; col++) {
+      currentRow.push(store.air);
     }
     coords.push(currentRow);
   }
-  for (let i = 0; i < width; i++) {
+  for (let i = 0; i < store.gridWidth; i++) {
     nodesToAnimate.push([0, i]);
-    coords[0][i] = wall;
+    coords[0][i] = store.wall;
   }
-  for (let i = 1; i < height; i++) {
-    nodesToAnimate.push([i, width - 1]);
-    coords[i][width - 1] = wall;
+  for (let i = 1; i < store.gridHeight; i++) {
+    nodesToAnimate.push([i, store.gridWidth - 1]);
+    coords[i][store.gridWidth - 1] = store.wall;
   }
-  for (let i = width - 2; i >= 0; i--) {
-    nodesToAnimate.push([height - 1, i]);
-    coords[height - 1][i] = wall;
+  for (let i = store.gridWidth - 2; i >= 0; i--) {
+    nodesToAnimate.push([store.gridHeight - 1, i]);
+    coords[store.gridHeight - 1][i] = store.wall;
   }
-  for (let i = height - 2; i > 0; i--) {
+  for (let i = store.gridHeight - 2; i > 0; i--) {
     nodesToAnimate.push([i, 0]);
-    coords[i][0] = wall;
+    coords[i][0] = store.wall;
   }
 
-  const walls = helper(coords, 0, width - 1, 0, height - 1, wall, air);
-  walls[startNodeRow][startNodeCol] = air;
-  walls[endNodeRow][endNodeCol] = air;
+  const walls = helper(
+    coords,
+    0,
+    store.gridWidth - 1,
+    0,
+    store.gridHeight - 1,
+    store.wall,
+    store.air
+  );
+  walls[store.startPosition[0]][store.startPosition[1]] = store.air;
+  walls[store.finishPosition[0]][store.finishPosition[1]] = store.air;
   return nodesToAnimate;
 }
 
