@@ -17,7 +17,6 @@ export function AStarPQ(grid, startNode, finishNode, width, height) {
       return computeVisitedNodes(visitedNodesInOrder);
     }
     currentNode.closed = true;
-
     for (let neighbor of getNeighbors(grid, currentNode, width, height)) {
       if (neighbor.nodeType.walkable === false || neighbor.closed) {
         continue;

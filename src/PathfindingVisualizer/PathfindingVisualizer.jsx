@@ -81,6 +81,12 @@ export default class PathfindingVisualizer extends Component {
           document.activeElement.blur();
           this.init(false);
           break;
+        case "arrowup":
+          this.handleNodeSelect(-1);
+          break;
+        case "arrowdown":
+          this.handleNodeSelect(1);
+          break;
         default:
           store.clickNodeType = store.air;
           break;
@@ -158,6 +164,22 @@ export default class PathfindingVisualizer extends Component {
     setKeyNode(store.finishPosition[0], store.finishPosition[1], store.finish);
   }
 
+  handleNodeSelect(direction) {
+    let index = store.clickNodeIndex;
+    let length = store.clickableNodeTypes.length;
+    if (index + direction < 0) {
+      // 0 + 1
+      index = length - 1;
+    } else if (index + direction > length - 1) {
+      // 11 + 1
+      index = 0;
+    } else {
+      index += direction;
+    }
+    store.clickNodeIndex = index;
+    store.clickNodeType = store.nodeTypes[index];
+  }
+
   handleMouseUp() {
     store.mouseIsPressed = false;
   }
@@ -182,9 +204,6 @@ export default class PathfindingVisualizer extends Component {
 
   toggleNodeType(row, col) {
     switch (store.clickNodeType) {
-      case store.wall:
-        setNodeType(row, col, store.wall);
-        break;
       case store.start:
         this.toggleStartPosition(row, col);
         break;
@@ -192,6 +211,7 @@ export default class PathfindingVisualizer extends Component {
         this.toggleFinishPosition(row, col);
         break;
       default:
+        setNodeType(row, col, store.clickNodeType);
         break;
     }
   }

@@ -141,7 +141,29 @@ class GridStore {
 
   @observable nodeType = this.air;
   @observable clickNodeType = this.wall;
+  @observable clickNodeIndex = 1;
 
+  // UI Variables
+  @observable consoleBottom = 0;
+
+  @observable configPanel = {
+    toggle: false,
+    minimize: true,
+    panelID: 0
+  };
+
+  @computed get clickableNodeTypes() {
+    var nodeTypes = this.nodeTypes;
+    nodeTypes.unshift(this.finish);
+    nodeTypes.unshift(this.start);
+    nodeTypes.unshift(this.wall);
+    nodeTypes.unshift(this.air);
+    return nodeTypes;
+  }
+
+  @computed get algorithmName() {
+    return this.algorithms[this.algorithm].name;
+  }
   @observable algorithms = [
     {
       name: "Algorithms",
@@ -174,18 +196,6 @@ class GridStore {
         "This is a custom variation of the default A*. Instead of using an array, this uses a priority queue that is implemented through a min-heap."
     }
   ];
-  // UI Variables
-  @observable consoleBottom = 0;
-
-  @observable configPanel = {
-    toggle: false,
-    minimize: true,
-    panelID: 0
-  };
-
-  @computed get algorithmName() {
-    return this.algorithms[this.algorithm].name;
-  }
 }
 
 // This allows us to access the grid store from inside the console.

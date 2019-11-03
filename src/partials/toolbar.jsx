@@ -7,10 +7,12 @@ import Button from "@material-ui/core/Button";
 import { styled } from "@material-ui/core/styles";
 import AlgorithmSelect from "./algorithmselect.jsx";
 import TerrainSelect from "./terrainselect.jsx";
+import NodeTypeSelect from "./nodetypeselect.jsx";
 import ConfigPanel from "./configpanel/configpanel.jsx";
 import IconButton from "@material-ui/core/IconButton";
 import Tooltip from "@material-ui/core/Tooltip";
 import { observer } from "mobx-react";
+import store from "../store/gridstore.js";
 
 const theme = {
   spacing: 8
@@ -64,36 +66,6 @@ const PfvConfigButton = styled(Button)({
   }
 });
 
-const PfvStartNodeButton = styled(IconButton)({
-  margin: theme.spacing,
-  height: 32,
-  width: 32,
-  fontSize: 12,
-  fontFamily: ["Open Sans", "sans-serif"],
-  textTransform: "capitalize",
-  color: "white",
-  background: "#009605"
-});
-const PfvFinishNodeButton = styled(IconButton)({
-  margin: theme.spacing,
-  height: 32,
-  width: 32,
-  fontSize: 12,
-  fontFamily: ["Open Sans", "sans-serif"],
-  textTransform: "capitalize",
-  color: "#fff",
-  background: "#0C1824"
-});
-const PfvWallNodeButton = styled(IconButton)({
-  margin: theme.spacing,
-  height: 32,
-  width: 32,
-  fontSize: 12,
-  fontFamily: ["Open Sans", "sans-serif"],
-  textTransform: "capitalize",
-  color: "white",
-  background: "#0c3547"
-});
 @observer
 export default class ToolBar extends Component {
   constructor(props) {
@@ -104,6 +76,10 @@ export default class ToolBar extends Component {
     };
     this.algorithmHandler = this.algorithmHandler.bind(this);
     this.terrainHandler = this.terrainHandler.bind(this);
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.log(error, errorInfo);
   }
 
   algorithmHandler(algorithm) {
@@ -140,6 +116,15 @@ export default class ToolBar extends Component {
         pfv={pfv}
       ></ConfigPanel>
     );
+    var nodeTypes = store.clickableNodeTypes;
+
+    var nodeTypeSelect = (
+      <NodeTypeSelect
+        nodeTypes={nodeTypes}
+        clickNodeType={store.clickNodeType}
+        clickNodeIndex={store.clickNodeIndex}
+      ></NodeTypeSelect>
+    );
     return (
       <div>
         {configPanel}
@@ -148,15 +133,15 @@ export default class ToolBar extends Component {
           <AppBar position="static">
             <PfvToolbar>
               <Grid container spacing={1}>
-                <Grid item xs={6} sm={3} md={3}>
+                <Grid item xs={6} sm={3} md={3} lg={1}>
                   <PfvBrand variant="h6" m="auto">
                     <a href="/">Pathfinding Visualizer</a>
                   </PfvBrand>
                 </Grid>
-                <Grid item xs={6} sm={3} md={2}>
+                <Grid item xs={6} sm={3} md={2} lg={1}>
                   {algorithmSelect}
                 </Grid>
-                <Grid item xs={6} sm={3} md={2}>
+                <Grid item xs={6} sm={3} md={2} lg={1}>
                   <PfvVisualizeAlgorithmButton
                     color="inherit"
                     onClick={() => {
@@ -167,10 +152,10 @@ export default class ToolBar extends Component {
                     Visualize
                   </PfvVisualizeAlgorithmButton>
                 </Grid>
-                <Grid item xs={6} sm={3} md={2}>
+                <Grid item xs={6} sm={3} md={2} lg={1}>
                   {terrainSelect}
                 </Grid>
-                <Grid item xs={6} sm={3} md={2}>
+                <Grid item xs={6} sm={3} md={2} lg={1}>
                   <PfvVisualizeAlgorithmButton
                     color="inherit"
                     onClick={() => {
@@ -182,7 +167,7 @@ export default class ToolBar extends Component {
                   </PfvVisualizeAlgorithmButton>
                 </Grid>
 
-                <Grid item xs={6} sm={3} md={2}>
+                <Grid item xs={6} sm={3} md={2} lg={1}>
                   <PfvConfigButton
                     color="inherit"
                     onClick={() => pfv.init(true)}
@@ -190,7 +175,7 @@ export default class ToolBar extends Component {
                     Clear Board
                   </PfvConfigButton>
                 </Grid>
-                <Grid item xs={6} sm={3} md={2}>
+                <Grid item xs={6} sm={3} md={2} lg={1}>
                   <PfvConfigButton
                     color="inherit"
                     onClick={this.toggleConfigPanel}
@@ -198,30 +183,8 @@ export default class ToolBar extends Component {
                     Terrain Settings
                   </PfvConfigButton>
                 </Grid>
-                <Grid item xs={2} sm={1}>
-                  <PfvStartNodeButton
-                    size="small"
-                    onClick={() => (store.nodeType = "start")}
-                  >
-                    Start
-                  </PfvStartNodeButton>
-                </Grid>
-
-                <Grid item xs={2} sm={1}>
-                  <PfvFinishNodeButton
-                    size="small"
-                    onClick={() => (store.nodeType = "finish")}
-                  >
-                    End
-                  </PfvFinishNodeButton>
-                </Grid>
-                <Grid item xs={2} sm={1}>
-                  <PfvWallNodeButton
-                    size="small"
-                    onClick={() => (store.nodeType = "wall")}
-                  >
-                    Wall
-                  </PfvWallNodeButton>
+                <Grid item xs={6} sm={3} md={2} lg={1}>
+                  {nodeTypeSelect}
                 </Grid>
               </Grid>
             </PfvToolbar>
