@@ -1,11 +1,16 @@
 .node {
+  display: flex;
   flex: 1;
   border-right: 1px solid rgb(175, 200, 250);
   border-bottom: 1px solid rgb(175, 200, 250);
 }
 
+.path {
+  flex: 1;
+}
+
 .node:hover {
-  background-color: rgb(200, 225, 225);
+  opacity: 0.75;
 }
 .node-text {
   margin: none;
@@ -14,7 +19,7 @@
 }
 
 .node-finish {
-  background-color: rgb(12, 24, 36);
+  background-color: rgb(150, 0, 5);
   animation-name: finishAnimation;
   animation-duration: 0.1s;
   animation-timing-function: ease-out;
@@ -28,22 +33,19 @@
 @keyframes finishAnimation {
   0% {
     transform: scale(0.25);
-    background-color: rgb(12, 24, 36);
   }
 
   50% {
     transform: scale(0.6);
-    background-color: rgb(12, 24, 36);
   }
 
   100% {
     transform: scale(1);
-    background-color: rgb(12, 24, 36);
   }
 }
 
 .node-start {
-  background-color: #009605;
+  background-color: rgb(0, 255, 0);
   animation-name: startAnimation;
   animation-duration: 0.1s;
   animation-timing-function: ease-out;
@@ -57,17 +59,14 @@
 @keyframes startAnimation {
   0% {
     transform: scale(0.25);
-    background-color: #009605;
   }
 
   50% {
     transform: scale(0.6);
-    background-color: #009605;
   }
 
   100% {
     transform: scale(1);
-    background-color: #009605;
   }
 }
 
@@ -101,35 +100,6 @@
   100% {
     transform: scale(1);
     background-color: rgba(0, 190, 218, 0.75);
-  }
-}
-
-.node-wall {
-  background-color: rgb(12, 53, 71);
-  animation-name: wallAnimation;
-  animation-duration: 0.1s;
-  animation-timing-function: ease-out;
-  animation-delay: 0;
-  animation-direction: alternate;
-  animation-iteration-count: 1;
-  animation-fill-mode: forwards;
-  animation-play-state: running;
-}
-
-@keyframes wallAnimation {
-  0% {
-    transform: scale(0.25);
-    background-color: rgb(12, 53, 71);
-  }
-
-  50% {
-    transform: scale(0.6);
-    background-color: rgb(12, 53, 71);
-  }
-
-  100% {
-    transform: scale(1);
-    background-color: rgb(12, 53, 71);
   }
 }
 
@@ -211,5 +181,237 @@
       rgb(0, 255, 213) 25%,
       rgba(0, 190, 218, 0.75) 50%
     );
+  }
+}
+
+.node-wall {
+  background-color: rgb(12, 53, 71);
+  animation-name: wallAnimation;
+  animation-duration: 0.1s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes wallAnimation {
+  0% {
+    transform: scale(0.25);
+    background-color: rgb(12, 53, 71);
+  }
+
+  50% {
+    transform: scale(0.6);
+    background-color: rgb(12, 53, 71);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgb(12, 53, 71);
+  }
+}
+
+.node-water {
+  background-color: rgb(0, 110, 255);
+  animation-name: waterAnimation;
+  animation-duration: 2s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes waterAnimation {
+  0% {
+    transform: scale(0.25);
+    background-color: rgb(0, 110, 255);
+  }
+
+  50% {
+    transform: scale(0.6);
+    background-color: rgba(0, 91, 211, 0.911);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgb(0, 110, 255);
+  }
+}
+
+.node-water-deep {
+  background-color: rgb(0, 65, 150);
+  animation-name: waterDeepAnimation;
+  animation-duration: 2s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes waterDeepAnimation {
+  0% {
+    transform: scale(0.25);
+    background-color: rgb(0, 110, 255);
+  }
+
+  50% {
+    transform: scale(0.6);
+    background-color: rgba(0, 90, 210, 0.9);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgb(0, 65, 150);
+  }
+}
+
+.node-sand {
+  background-color: rgb(195, 175, 125);
+  animation-name: sandAnimation;
+  animation-duration: 0.1s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes sandAnimation {
+  0% {
+    transform: scale(0.25);
+    background-color: rgb(0, 110, 255, 0.6);
+  }
+
+  50% {
+    transform: scale(0.6);
+    background-color: rgb(195, 175, 125, 0.8);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgb(195, 175, 125);
+  }
+}
+
+.node-grass {
+  background-color: rgb(85, 125, 70);
+  animation-name: grassAnimation;
+  animation-duration: 0.1s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes grassAnimation {
+  0% {
+    transform: scale(0.25);
+    background-color: rgb(86, 125, 70, 0.6);
+  }
+
+  50% {
+    transform: scale(0.6);
+    background-color: rgb(86, 125, 70, 0.8);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgb(86, 125, 70);
+  }
+}
+
+.node-stone {
+  background-color: rgb(175, 175, 175);
+  animation-name: stoneAnimation;
+  animation-duration: 0.1s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes stoneAnimation {
+  0% {
+    transform: scale(0.25);
+    background-color: rgb(175, 175, 175, 0.6);
+  }
+
+  50% {
+    transform: scale(0.6);
+    background-color: rgb(175, 175, 175, 0.8);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgb(175, 175, 175);
+  }
+}
+
+.node-granite {
+  background-color: rgb(140, 140, 140);
+  animation-name: graniteAnimation;
+  animation-duration: 0.1s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes graniteAnimation {
+  0% {
+    transform: scale(0.25);
+    background-color: rgb(140, 140, 140, 0.6);
+  }
+
+  50% {
+    transform: scale(0.6);
+    background-color: rgb(140, 140, 140, 0.8);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgb(140, 140, 140);
+  }
+}
+
+.node-snow {
+  background-color: rgb(200, 215, 225);
+  animation-name: snowAnimation;
+  animation-duration: 0.1s;
+  animation-timing-function: ease-out;
+  animation-delay: 0;
+  animation-direction: alternate;
+  animation-iteration-count: 1;
+  animation-fill-mode: forwards;
+  animation-play-state: running;
+}
+
+@keyframes snowAnimation {
+  0% {
+    transform: scale(0.25);
+    background-color: rgb(200, 215, 225, 0.6);
+  }
+
+  50% {
+    transform: scale(0.6);
+    background-color: rgb(200, 215, 225, 0.8);
+  }
+
+  100% {
+    transform: scale(1);
+    background-color: rgb(200, 215, 225);
   }
 }

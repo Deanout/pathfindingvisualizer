@@ -10,6 +10,18 @@ import { Simplex } from "./simplex.js";
  * previousNode: Used to limit the mouse function calls
  */
 class GridStore {
+  @observable nodeTypes = [];
+  constructor() {
+    this.nodeTypes.push(
+      this.waterDeep,
+      this.water,
+      this.sand,
+      this.grass,
+      this.stone,
+      this.granite,
+      this.snow
+    );
+  }
   @observable grid = [];
   @observable terrain = 0;
   @observable algorithm = 0;
@@ -27,11 +39,107 @@ class GridStore {
   @observable simplex = new Simplex();
 
   // Node types:
-  @observable nodeType = "wall";
-  @observable wall = "wall";
-  @observable air = "air";
-  @observable start = "start";
-  @observable finish = "finish";
+  @observable air = {
+    name: "air",
+    minThreshold: 0,
+    maxThreshold: 1,
+    weight: 1,
+    class: "",
+    walkable: true,
+    rgb: [255, 255, 255]
+  };
+  @observable wall = {
+    name: "wall",
+    minThreshold: 0,
+    maxThreshold: 1,
+    weight: Infinity,
+    class: "node-wall",
+    walkable: false,
+    rgb: [12, 53, 71]
+  };
+  @observable start = {
+    name: "start",
+    minThreshold: 0,
+    maxThreshold: 1,
+    weight: 1,
+    class: "node-start",
+    walkable: true,
+    rgb: [0, 150, 5]
+  };
+  @observable finish = {
+    name: "finish",
+    minThreshold: 0,
+    maxThreshold: 1,
+    weight: 1,
+    class: "node-finish",
+    walkable: true,
+    rgb: [150, 0, 5]
+  };
+  @observable waterDeep = {
+    name: "waterDeep",
+    minThreshold: 0,
+    maxThreshold: 0.25,
+    weight: 250,
+    class: "node-water-deep",
+    walkable: true,
+    rgb: [0, 65, 150]
+  };
+  @observable water = {
+    name: "water",
+    minThreshold: 0.25,
+    maxThreshold: 0.35,
+    weight: 100,
+    class: "node-water",
+    walkable: true,
+    rgb: [0, 110, 255]
+  };
+  @observable sand = {
+    name: "sand",
+    minThreshold: 0.35,
+    maxThreshold: 0.4,
+    weight: 15,
+    class: "node-sand",
+    walkable: true,
+    rgb: [195, 175, 125]
+  };
+  @observable grass = {
+    name: "grass",
+    minThreshold: 0.4,
+    maxThreshold: 0.7,
+    weight: 10,
+    class: "node-grass",
+    walkable: true,
+    rgb: [85, 125, 70]
+  };
+  @observable stone = {
+    name: "stone",
+    minThreshold: 0.7,
+    maxThreshold: 0.8,
+    weight: 100,
+    class: "node-stone",
+    walkable: true,
+    rgb: [175, 175, 175]
+  };
+  @observable granite = {
+    name: "granite",
+    minThreshold: 0.8,
+    maxThreshold: 0.9,
+    weight: 250,
+    class: "node-granite",
+    walkable: true,
+    rgb: [140, 140, 140]
+  };
+  @observable snow = {
+    name: "snow",
+    minThreshold: 0.9,
+    maxThreshold: 1,
+    weight: 150,
+    class: "node-snow",
+    walkable: true,
+    rgb: [200, 215, 225]
+  };
+
+  @observable nodeType = this.air;
 
   @observable algorithms = [
     {
@@ -69,7 +177,7 @@ class GridStore {
   @observable consoleBottom = 0;
 
   @observable configPanel = {
-    toggle: true,
+    toggle: false,
     minimize: true,
     panelID: 0
   };

@@ -83,7 +83,7 @@ export default function AlgorithmSelect(props) {
             input={<BootstrapInput name="algorithm" id="algorithm" />}
           >
             <MenuItem value={0} onMouseEnter={() => handleMouseAlgorithm(0)}>
-              <em>Algorithms</em>
+              <em>Algorithm</em>
             </MenuItem>
 
             <MenuItem value={1} onMouseEnter={() => handleMouseAlgorithm(1)}>

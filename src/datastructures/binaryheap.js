@@ -20,9 +20,6 @@ export class MinHeapPriorityQueue {
   find(node) {
     for (let i = 0; i < this.size(); i++) {
       let heapNode = this.items[i];
-      //console.log("Heapnode = " + heapNode.row + ", " + heapNode.col);
-      //console.log("Node[i] " + node.row + ", " + node.col);
-      //console.log("heapNode === node[i] " + heapNode === node[i]);
       if (heapNode.row === node.row && heapNode.col === node.col) {
         return true;
       } else {

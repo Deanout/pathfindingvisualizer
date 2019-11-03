@@ -83,15 +83,38 @@ export default function NoiseWallsConfig(props) {
             frequency *= lacunarity;
           }
           let scaled2D = scaleBetween(total, 0, 1, -maxValue, maxValue);
-          let evaluatedThreshold =
-            scaled2D > config.threshold.value ? scaled2D * 255 : 0;
+          //let evaluatedThreshold = [];
+          let rgb;
+
+          for (let i = 0; i < store.nodeTypes.length; i++) {
+            let nodeType = store.nodeTypes[i];
+            if (
+              scaled2D <= nodeType.minThreshold ||
+              scaled2D > nodeType.maxThreshold
+            ) {
+              continue;
+            } else {
+              rgb = nodeType.rgb;
+              break;
+            }
+          }
+          // Maybe enable this with a pure noise toggle?
+          // if (scaled2D > config.threshold.value) {
+          //   scaled2D *= 255;
+          //   evaluatedThreshold.push(scaled2D, scaled2D, scaled2D);
+          // } else {
+          //   evaluatedThreshold.push(0, 0, 255);
+          // }
           // Get the pixel index
           var pixelindex = (row * width + col) * 4;
+          let red = rgb[0];
+          let green = rgb[1];
+          let blue = rgb[2];
           // Set the pixel data
-          imagedata.data[pixelindex] = evaluatedThreshold; // Red
-          imagedata.data[pixelindex + 1] = evaluatedThreshold; // Green
-          imagedata.data[pixelindex + 2] = evaluatedThreshold; // Blue
-          imagedata.data[pixelindex + 3] = 255; // Alpha
+          imagedata.data[pixelindex] = red;
+          imagedata.data[pixelindex + 1] = green;
+          imagedata.data[pixelindex + 2] = blue;
+          imagedata.data[pixelindex + 3] = 255;
         }
       }
     }
@@ -133,6 +156,9 @@ export default function NoiseWallsConfig(props) {
       className={classes.collapse}
     >
       {<canvas id="noisewallscanvas" className={classes.noisePreview}></canvas>}
+      <Typography variant="body2" id="threshold-slider" gutterBottom>
+        Threshold settings currently disabled. They will be back, and better.
+      </Typography>
       <CardContent className={classes.cardContent}>
         {fields.map((field, fieldIdx) => {
           return (

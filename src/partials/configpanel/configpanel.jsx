@@ -114,7 +114,7 @@ export default class ConfigPanel extends Component {
                   <MinimizeIcon />
                 </IconButton>
               }
-              title={store.algorithmName}
+              title="Simplex Terrain Settings"
             ></PanelHeader>
             {noiseWallsConfig}
           </PanelCard>

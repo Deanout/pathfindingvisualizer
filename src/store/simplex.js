@@ -51,11 +51,11 @@ class Seed {
 
 class Scale {
   @observable name = "Scale";
-  @observable value = 10;
+  @observable value = 20;
   @observable min = 1;
   @observable max = 100;
   @observable step = 1;
-  @observable default = 10;
+  @observable default = 20;
 }
 
 class Octave {
@@ -69,18 +69,18 @@ class Octave {
 
 class Persistence {
   @observable name = "Persistence";
-  @observable value = 0.5;
+  @observable value = 0.1;
   @observable min = 0;
   @observable max = 1;
   @observable step = 0.01;
-  @observable default = 0.5;
+  @observable default = 0.1;
 }
 
 class Lacunarity {
   @observable name = "Lacunarity";
-  @observable value = 2;
+  @observable value = 6;
   @observable min = 0;
   @observable max = 10;
   @observable step = 1;
-  @observable default = 2;
+  @observable default = 6;
 }

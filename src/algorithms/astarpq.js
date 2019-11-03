@@ -18,12 +18,11 @@ export function AStarPQ(grid, startNode, finishNode, width, height) {
     }
     currentNode.closed = true;
 
-    //printScores(currentNode);
     for (let neighbor of getNeighbors(grid, currentNode, width, height)) {
-      if (neighbor.isWall || neighbor.closed) {
+      if (neighbor.nodeType.walkable === false || neighbor.closed) {
         continue;
       }
-      let tentative_gScore = currentNode.gScore + 1;
+      let tentative_gScore = currentNode.gScore + neighbor.nodeType.weight;
 
       if (tentative_gScore < neighbor.gScore) {
         neighbor.gScore = tentative_gScore;

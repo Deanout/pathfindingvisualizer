@@ -1,12 +1,12 @@
 var SimplexNoise = require("../libraries/simplex-noise.js");
 
-export function noiseWalls() {
+export function simplexTerrain() {
   let config = store.simplex;
   let persistence = config.persistence.value;
   let lacunarity = config.lacunarity.value;
   var simplex = new SimplexNoise(config.seed.value);
   const wallsToBuild = [];
-
+  console.log(store.nodeTypes);
   for (let row = 0; row < store.gridHeight; row++) {
     for (let col = 0; col < store.gridWidth; col++) {
       let total = 0;
@@ -24,8 +24,18 @@ export function noiseWalls() {
         frequency *= lacunarity;
       }
       let scaled2D = scaleBetween(total, 0, 1, -maxValue, maxValue);
-      if (scaled2D > config.threshold.value) {
-        wallsToBuild.push([row, col]);
+
+      for (let i = 0; i < store.nodeTypes.length; i++) {
+        let nodeType = store.nodeTypes[i];
+        if (
+          scaled2D <= nodeType.minThreshold ||
+          scaled2D > nodeType.maxThreshold
+        ) {
+          continue;
+        } else {
+          wallsToBuild.push([row, col, nodeType]);
+          break;
+        }
       }
     }
   }

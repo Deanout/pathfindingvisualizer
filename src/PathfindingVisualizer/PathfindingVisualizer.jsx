@@ -10,24 +10,16 @@ import Console from "../partials/console.jsx";
 import store from "../store/gridstore.js";
 import { observer } from "mobx-react";
 import { recursiveWallBuilder } from "../algorithms/recursivewalls.js";
-import { noiseWalls } from "../algorithms/noisewalls.js";
+import { simplexTerrain } from "../algorithms/noisewalls.js";
 import { randomWalls } from "../algorithms/randomwalls.js";
 
 import "./pathfindingvisualizer.css";
 
 // Constants used to retrieve class names of different node types.
-const NODE = `node`;
-const NODE_START = `node-start`;
-const NODE_FINISH = `node-finish`;
-const NODE_WALL = `node-wall`;
-const NODE_VISITED = `node-visited`;
-const NODE_SHORTEST_PATH = `node-shortest-path`;
 
-// The list of node types that exist in the grid.
-const WALL = "wall";
-const AIR = "air";
-const START = "start";
-const FINISH = "finish";
+const NODE_VISITED = `node-visited`;
+
+const NODE_SHORTEST_PATH = `node-shortest-path`;
 
 @observer
 export default class PathfindingVisualizer extends Component {
@@ -69,10 +61,6 @@ export default class PathfindingVisualizer extends Component {
           store.gridHeight - 1
       ) {
         this.setup();
-
-        requestAnimationFrame(() => {
-          this.drawGrid();
-        });
       }
     });
     document.addEventListener("keydown", event => {
@@ -91,7 +79,7 @@ export default class PathfindingVisualizer extends Component {
           this.init(false);
           break;
         default:
-          store.nodeType = store.wall;
+          store.nodeType = store.air;
           break;
       }
       // Draw the grid on key press. This allows you to skip
@@ -130,6 +118,9 @@ export default class PathfindingVisualizer extends Component {
         }
       }
     });
+    // requestAnimationFrame(() => {
+    //   this.generateTerrain(2);
+    // });
   }
 
   setup() {
@@ -159,9 +150,9 @@ export default class PathfindingVisualizer extends Component {
     // Get the initial grid with start and finish node positions, and assign it to
     // the MobX grid.
 
-    store.grid.replace(
-      getInitialGrid(store.startPosition, store.finishPosition)
-    );
+    store.grid.replace(getInitialGrid());
+    setKeyNode(store.startPosition[0], store.startPosition[1], store.start);
+    setKeyNode(store.finishPosition[0], store.finishPosition[1], store.finish);
   }
 
   handleMouseUp() {
@@ -189,7 +180,7 @@ export default class PathfindingVisualizer extends Component {
   toggleNodeType(row, col) {
     switch (store.nodeType) {
       case store.wall:
-        toggleWall(row, col);
+        setNodeType(row, col, store.wall);
         break;
       case store.start:
         this.toggleStartPosition(row, col);
@@ -206,10 +197,8 @@ export default class PathfindingVisualizer extends Component {
     let oldRow = store.startPosition[0];
     let oldCol = store.startPosition[1];
 
-    store.grid[oldRow][oldCol].isStart = false;
-    store.grid[row][col].isFinish = false;
-    store.grid[row][col].isWall = false;
-    store.grid[row][col].isStart = true;
+    setKeyNode(oldRow, oldCol, store.air);
+    setKeyNode(row, col, store.start);
 
     // Now we need to turn off the previous start node's class.
     this.drawNode(store.grid[oldRow][oldCol]);
@@ -222,10 +211,8 @@ export default class PathfindingVisualizer extends Component {
     let oldRow = store.finishPosition[0];
     let oldCol = store.finishPosition[1];
 
-    store.grid[oldRow][oldCol].isFinish = false;
-    store.grid[row][col].isStart = false;
-    store.grid[row][col].isWall = false;
-    store.grid[row][col].isFinish = true;
+    setKeyNode(oldRow, oldCol, store.air);
+    setKeyNode(row, col, store.finish);
 
     // Now we need to turn off the previous finish node's class.
     this.drawNode(store.grid[oldRow][oldCol]);
@@ -341,10 +328,10 @@ export default class PathfindingVisualizer extends Component {
         if (i === visitedNodesInOrder.length - 1) {
           if (nodesInShortestPathOrder.length > 1) {
           } else {
-            this.modifyNode(node, false, NODE_VISITED);
+            this.createPath(node, NODE_VISITED);
           }
         } else {
-          this.modifyNode(node, false, NODE_VISITED);
+          this.createPath(node, NODE_VISITED);
         }
       }, 10 * i);
     }
@@ -353,7 +340,7 @@ export default class PathfindingVisualizer extends Component {
     for (let i = 0; i < nodesInShortestPathOrder.length - 1; i++) {
       setTimeout(() => {
         const node = nodesInShortestPathOrder[i];
-        this.modifyNode(node, false, NODE_SHORTEST_PATH);
+        this.createPath(node, NODE_SHORTEST_PATH);
       }, 50 * i);
     }
   }
@@ -362,27 +349,25 @@ export default class PathfindingVisualizer extends Component {
     for (let row = 0; row < store.gridHeight; row++) {
       for (let col = 0; col < store.gridWidth; col++) {
         let node = store.grid[row][col];
-        this.removeClassFromNode(node, NODE_VISITED);
-        this.removeClassFromNode(node, NODE_SHORTEST_PATH);
+        this.removePath(node, NODE_VISITED);
+        this.removePath(node, NODE_SHORTEST_PATH);
 
-        if (clearBoard && node.isWall) {
-          toggleWallOff(row, col);
+        if (clearBoard) {
+          setNodeType(row, col, store.air);
         }
       }
     }
     this.drawGrid(clearBoard);
   }
-
-  modifyNode(node, clearBoard, newClass) {
-    if (clearBoard) {
-      document.getElementById(
-        `node-${node.row}-${node.col}`
-      ).className = `${newClass}`;
-    } else {
-      document.getElementById(
-        `node-${node.row}-${node.col}`
-      ).className += ` ${newClass}`;
-    }
+  createPath(node, newClass) {
+    document.getElementById(
+      `node-${node.row}-${node.col}`
+    ).firstChild.className += ` ${newClass}`;
+  }
+  removePath(node, newClass) {
+    document.getElementById(
+      `node-${node.row}-${node.col}`
+    ).firstChild.className = `path`;
   }
 
   removeClassFromNode(node, classToRemove) {
@@ -392,45 +377,20 @@ export default class PathfindingVisualizer extends Component {
   }
 
   drawNode(node) {
-    if (node.isWall) {
-      this.modifyNode(node, true, NODE + " " + NODE_WALL);
-    } else {
-      this.removeClassFromNode(node, NODE_WALL);
-    }
-    if (node.isStart) {
-      this.modifyNode(node, true, NODE + " " + NODE_START);
-    } else {
-      this.removeClassFromNode(node, NODE_START);
-    }
-    if (node.isFinish) {
-      this.modifyNode(node, true, NODE + " " + NODE_FINISH);
-    } else {
-      this.removeClassFromNode(node, NODE_FINISH);
-    }
+    let nodeType = node.nodeType;
+    document.getElementById(
+      `node-${node.row}-${node.col}`
+    ).className = `node ${nodeType.class}`;
   }
 
   drawGrid(clearBoard) {
     for (let row = 0; row < store.gridHeight; row++) {
       for (let col = 0; col < store.gridWidth; col++) {
         let node = store.grid[row][col];
-        if (node.isWall) {
-          this.modifyNode(node, true, NODE + " " + NODE_WALL);
-        } else {
-          this.removeClassFromNode(node, NODE_WALL);
-        }
-        if (node.isStart) {
-          this.modifyNode(node, true, NODE + " " + NODE_START);
-        } else {
-          this.removeClassFromNode(node, NODE_START);
-        }
-        if (node.isFinish) {
-          this.modifyNode(node, true, NODE + " " + NODE_FINISH);
-        } else {
-          this.removeClassFromNode(node, NODE_FINISH);
-        }
+        this.drawNode(node);
         if (clearBoard) {
-          this.removeClassFromNode(node, NODE_VISITED);
-          this.removeClassFromNode(node, NODE_SHORTEST_PATH);
+          this.removePath(node, NODE_VISITED);
+          this.removePath(node, NODE_SHORTEST_PATH);
         }
       }
     }
@@ -439,11 +399,10 @@ export default class PathfindingVisualizer extends Component {
   generateTerrain(terrain) {
     switch (terrain) {
       case 1:
-        //this.visualizeDijkstra(startNode, finishNode);
         this.handleTerrainGeneration(recursiveWallBuilder);
         break;
       case 2:
-        this.handleTerrainGeneration(noiseWalls);
+        this.handleTerrainGeneration(simplexTerrain);
         break;
       case 3:
         this.handleTerrainGeneration(randomWalls);
@@ -457,27 +416,34 @@ export default class PathfindingVisualizer extends Component {
   handleTerrainGeneration(terrain) {
     this.init(true);
     const nodesToAnimate = terrain();
-    this.animateWalls(nodesToAnimate);
+    this.animateTerrain(nodesToAnimate);
   }
 
-  animateWalls(nodesToAnimate) {
+  animateTerrain(nodesToAnimate) {
+    var speedMod;
+    switch (store.terrain) {
+      case 0:
+      case 1:
+        speedMod = 10;
+        break;
+      case 2:
+        speedMod = 5;
+        break;
+      case 3:
+        speedMod = 2;
+        break;
+    }
     for (let i = 0; i < nodesToAnimate.length; i++) {
       let row = nodesToAnimate[i][0];
       let col = nodesToAnimate[i][1];
-      if (store.grid[row][col].isStart || store.grid[row][col].isFinish) {
-        nodesToAnimate.splice(i, 1);
-        continue;
-      }
+      let nodeType = nodesToAnimate[i][2];
       setTimeout(() => {
-        this.modifyNode(store.grid[row][col], true, `node node-wall`);
-      }, 10 * i);
-      toggleWall(nodesToAnimate[i][0], nodesToAnimate[i][1]);
+        this.drawNode(store.grid[row][col], nodeType);
+      }, speedMod * i);
+      setNodeType(row, col, nodeType);
     }
   }
 
-  // Too many calls to render means this is expensive to compute.
-  // Could increase speed if the grid generation is only done once
-  // maybe?
   render() {
     const consoleElement = <Console></Console>;
     const toolBar = (
@@ -504,14 +470,12 @@ export default class PathfindingVisualizer extends Component {
             return (
               <div key={rowIdx} className="row">
                 {row.map((node, nodeIdx) => {
-                  const { row, col, isFinish, isStart, isWall } = node;
+                  const { row, col, isWall } = node;
                   return (
                     <Node
                       key={nodeIdx}
                       row={row}
                       col={col}
-                      isStart={isStart}
-                      isFinish={isFinish}
                       isWall={isWall}
                     ></Node>
                   );
@@ -525,41 +489,44 @@ export default class PathfindingVisualizer extends Component {
   }
 }
 
-const getInitialGrid = (startPosition, finishPosition) => {
+const getInitialGrid = () => {
   const output = [];
   for (let row = 0; row < store.gridHeight; row++) {
     const currentRow = [];
     for (let col = 0; col < store.gridWidth; col++) {
-      currentRow.push(createNode(row, col, startPosition, finishPosition));
+      currentRow.push(createNode(row, col));
     }
     output.push(currentRow);
   }
   return output;
 };
 
-const createNode = (row, col, startPosition, finishPosition) => {
+// Need to change from just setting a boolean for the node type
+// to an actual node type we can track. This should fix pf issues.
+const createNode = (row, col) => {
   return {
     row,
     col,
-    isStart: row === startPosition[0] && col === startPosition[1],
-    isFinish: row === finishPosition[0] && col === finishPosition[1],
     distance: Infinity,
     isVisited: false,
     isShortest: false,
     fScore: Infinity,
     gScore: Infinity,
     hScore: Infinity,
-    isWall: false,
-    parent: null
+    parent: null,
+    nodeType: store.nodeType
   };
 };
 
-const toggleWall = (row, col) => {
-  store.grid[row][col].isWall = !store.grid[row][col].isWall;
+const setNodeType = (row, col, nodeType) => {
+  let node = store.grid[row][col];
+  if (node.nodeType != store.start && node.nodeType != store.finish) {
+    node.nodeType = nodeType;
+  }
 };
 
-const toggleWallOff = (row, col) => {
-  store.grid[row][col].isWall = false;
+const setKeyNode = (row, col, nodeType) => {
+  store.grid[row][col].nodeType = nodeType;
 };
 
 Math.clamp = (value, min, max) => {

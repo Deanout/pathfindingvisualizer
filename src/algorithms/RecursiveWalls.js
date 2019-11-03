@@ -2,6 +2,7 @@ var nodesToAnimate = [];
 export function recursiveWallBuilder() {
   const coords = [];
   nodesToAnimate = [];
+  const wall = store.wall;
 
   for (let row = 0; row < store.gridHeight; row++) {
     let currentRow = [];
@@ -11,19 +12,19 @@ export function recursiveWallBuilder() {
     coords.push(currentRow);
   }
   for (let i = 0; i < store.gridWidth; i++) {
-    nodesToAnimate.push([0, i]);
+    nodesToAnimate.push([0, i, wall]);
     coords[0][i] = store.wall;
   }
   for (let i = 1; i < store.gridHeight; i++) {
-    nodesToAnimate.push([i, store.gridWidth - 1]);
+    nodesToAnimate.push([i, store.gridWidth - 1, wall]);
     coords[i][store.gridWidth - 1] = store.wall;
   }
   for (let i = store.gridWidth - 2; i >= 0; i--) {
-    nodesToAnimate.push([store.gridHeight - 1, i]);
+    nodesToAnimate.push([store.gridHeight - 1, i, wall]);
     coords[store.gridHeight - 1][i] = store.wall;
   }
   for (let i = store.gridHeight - 2; i > 0; i--) {
-    nodesToAnimate.push([i, 0]);
+    nodesToAnimate.push([i, 0, wall]);
     coords[i][0] = store.wall;
   }
 
@@ -44,6 +45,7 @@ export function recursiveWallBuilder() {
 function helper(inputCoords, x1, x2, y1, y2, WALL, AIR) {
   let width = x2 - x1;
   let height = y2 - y1;
+  const wall = store.wall;
 
   if (width >= height) {
     // Vertical bisection
@@ -72,7 +74,7 @@ function helper(inputCoords, x1, x2, y1, y2, WALL, AIR) {
         } else if (i === passage) {
           inputCoords[i][bisection] = AIR;
         } else {
-          nodesToAnimate.push([i, bisection]);
+          nodesToAnimate.push([i, bisection, wall]);
           inputCoords[i][bisection] = WALL;
         }
       }
@@ -105,7 +107,7 @@ function helper(inputCoords, x1, x2, y1, y2, WALL, AIR) {
         } else if (i === passage) {
           inputCoords[bisection][i] = AIR;
         } else {
-          nodesToAnimate.push([bisection, i]);
+          nodesToAnimate.push([bisection, i, wall]);
           inputCoords[bisection][i] = WALL;
         }
       }

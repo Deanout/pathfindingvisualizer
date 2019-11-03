@@ -26,10 +26,10 @@ export function AStar(grid, startNode, finishNode, width, height) {
 
     //printScores(counter, currentNode);
     for (let neighbor of getNeighbors(grid, currentNode, width, height)) {
-      if (neighbor.isWall || neighbor.closed) {
+      if (neighbor.nodeType.walkable === false || neighbor.closed) {
         continue;
       }
-      let tentative_gScore = currentNode.gScore + 1;
+      let tentative_gScore = currentNode.gScore + neighbor.nodeType.weight;
       if (tentative_gScore < neighbor.gScore) {
         neighbor.gScore = tentative_gScore;
         neighbor.hScore = heuristic_cost_estimate(
@@ -124,7 +124,7 @@ function heuristic_cost_estimate(start, current, finish) {
   // vector and the current node to goal vecctor.
   const cross = Math.abs(deltaX1 * deltaY2 - deltaX2 * deltaY1);
   var heuristic = dx + dy;
-  heuristic += cross * 0.001;
+  heuristic += cross * 0.1;
   return heuristic;
 }
 
