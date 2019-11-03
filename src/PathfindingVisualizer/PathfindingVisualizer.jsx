@@ -177,7 +177,7 @@ export default class PathfindingVisualizer extends Component {
       index += direction;
     }
     store.clickNodeIndex = index;
-    store.clickNodeType = store.nodeTypes[index];
+    store.clickNodeType = store.clickableNodeTypes[index];
   }
 
   handleMouseUp() {

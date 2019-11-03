@@ -153,12 +153,13 @@ class GridStore {
   };
 
   @computed get clickableNodeTypes() {
-    var nodeTypes = this.nodeTypes;
-    nodeTypes.unshift(this.finish);
-    nodeTypes.unshift(this.start);
-    nodeTypes.unshift(this.wall);
-    nodeTypes.unshift(this.air);
-    return nodeTypes;
+    var modifiedNodeTypes = this.nodeTypes.slice();
+    console.log(modifiedNodeTypes);
+    modifiedNodeTypes.unshift(this.finish);
+    modifiedNodeTypes.unshift(this.start);
+    modifiedNodeTypes.unshift(this.wall);
+    modifiedNodeTypes.unshift(this.air);
+    return modifiedNodeTypes;
   }
 
   @computed get algorithmName() {

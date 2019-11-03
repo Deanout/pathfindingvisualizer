@@ -6,7 +6,6 @@ export function simplexTerrain() {
   let lacunarity = config.lacunarity.value;
   var simplex = new SimplexNoise(config.seed.value);
   const wallsToBuild = [];
-  console.log(store.nodeTypes);
   for (let row = 0; row < store.gridHeight; row++) {
     for (let col = 0; col < store.gridWidth; col++) {
       let total = 0;
@@ -27,6 +26,7 @@ export function simplexTerrain() {
 
       for (let i = 0; i < store.nodeTypes.length; i++) {
         let nodeType = store.nodeTypes[i];
+
         if (
           scaled2D <= nodeType.minThreshold ||
           scaled2D > nodeType.maxThreshold
