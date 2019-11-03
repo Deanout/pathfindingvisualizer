@@ -3,10 +3,13 @@ import Button from "@material-ui/core/Button";
 import Slider from "@material-ui/core/Slider";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
+import { styled } from "@material-ui/styles";
 import CardContent from "@material-ui/core/CardContent";
 import Input from "@material-ui/core/Input";
 import Collapse from "@material-ui/core/Collapse";
 import Typography from "@material-ui/core/Typography";
+import ToggleOff from "@material-ui/icons/ToggleOff";
+import ToggleOn from "@material-ui/icons/ToggleOn";
 import store from "../../store/gridstore";
 var SimplexNoise = require("../../libraries/simplex-noise.js");
 
@@ -34,7 +37,12 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
+const PaintedIcon = styled(ToggleOff)({
+  color: "grey"
+});
+
 export default function NoiseWallsConfig(props) {
+  const [rawNoise, setRawNoise] = React.useState(false);
   const classes = useStyles();
 
   const fields = [
@@ -85,26 +93,28 @@ export default function NoiseWallsConfig(props) {
           let scaled2D = scaleBetween(total, 0, 1, -maxValue, maxValue);
           //let evaluatedThreshold = [];
           let rgb;
-
-          for (let i = 0; i < store.nodeTypes.length; i++) {
-            let nodeType = store.nodeTypes[i];
-            if (
-              scaled2D <= nodeType.minThreshold ||
-              scaled2D > nodeType.maxThreshold
-            ) {
-              continue;
+          if (rawNoise) {
+            if (scaled2D > config.threshold.value) {
+              scaled2D *= 255;
+              rgb = [scaled2D, scaled2D, scaled2D];
             } else {
-              rgb = nodeType.rgb;
-              break;
+              rgb = [0, 0, 0];
+            }
+          } else {
+            for (let i = 0; i < store.nodeTypes.length; i++) {
+              let nodeType = store.nodeTypes[i];
+              if (
+                scaled2D <= nodeType.minThreshold ||
+                scaled2D > nodeType.maxThreshold
+              ) {
+                continue;
+              } else {
+                rgb = nodeType.rgb;
+                break;
+              }
             }
           }
-          // Maybe enable this with a pure noise toggle?
-          // if (scaled2D > config.threshold.value) {
-          //   scaled2D *= 255;
-          //   evaluatedThreshold.push(scaled2D, scaled2D, scaled2D);
-          // } else {
-          //   evaluatedThreshold.push(0, 0, 255);
-          // }
+
           // Get the pixel index
           var pixelindex = (row * width + col) * 4;
           let red = rgb[0];
@@ -141,11 +151,17 @@ export default function NoiseWallsConfig(props) {
     let value = isNaN(event.target.value) ? newValue : event.target.value;
     store.simplex.setValueByName(param.name, Number(value));
   };
-  const handleBlur = (param, event) => {
+  const handleBlur = (param, newValue, event) => {
+    var value = isNaN(event.target.value) ? newValue : event.target.value;
+
     store.simplex.setValueByName(
       param.name,
-      Math.clamp(event.target.value, param.min, param.max)
+      Math.clamp(value, param.min, param.max)
     );
+  };
+
+  const handleKeyDown = event => {
+    console.log(event);
   };
 
   return (
@@ -156,15 +172,47 @@ export default function NoiseWallsConfig(props) {
       className={classes.collapse}
     >
       {<canvas id="noisewallscanvas" className={classes.noisePreview}></canvas>}
-      <Typography variant="body2" id="threshold-slider" gutterBottom>
-        Threshold settings currently disabled. They will be back, and better.
-      </Typography>
+      <Grid container alignItems="flex-start" spacing={1}>
+        <Grid item xs={9} style={{ height: 32 }}></Grid>
+
+        <Grid item xs={2} style={{ height: 32 }}>
+          {rawNoise ? (
+            <ToggleOn
+              value="check"
+              size="small"
+              cursor="pointer"
+              style={{ height: 28 }}
+              selected={rawNoise}
+              onClick={() => {
+                setRawNoise(!rawNoise);
+              }}
+            />
+          ) : (
+            <PaintedIcon
+              value="check"
+              size="small"
+              cursor="pointer"
+              style={{ height: 28 }}
+              selected={rawNoise}
+              onClick={() => {
+                setRawNoise(!rawNoise);
+              }}
+            />
+          )}
+        </Grid>
+        <Grid item xs={1} style={{ height: 32 }}></Grid>
+      </Grid>
       <CardContent className={classes.cardContent}>
         {fields.map((field, fieldIdx) => {
           return (
             <Grid container alignItems="center" key={fieldIdx}>
               <Grid item xs={3}>
-                <Typography variant="body2" id="threshold-slider" gutterBottom>
+                <Typography
+                  justify="left"
+                  variant="body2"
+                  id="threshold-slider"
+                  gutterBottom
+                >
                   {field.name}
                 </Typography>
               </Grid>
@@ -187,7 +235,9 @@ export default function NoiseWallsConfig(props) {
                   onChange={(newValue, event) =>
                     handleChange(field, newValue, event)
                   }
-                  onBlur={(event, newValue) => handleBlur(field)}
+                  onBlur={(event, newValue) =>
+                    handleBlur(field, newValue, event)
+                  }
                   inputProps={{
                     step: field.step,
                     min: field.min,
