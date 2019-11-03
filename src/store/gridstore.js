@@ -140,6 +140,7 @@ class GridStore {
   };
 
   @observable nodeType = this.air;
+  @observable clickNodeType = this.wall;
 
   @observable algorithms = [
     {

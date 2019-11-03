@@ -61,25 +61,28 @@ export default class PathfindingVisualizer extends Component {
           store.gridHeight - 1
       ) {
         this.setup();
+        requestAnimationFrame(() => {
+          this.drawGrid();
+        });
       }
     });
     document.addEventListener("keydown", event => {
       switch (event.key.toLowerCase()) {
         case "s":
-          store.nodeType = store.start;
+          store.clickNodeType = store.start;
           break;
         case "w":
-          store.nodeType = store.wall;
+          store.clickNodeType = store.wall;
           break;
         case "f":
-          store.nodeType = store.finish;
+          store.clickNodeType = store.finish;
           break;
         case " ":
           document.activeElement.blur();
           this.init(false);
           break;
         default:
-          store.nodeType = store.air;
+          store.clickNodeType = store.air;
           break;
       }
       // Draw the grid on key press. This allows you to skip
@@ -178,7 +181,7 @@ export default class PathfindingVisualizer extends Component {
   }
 
   toggleNodeType(row, col) {
-    switch (store.nodeType) {
+    switch (store.clickNodeType) {
       case store.wall:
         setNodeType(row, col, store.wall);
         break;
