@@ -71,17 +71,18 @@
 }
 
 .node-visited {
-  animation-name: visitedAnimation;
+  /* animation-name: visitedAnimation;
   animation-duration: 1.5s;
   animation-timing-function: ease-out;
   animation-delay: 0;
   animation-direction: alternate;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
-  animation-play-state: running;
+  animation-play-state: running; */
+  background-color: rgba(0, 190, 218, 0.5);
 }
 
-@keyframes visitedAnimation {
+/* @keyframes visitedAnimation {
   0% {
     transform: scale(0.3);
     background-color: rgba(0, 0, 66, 0.75);
@@ -101,20 +102,21 @@
     transform: scale(1);
     background-color: rgba(0, 190, 218, 0.75);
   }
-}
+} */
 
 .node-shortest-path {
-  animation-name: shortestPath;
+  background: radial-gradient(rgb(200, 0, 0) 70%, rgba(0, 190, 218, 0.5) 30%);
+  /* animation-name: shortestPath;
   animation-duration: 1.5s;
   animation-timing-function: ease-out;
   animation-delay: 0;
   animation-direction: alternate;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
-  animation-play-state: running;
+  animation-play-state: running; */
 }
 
-@keyframes shortestPath {
+/* @keyframes shortestPath {
   0% {
     transform: scale(1);
     background: radial-gradient(
@@ -182,7 +184,7 @@
       rgba(0, 190, 218, 0.75) 50%
     );
   }
-}
+} */
 
 .node-wall {
   background-color: rgb(12, 53, 71);
@@ -199,33 +201,30 @@
 @keyframes wallAnimation {
   0% {
     transform: scale(0.25);
-    background-color: rgb(12, 53, 71);
   }
 
   50% {
     transform: scale(0.6);
-    background-color: rgb(12, 53, 71);
   }
 
   100% {
     transform: scale(1);
-    background-color: rgb(12, 53, 71);
   }
 }
 
 .node-water {
   background-color: rgb(0, 110, 255);
-  animation-name: waterAnimation;
+  /* animation-name: waterAnimation;
   animation-duration: 2s;
   animation-timing-function: ease-out;
   animation-delay: 0;
   animation-direction: alternate;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
-  animation-play-state: running;
+  animation-play-state: running; */
 }
 
-@keyframes waterAnimation {
+/* @keyframes waterAnimation {
   0% {
     transform: scale(0.25);
     background-color: rgb(0, 110, 255);
@@ -240,21 +239,21 @@
     transform: scale(1);
     background-color: rgb(0, 110, 255);
   }
-}
+} */
 
 .node-water-deep {
   background-color: rgb(0, 65, 150);
-  animation-name: waterDeepAnimation;
+  /* animation-name: waterDeepAnimation;
   animation-duration: 2s;
   animation-timing-function: ease-out;
   animation-delay: 0;
   animation-direction: alternate;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
-  animation-play-state: running;
+  animation-play-state: running; */
 }
 
-@keyframes waterDeepAnimation {
+/* @keyframes waterDeepAnimation {
   0% {
     transform: scale(0.25);
     background-color: rgb(0, 110, 255);
@@ -269,21 +268,21 @@
     transform: scale(1);
     background-color: rgb(0, 65, 150);
   }
-}
+} */
 
 .node-sand {
   background-color: rgb(195, 175, 125);
-  animation-name: sandAnimation;
+  /* animation-name: sandAnimation;
   animation-duration: 0.1s;
   animation-timing-function: ease-out;
   animation-delay: 0;
   animation-direction: alternate;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
-  animation-play-state: running;
+  animation-play-state: running; */
 }
 
-@keyframes sandAnimation {
+/* @keyframes sandAnimation {
   0% {
     transform: scale(0.25);
     background-color: rgb(0, 110, 255, 0.6);
@@ -298,21 +297,21 @@
     transform: scale(1);
     background-color: rgb(195, 175, 125);
   }
-}
+} */
 
 .node-grass {
   background-color: rgb(85, 125, 70);
-  animation-name: grassAnimation;
+  /* animation-name: grassAnimation;
   animation-duration: 0.1s;
   animation-timing-function: ease-out;
   animation-delay: 0;
   animation-direction: alternate;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
-  animation-play-state: running;
+  animation-play-state: running; */
 }
 
-@keyframes grassAnimation {
+/* @keyframes grassAnimation {
   0% {
     transform: scale(0.25);
     background-color: rgb(86, 125, 70, 0.6);
@@ -327,21 +326,21 @@
     transform: scale(1);
     background-color: rgb(86, 125, 70);
   }
-}
+} */
 
 .node-stone {
   background-color: rgb(175, 175, 175);
-  animation-name: stoneAnimation;
+  /* animation-name: stoneAnimation;
   animation-duration: 0.1s;
   animation-timing-function: ease-out;
   animation-delay: 0;
   animation-direction: alternate;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
-  animation-play-state: running;
+  animation-play-state: running; */
 }
 
-@keyframes stoneAnimation {
+/* @keyframes stoneAnimation {
   0% {
     transform: scale(0.25);
     background-color: rgb(175, 175, 175, 0.6);
@@ -356,21 +355,21 @@
     transform: scale(1);
     background-color: rgb(175, 175, 175);
   }
-}
+} */
 
 .node-granite {
   background-color: rgb(140, 140, 140);
-  animation-name: graniteAnimation;
+  /* animation-name: graniteAnimation;
   animation-duration: 0.1s;
   animation-timing-function: ease-out;
   animation-delay: 0;
   animation-direction: alternate;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
-  animation-play-state: running;
+  animation-play-state: running; */
 }
 
-@keyframes graniteAnimation {
+/* @keyframes graniteAnimation {
   0% {
     transform: scale(0.25);
     background-color: rgb(140, 140, 140, 0.6);
@@ -385,21 +384,21 @@
     transform: scale(1);
     background-color: rgb(140, 140, 140);
   }
-}
+} */
 
 .node-snow {
   background-color: rgb(200, 215, 225);
-  animation-name: snowAnimation;
+  /* animation-name: snowAnimation;
   animation-duration: 0.1s;
   animation-timing-function: ease-out;
   animation-delay: 0;
   animation-direction: alternate;
   animation-iteration-count: 1;
   animation-fill-mode: forwards;
-  animation-play-state: running;
+  animation-play-state: running; */
 }
 
-@keyframes snowAnimation {
+/* @keyframes snowAnimation {
   0% {
     transform: scale(0.25);
     background-color: rgb(200, 215, 225, 0.6);
@@ -414,4 +413,4 @@
     transform: scale(1);
     background-color: rgb(200, 215, 225);
   }
-}
+} */

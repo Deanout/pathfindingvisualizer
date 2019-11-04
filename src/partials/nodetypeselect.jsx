@@ -12,7 +12,6 @@ import MenuItem from "@material-ui/core/MenuItem";
 import MenuList from "@material-ui/core/MenuList";
 import Typography from "@material-ui/core/Typography";
 import store from "../store/gridstore";
-import { relative } from "path";
 
 const useStyles = makeStyles(theme => ({
   nodeButtonGroup: {
@@ -26,12 +25,12 @@ const useStyles = makeStyles(theme => ({
     fontFamily: ["Open Sans", "sans-serif"].join(","),
     "& span": {
       height: 0
-    },
-    nodeLabel: {
-      fontFamily: ["Open Sans", "sans-serif"].join(","),
-      textTransform: "capitalize",
-      fontSize: 15
     }
+  },
+  nodeLabel: {
+    fontFamily: ["Open Sans", "sans-serif"].join(","),
+    textTransform: "capitalize",
+    fontSize: 15
   },
   nodeButton: {
     background: "#194B4B",
@@ -94,7 +93,7 @@ export default function NodeTypeSelect(props) {
           className={classes.nodeButtonGroup}
         >
           <Button onClick={handleClick} className={classes.nodeButton}>
-            <Typography variant="body2" className={classes.nodeLabel}>
+            <Typography className={classes.nodeLabel}>
               {props.nodeTypes[props.clickNodeIndex].name}
             </Typography>
           </Button>
@@ -124,14 +123,16 @@ export default function NodeTypeSelect(props) {
             >
               <Paper id="menu-list-grow">
                 <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList>
+                  <MenuList style={{ zIndex: 420 }}>
                     {props.nodeTypes.map((option, index) => (
                       <MenuItem
                         key={option.name}
                         selected={index === props.clickNodeIndex}
                         onClick={event => handleMenuItemClick(event, index)}
                       >
-                        <Typography>{option.name}</Typography>
+                        <Typography className={classes.nodeLabel}>
+                          {option.name}
+                        </Typography>
                       </MenuItem>
                     ))}
                   </MenuList>

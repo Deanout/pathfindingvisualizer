@@ -9,8 +9,7 @@ import AlgorithmSelect from "./algorithmselect.jsx";
 import TerrainSelect from "./terrainselect.jsx";
 import NodeTypeSelect from "./nodetypeselect.jsx";
 import ConfigPanel from "./configpanel/configpanel.jsx";
-import IconButton from "@material-ui/core/IconButton";
-import Tooltip from "@material-ui/core/Tooltip";
+import TerrainSlider from "./terrainslider.jsx";
 import { observer } from "mobx-react";
 import store from "../store/gridstore.js";
 
@@ -92,6 +91,7 @@ export default class ToolBar extends Component {
 
   toggleConfigPanel() {
     store.configPanel.toggle = !store.configPanel.toggle;
+    store.configPanel.minimize = store.configPanel.toggle;
   }
 
   render() {
@@ -124,6 +124,14 @@ export default class ToolBar extends Component {
         clickNodeType={store.clickNodeType}
         clickNodeIndex={store.clickNodeIndex}
       ></NodeTypeSelect>
+    );
+
+    var terrainSlider = (
+      <TerrainSlider
+        width={store.nodeWidth}
+        height={store.nodeHeight}
+        pfv={this.props.pfv}
+      ></TerrainSlider>
     );
     return (
       <div>
@@ -185,6 +193,9 @@ export default class ToolBar extends Component {
                 </Grid>
                 <Grid item xs={6} sm={3} md={2} lg={1}>
                   {nodeTypeSelect}
+                </Grid>
+                <Grid item xs={6} sm={3} md={2} lg={1}>
+                  {terrainSlider}
                 </Grid>
               </Grid>
             </PfvToolbar>

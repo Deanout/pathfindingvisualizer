@@ -95,6 +95,24 @@ export default class PathfindingVisualizer extends Component {
       // the maze generation if you'd like.
       this.drawGrid();
     });
+    document.addEventListener("mouseup", event => {
+      this.handleMouseUp();
+    });
+    document.getElementById("grid").addEventListener("mousedown", event => {
+      switch (event.button) {
+        case 0:
+          this.handleMouseDown(0);
+          break;
+        case 1:
+          this.handleMiddleMouseDown();
+          break;
+        case 2:
+          this.handleMouseDown(2);
+          break;
+        default:
+          break;
+      }
+    });
     /* Add the mousemove event listener.
      * store.nodeWidth: The width of each node in pixels, at the time of the event.
      * store.nodeHeight: The width of each node in pixels, at the time of the event.
@@ -107,7 +125,7 @@ export default class PathfindingVisualizer extends Component {
      * according to which nodes the line touches. This would fix the
      * mouse move event not updating fast enough.
      */
-    document.addEventListener("mousemove", event => {
+    document.getElementById("grid").addEventListener("mousemove", event => {
       if (
         grid.firstElementChild != null &&
         grid.firstElementChild.firstElementChild != null
@@ -119,11 +137,12 @@ export default class PathfindingVisualizer extends Component {
         var row = Math.floor((y - store.consoleBottom) / store.nodeHeight);
         var col = Math.floor(x / store.nodeWidth);
         let oldMousePosition = store.mousePosition;
+
         row = Math.clamp(row, 0, store.gridHeight - 1);
         col = Math.clamp(col, 0, store.gridWidth - 1);
         if (row !== oldMousePosition[0] || col !== oldMousePosition[1]) {
           store.mousePosition = [row, col];
-          this.handleMouseEnter(row, col);
+          this.handleMouseEnter(row, col, store.mouseButton);
         }
       }
     });
@@ -133,12 +152,8 @@ export default class PathfindingVisualizer extends Component {
   }
 
   setup() {
-    store.nodeWidth = 25;
-    store.nodeHeight = 25;
+    console.log("Setup ran");
     var grid = document.getElementById("grid");
-
-    grid.firstElementChild != null &&
-      grid.firstElementChild.firstElementChild != null;
 
     var consoleElement = document.getElementById("console");
     store.consoleBottom = consoleElement.getBoundingClientRect().bottom;
@@ -152,9 +167,13 @@ export default class PathfindingVisualizer extends Component {
     grid.style.height =
       (window.innerHeight - store.consoleBottom).toString() + "px";
 
-    // Set the state of the start and finish node positions declared above.
-    store.startPosition = [3, 3];
-    store.finishPosition = [store.gridHeight - 3, store.gridWidth - 3];
+    if (store.gridWidth >= 5 && store.gridHeight >= 5) {
+      store.startPosition = [3, 3];
+      store.finishPosition = [store.gridHeight - 3, store.gridWidth - 3];
+    } else {
+      store.startPosition = [0, 0];
+      store.finishPosition = [store.gridHeight - 1, store.gridWidth - 1];
+    }
 
     // Get the initial grid with start and finish node positions, and assign it to
     // the MobX grid.
@@ -162,6 +181,69 @@ export default class PathfindingVisualizer extends Component {
     store.grid.replace(getInitialGrid());
     setKeyNode(store.startPosition[0], store.startPosition[1], store.start);
     setKeyNode(store.finishPosition[0], store.finishPosition[1], store.finish);
+  }
+
+  resizeGrid() {
+    var oldGridHeight = store.gridHeight;
+    var oldGridWidth = store.gridWidth;
+
+    // Recalculate the grid's height and width in terms of node size.
+    store.gridWidth = Math.floor(window.innerWidth / store.nodeWidth);
+    store.gridHeight = Math.floor(
+      (window.innerHeight - store.consoleBottom) / store.nodeHeight
+    );
+    var grewVertically = oldGridHeight > store.gridHeight ? false : true;
+    var grewHorizontally = oldGridWidth > store.gridWidth ? false : true;
+    console.log("Node Height: " + store.nodeHeight);
+    console.log("Node Width: " + store.nodeWidth);
+    console.log("Oldgridheight: " + oldGridHeight);
+    console.log("oldgridwidth: " + oldGridWidth);
+    console.log("New grid height: " + store.gridHeight);
+    console.log("New grid width: " + store.gridWidth);
+    const modGrid = store.grid;
+
+    if (!grewVertically) {
+      modGrid.splice(store.gridHeight, oldGridHeight - store.gridHeight);
+      console.log(
+        "Splice from: " +
+          store.gridHeight +
+          " to: " +
+          (oldGridHeight - store.gridHeight)
+      );
+    }
+    if (!grewHorizontally) {
+      for (let row = 0; row < store.gridHeight; row++) {
+        modGrid[row].splice(store.gridWidth, oldGridWidth - store.gridWidth);
+      }
+    }
+    if (grewVertically && !grewHorizontally) {
+      for (let row = oldGridHeight; row < store.gridHeight; row++) {
+        let currentRow = [];
+        for (let col = 0; col < oldGridWidth; col++) {
+          currentRow.push(createNode(row, col));
+        }
+        modGrid.push(currentRow);
+      }
+    }
+    if (grewVertically && grewHorizontally) {
+      for (let row = 0; row < store.gridHeight; row++) {
+        if (row < oldGridHeight) {
+          for (let col = oldGridWidth; col < store.gridWidth; col++) {
+            modGrid[row].push(createNode(row, col));
+          }
+        } else {
+          let currentRow = [];
+          for (let col = 0; col < store.gridWidth; col++) {
+            currentRow.push(createNode(row, col));
+          }
+          modGrid.push(currentRow);
+        }
+      }
+    }
+    store.grid.replace(modGrid);
+    requestAnimationFrame(() => {
+      this.drawGrid;
+    });
   }
 
   handleNodeSelect(direction) {
@@ -181,67 +263,87 @@ export default class PathfindingVisualizer extends Component {
   }
 
   handleMouseUp() {
-    store.mouseIsPressed = false;
+    store.mouseButton = -1;
   }
 
   // Toggle the node, set the previous node location, then draw the node.
-  handleMouseDown(row, col) {
-    this.toggleNodeType(row, col);
-    store.mouseIsPressed = true;
+  handleMouseDown(mouseButton) {
+    let row = store.mousePosition[0];
+    let col = store.mousePosition[1];
+    let nodeType = this.handleMouseButton(mouseButton);
+
+    this.toggleNodeType(row, col, nodeType);
+    store.mouseButton = mouseButton;
     store.previousNode = [row, col];
     this.drawNode(store.grid[row][col]);
   }
 
   handleMouseEnter(row, col) {
-    if (!store.mouseIsPressed) {
+    if (store.mouseButton === -1) {
       return;
     } else {
-      this.toggleNodeType(row, col);
+      let nodeType = this.handleMouseButton(store.mouseButton);
+
+      this.toggleNodeType(row, col, nodeType);
       this.drawNode(store.grid[row][col]);
       store.previousNode = [row, col];
     }
   }
 
-  toggleNodeType(row, col) {
+  handleMouseButton(button) {
+    let nodeType;
+    if (button === 0) {
+      nodeType = store.clickNodeType;
+    } else if (button === 2) {
+      nodeType = store.air;
+    }
+    return nodeType;
+  }
+
+  handleMiddleMouseDown() {
+    let row = store.mousePosition[0];
+    let col = store.mousePosition[1];
+    let nodeType = store.grid[row][col].nodeType;
+    store.clickNodeType = nodeType;
+    store.clickableNodeIndexFromNodeType(nodeType);
+  }
+
+  toggleNodeType(row, col, mouseNodeType) {
     switch (store.clickNodeType) {
       case store.start:
-        this.toggleStartPosition(row, col);
+        this.toggleKeyPosition(row, col, store.start);
         break;
       case store.finish:
-        this.toggleFinishPosition(row, col);
+        this.toggleKeyPosition(row, col, store.finish);
         break;
       default:
-        setNodeType(row, col, store.clickNodeType);
+        setNodeType(row, col, mouseNodeType);
         break;
     }
   }
 
-  toggleStartPosition(row, col) {
-    let oldRow = store.startPosition[0];
-    let oldCol = store.startPosition[1];
+  toggleKeyPosition(row, col, nodeType) {
+    let target = store.grid[row][col];
+    let oldRow;
+    let oldCol;
+    if (target.nodeType != store.start && target.nodeType != store.finish) {
+      if (nodeType == store.start) {
+        oldRow = store.startPosition[0];
+        oldCol = store.startPosition[1];
+        store.startPosition = [row, col];
+      } else {
+        oldRow = store.finishPosition[0];
+        oldCol = store.finishPosition[1];
+        store.finishPosition = [row, col];
+      }
 
-    setKeyNode(oldRow, oldCol, store.air);
-    setKeyNode(row, col, store.start);
+      setKeyNode(oldRow, oldCol, store.air);
+      setKeyNode(row, col, nodeType);
 
-    // Now we need to turn off the previous start node's class.
-    this.drawNode(store.grid[oldRow][oldCol]);
-    this.drawNode(store.grid[row][col]);
-
-    store.startPosition = [row, col];
-  }
-
-  toggleFinishPosition(row, col) {
-    let oldRow = store.finishPosition[0];
-    let oldCol = store.finishPosition[1];
-
-    setKeyNode(oldRow, oldCol, store.air);
-    setKeyNode(row, col, store.finish);
-
-    // Now we need to turn off the previous finish node's class.
-    this.drawNode(store.grid[oldRow][oldCol]);
-    this.drawNode(store.grid[row][col]);
-
-    store.finishPosition = [row, col];
+      // Now we need to turn off the previous start node's class.
+      this.drawNode(store.grid[oldRow][oldCol]);
+      this.drawNode(target);
+    }
   }
 
   visualizeAlgorithm(algorithm) {
@@ -483,15 +585,15 @@ export default class PathfindingVisualizer extends Component {
 
         <div
           id="grid"
-          onMouseDown={() =>
-            this.handleMouseDown(store.mousePosition[0], store.mousePosition[1])
-          }
           key={store.gridId}
-          onMouseUp={() => this.handleMouseUp()}
+          onContextMenu={event => {
+            event.preventDefault();
+            return false;
+          }}
         >
           {store.grid.map((row, rowIdx) => {
             return (
-              <div key={rowIdx} className="row">
+              <div key={rowIdx} className="row" id={`row-${rowIdx}`}>
                 {row.map((node, nodeIdx) => {
                   const { row, col, isWall } = node;
                   return (

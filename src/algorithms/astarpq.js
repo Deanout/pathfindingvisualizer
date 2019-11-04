@@ -104,7 +104,7 @@ function heuristic_cost_estimate(start, current, finish) {
   const deltaX2 = start.col - finish.col;
   const deltaY2 = start.row - finish.row;
   // Calculate the vector cross-product between the start to goal
-  // vector and the current node to goal vecctor.
+  // vector and the current node to goal vector.
   const cross = Math.abs(deltaX1 * deltaY2 - deltaX2 * deltaY1);
   var heuristic = dx + dy;
   heuristic += cross * 0.001;

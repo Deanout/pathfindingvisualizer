@@ -1,4 +1,4 @@
-import { observable, computed } from "mobx";
+import { observable, computed, action } from "mobx";
 import { Simplex } from "./simplex.js";
 
 /*
@@ -25,16 +25,21 @@ class GridStore {
   @observable grid = [];
   @observable terrain = 0;
   @observable algorithm = 0;
-  @observable mouseIsPressed = false;
+  @observable mouseButton = -1;
   @observable startPosition = [0, 0];
   @observable finishPosition = [0, 1];
   @observable mousePosition = [-1, -1];
   @observable previousNode = [-1, -1];
   @observable gridWidth = 5;
   @observable gridHeight = 5;
-  @observable nodeWidth = 25;
-  @observable nodeHeight = 25;
+  @observable nodeWidth = 50;
+  @observable nodeHeight = 50;
   @observable gridId = 0;
+
+  @action resetNodeSize(newValue) {
+    this.nodeWidth = newValue;
+    this.nodeHeight = newValue;
+  }
 
   @observable simplex = new Simplex();
 
@@ -151,15 +156,23 @@ class GridStore {
     minimize: true,
     panelID: 0
   };
-
+  // Could probably refactor this and save on computing it more
+  // than once.
   @computed get clickableNodeTypes() {
     var modifiedNodeTypes = this.nodeTypes.slice();
-    console.log(modifiedNodeTypes);
     modifiedNodeTypes.unshift(this.finish);
     modifiedNodeTypes.unshift(this.start);
     modifiedNodeTypes.unshift(this.wall);
     modifiedNodeTypes.unshift(this.air);
     return modifiedNodeTypes;
+  }
+
+  @action clickableNodeIndexFromNodeType(nodeType) {
+    for (let i = 0; i < this.clickableNodeTypes.length; i++) {
+      if (nodeType === this.clickableNodeTypes[i]) {
+        this.clickNodeIndex = i;
+      }
+    }
   }
 
   @computed get algorithmName() {

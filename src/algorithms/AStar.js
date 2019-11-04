@@ -4,7 +4,7 @@ export function AStar(grid, startNode, finishNode, width, height) {
   const visitedNodesInOrder = [];
 
   startNode.gScore = 0;
-  startNode.hScore = heuristic_cost_estimate(startNode, startNode, finishNode);
+  startNode.hScore = heuristic_cost_estimate(startNode, finishNode);
   startNode.fScore = startNode.hScore;
   openSet.push(startNode);
 
@@ -32,11 +32,7 @@ export function AStar(grid, startNode, finishNode, width, height) {
       let tentative_gScore = currentNode.gScore + neighbor.nodeType.weight;
       if (tentative_gScore < neighbor.gScore) {
         neighbor.gScore = tentative_gScore;
-        neighbor.hScore = heuristic_cost_estimate(
-          startNode,
-          neighbor,
-          finishNode
-        );
+        neighbor.hScore = heuristic_cost_estimate(neighbor, finishNode);
         neighbor.fScore = neighbor.gScore + neighbor.hScore;
         neighbor.parent = currentNode;
         if (!isInSet(neighbor, openSet)) {
@@ -113,18 +109,10 @@ function getNeighbors(grid, currentNode, width, height) {
 
 // Idea: Add a slider to allow the user to tweak this
 // heuristic value to see how it changes the algorithm's path.
-function heuristic_cost_estimate(start, current, finish) {
+function heuristic_cost_estimate(current, finish) {
   const dx = Math.abs(current.col - finish.col);
   const dy = Math.abs(current.row - finish.row);
-  const deltaX1 = current.col - finish.col;
-  const deltaY1 = current.row - finish.row;
-  const deltaX2 = start.col - finish.col;
-  const deltaY2 = start.row - finish.row;
-  // Calculate the vector cross-product between the start to goal
-  // vector and the current node to goal vecctor.
-  const cross = Math.abs(deltaX1 * deltaY2 - deltaX2 * deltaY1);
   var heuristic = dx + dy;
-  heuristic += cross * 0.1;
   return heuristic;
 }
 

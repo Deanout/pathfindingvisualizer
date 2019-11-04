@@ -18,7 +18,6 @@ const BootstrapInput = withStyles(theme => ({
     border: "1px solid #ced4da",
     fontSize: 16,
     transition: theme.transitions.create(["border-color", "box-shadow"]),
-    // Use the system font instead of the default Roboto font.
     fontFamily: ["Open Sans", "sans-serif"].join(","),
     "&:focus": {
       borderRadius: 4,
