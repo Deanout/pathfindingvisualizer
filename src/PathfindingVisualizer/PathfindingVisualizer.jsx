@@ -21,6 +21,11 @@ const NODE_VISITED = `node-visited`;
 
 const NODE_SHORTEST_PATH = `node-shortest-path`;
 
+var shortestPathAnimationTimer;
+var pathAnimationTimer;
+var updatePathTimer;
+var resizeTimer;
+
 @observer
 export default class PathfindingVisualizer extends Component {
   constructor() {
@@ -28,152 +33,167 @@ export default class PathfindingVisualizer extends Component {
     this.state = {};
   }
 
-  /* After the initial render, this function runs.
-   * Outline:
-   * Get a reference to the bottom of the console in order to calculate the
-   * grid height and width. Afterwards, set the grid's height and initialize the
-   * grid with a start position and a finish position, but do not draw yet.
-   *
-   * Next add the event listeners for hotkeys.
-   *
-   * Finally, capture the mouse position and translate it into clamped values
-   * in order to pass it to the appropriate handlers. By utilizing this method,
-   * we avoid the mouseUp event not being called if the user clicks and drags
-   * into a neighboring node too quickly.
-   *
-   */
   componentDidMount() {
     this.setup();
-    window.requestAnimationFrame(() => {
-      this.drawGrid();
-    });
-    window.addEventListener("resize", event => {
-      if (
-        Math.floor(window.innerWidth / store.nodeWidth) > store.gridWidth + 1 ||
-        Math.floor(window.innerWidth / store.nodeWidth) < store.gridWidth - 1 ||
-        Math.floor(
-          (window.innerHeight - store.consoleBottom) / store.nodeHeight
-        ) >
-          store.gridHeight + 1 ||
-        Math.floor(
-          (window.innerHeight - store.consoleBottom) / store.nodeHeight
-        ) <
-          store.gridHeight - 1
-      ) {
-        this.setup();
-        requestAnimationFrame(() => {
-          this.drawGrid();
-        });
-      }
-    });
-    document.addEventListener("keydown", event => {
-      switch (event.key.toLowerCase()) {
-        case "s":
-          store.clickNodeType = store.start;
-          break;
-        case "w":
-          store.clickNodeType = store.wall;
-          break;
-        case "f":
-          store.clickNodeType = store.finish;
-          break;
-        case " ":
-          document.activeElement.blur();
-          this.init(false);
-          break;
-        case "arrowup":
-          this.handleNodeSelect(-1);
-          break;
-        case "arrowdown":
-          this.handleNodeSelect(1);
-          break;
-        default:
-          store.clickNodeType = store.air;
-          break;
-      }
-      // Draw the grid on key press. This allows you to skip
-      // the maze generation if you'd like.
-      this.drawGrid();
-    });
-    document.addEventListener("mouseup", event => {
-      this.handleMouseUp();
-    });
-    document.getElementById("grid").addEventListener("mousedown", event => {
-      switch (event.button) {
-        case 0:
-          this.handleMouseDown(0);
-          break;
-        case 1:
-          this.handleMiddleMouseDown();
-          break;
-        case 2:
-          this.handleMouseDown(2);
-          break;
-        default:
-          break;
-      }
-    });
-    /* Add the mousemove event listener.
-     * store.nodeWidth: The width of each node in pixels, at the time of the event.
-     * store.nodeHeight: The width of each node in pixels, at the time of the event.
-     * row: Clamped between 0 and store.nodeHeight.
-     * col: Clamped between 0 and store.nodeWidth.
-     *
-     * Before handling mouse enter, make sure we've entered a different node.
-     *
-     * TODO: Draw lines tracing the mouse movement and add the nodes
-     * according to which nodes the line touches. This would fix the
-     * mouse move event not updating fast enough.
-     */
-    document.getElementById("grid").addEventListener("mousemove", event => {
+    var grid = document.getElementById("grid");
+    // PC Events
+    document.addEventListener("mousemove", this.onMouseMove, false);
+    document.addEventListener("keydown", this.onKeyDown, false);
+    document.addEventListener("mouseup", this.onMouseUp, false);
+    grid.addEventListener("mousedown", this.onMouseDown, false);
+    window.addEventListener("resize", this.onResize, false);
+    // Mobile Events
+    document.addEventListener("touchmove", this.onMouseMove, false);
+    document.addEventListener("touchend", this.onMouseUp, false);
+    grid.addEventListener("touchstart", this.onMouseDown, false);
+  }
+  componentWillUnmount() {
+    // PC Events
+    document.removeEventListener("mousemove", this.onMouseMove, false);
+    document.removeEventListener("keydown", this.onKeyDown, false);
+    document.removeEventListener("mouseup", this.onMouseUp, false);
+    grid.removeEventListener("mousedown", this.onMouseDown, false);
+    window.removeEventListener("resize", this.onResize, false);
+
+    // Mobile Events
+    document.removeEventListener("touchmove", this.onMouseMove, false);
+    document.removeEventListener("touchup", this.onMouseUp, false);
+    grid.removeEventListener("touchdown", this.onMouseDown, false);
+  }
+  onResize = event => {
+    if (
+      window.innerWidth / store.nodeWidth > store.gridWidth + 1 ||
+      window.innerWidth / store.nodeWidth < store.gridWidth - 1 ||
+      (window.innerHeight - store.consoleBottom) / store.nodeHeight >
+        store.gridHeight + 1 ||
+      (window.innerHeight - store.consoleBottom) / store.nodeHeight <
+        store.gridHeight - 1
+    ) {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        store.resetNodeSize(store.nodeSize);
+        this.initializeGridSizes();
+        this.resizeGrid();
+        this.drawGrid();
+      }, 100);
+    }
+  };
+  onMouseDown = event => {
+    switch (event.button) {
+      case 0:
+        this.handleMouseDown(0);
+        break;
+      case 1:
+        this.handleMiddleMouseDown();
+        break;
+      case 2:
+        this.handleMouseDown(2);
+        break;
+      default:
+        let target = document
+          .elementFromPoint(event.touches[0].clientX, event.touches[0].clientY)
+          .id.split("-");
+        store.mousePosition[0] = target[1];
+        store.mousePosition[1] = target[2];
+        this.handleMouseDown(0);
+        break;
+    }
+  };
+  onMouseUp = event => {
+    this.handleMouseUp();
+  };
+  onKeyDown = event => {
+    switch (event.key.toLowerCase()) {
+      case "s":
+        store.clickNodeType = store.start;
+        break;
+      case "w":
+        store.clickNodeType = store.wall;
+        break;
+      case "f":
+        store.clickNodeType = store.finish;
+        break;
+      case " ":
+        event.preventDefault();
+        break;
+      case "arrowup":
+        this.handleNodeSelect(-1);
+        break;
+      case "arrowdown":
+        this.handleNodeSelect(1);
+        break;
+      default:
+        break;
+    }
+    // Draw the grid on key press. This allows you to skip
+    // the maze generation if you'd like.
+    this.drawGrid();
+  };
+  onMouseMove = event => {
+    {
       if (
         grid.firstElementChild != null &&
         grid.firstElementChild.firstElementChild != null
       ) {
-        store.nodeWidth = grid.firstElementChild.firstElementChild.getBoundingClientRect().width;
-        store.nodeHeight = grid.firstElementChild.firstElementChild.getBoundingClientRect().height;
-        var x = event.clientX;
-        var y = event.clientY;
-        var row = Math.floor((y - store.consoleBottom) / store.nodeHeight);
-        var col = Math.floor(x / store.nodeWidth);
-        let oldMousePosition = store.mousePosition;
+        // Grab Nodes via event id:
+        // This approach works through scaling, so we don't need to
+        // recalculate the nodesize.
+        let target;
+        let row, col;
+        let x, y;
+        if (event.clientX != undefined) {
+          x = Math.clamp(event.clientX, 1, grid.offsetWidth - 1);
+          y = Math.clamp(
+            event.clientY,
+            store.consoleBottom + 1,
+            grid.offsetHeight + store.consoleBottom - 2
+          );
+          target = document.elementFromPoint(x, y).id.split("-");
+        } else if (event.touches[0]) {
+          x = Math.clamp(event.touches[0].clientX, 1, grid.offsetWidth - 1);
+          y = Math.clamp(
+            event.touches[0].clientY,
+            store.consoleBottom + 1,
+            grid.offsetHeight + store.consoleBottom - 2
+          );
+        }
+        target = document.elementFromPoint(x, y).id.split("-");
+        row = target[1];
+        col = target[2];
 
-        row = Math.clamp(row, 0, store.gridHeight - 1);
-        col = Math.clamp(col, 0, store.gridWidth - 1);
-        if (row !== oldMousePosition[0] || col !== oldMousePosition[1]) {
+        let oldRow = store.mousePosition[0];
+        let oldCol = store.mousePosition[1];
+        if ((row != oldRow || col != oldCol) && (!isNaN(row) && !isNaN(col))) {
+          row = Math.clamp(row, 0, store.gridHeight - 1);
+          col = Math.clamp(col, 0, store.gridWidth - 1);
           store.mousePosition = [row, col];
-          this.handleMouseEnter(row, col, store.mouseButton);
+          let oldNodeType = store.nodeTypeAtMousePosition;
+          store.nodeTypeAtMousePosition = store.grid[row][col].nodeType;
+
+          this.handleMouseEnter(row, col);
+
+          if (oldNodeType != store.start && oldNodeType != store.finish) {
+            this.handleMouseLeave(oldRow, oldCol, oldNodeType);
+          }
+          if (
+            store.mouseButton === 0 &&
+            (store.clickNodeType == store.start ||
+              store.clickNodeType == store.finish)
+          ) {
+            this.updateShortestPath();
+          }
         }
       }
-    });
-    // requestAnimationFrame(() => {
-    //   this.generateTerrain(2);
-    // });
-  }
-
+    }
+  };
   setup() {
-    console.log("Setup ran");
-    var grid = document.getElementById("grid");
-
-    var consoleElement = document.getElementById("console");
-    store.consoleBottom = consoleElement.getBoundingClientRect().bottom;
-
+    this.initializeGridSizes();
     // Recalculate the grid's height and width in terms of node size.
     store.gridWidth = Math.floor(window.innerWidth / store.nodeWidth);
     store.gridHeight = Math.floor(
       (window.innerHeight - store.consoleBottom) / store.nodeHeight
     );
-    // Set the grid's height to occupy all space below the console.
-    grid.style.height =
-      (window.innerHeight - store.consoleBottom).toString() + "px";
-
-    if (store.gridWidth >= 5 && store.gridHeight >= 5) {
-      store.startPosition = [3, 3];
-      store.finishPosition = [store.gridHeight - 3, store.gridWidth - 3];
-    } else {
-      store.startPosition = [0, 0];
-      store.finishPosition = [store.gridHeight - 1, store.gridWidth - 1];
-    }
+    this.initializeKeyNodes();
 
     // Get the initial grid with start and finish node positions, and assign it to
     // the MobX grid.
@@ -181,6 +201,32 @@ export default class PathfindingVisualizer extends Component {
     store.grid.replace(getInitialGrid());
     setKeyNode(store.startPosition[0], store.startPosition[1], store.start);
     setKeyNode(store.finishPosition[0], store.finishPosition[1], store.finish);
+    window.requestAnimationFrame(() => {
+      this.drawGrid();
+    });
+  }
+
+  initializeGridSizes() {
+    var grid = document.getElementById("grid");
+
+    var consoleElement = document.getElementById("console");
+    consoleElement.style.marginTop =
+      document.getElementById("AppBar").offsetHeight + "px";
+    store.consoleBottom = consoleElement.getBoundingClientRect().bottom;
+
+    // Set the grid's height to occupy all space below the console.
+    grid.style.height =
+      (window.innerHeight - store.consoleBottom).toString() + "px";
+  }
+
+  initializeKeyNodes() {
+    if (store.gridWidth >= 5 && store.gridHeight >= 5) {
+      store.startPosition = [3, 3];
+      store.finishPosition = [store.gridHeight - 3, store.gridWidth - 3];
+    } else {
+      store.startPosition = [0, 0];
+      store.finishPosition = [store.gridHeight - 1, store.gridWidth - 1];
+    }
   }
 
   resizeGrid() {
@@ -194,22 +240,46 @@ export default class PathfindingVisualizer extends Component {
     );
     var grewVertically = oldGridHeight > store.gridHeight ? false : true;
     var grewHorizontally = oldGridWidth > store.gridWidth ? false : true;
-    console.log("Node Height: " + store.nodeHeight);
-    console.log("Node Width: " + store.nodeWidth);
-    console.log("Oldgridheight: " + oldGridHeight);
-    console.log("oldgridwidth: " + oldGridWidth);
-    console.log("New grid height: " + store.gridHeight);
-    console.log("New grid width: " + store.gridWidth);
+
+    let startChanged = false;
+    let finishChanged = false;
+
+    if (store.startNode.row > store.gridHeight - 1) {
+      store.startPosition[0] = store.gridHeight - 1;
+      startChanged = true;
+    }
+    if (store.startNode.col > store.gridWidth - 1) {
+      store.startPosition[1] = store.gridWidth - 1;
+      startChanged = true;
+    }
+    if (store.finishNode.row > store.gridHeight - 1) {
+      store.finishPosition[0] = store.gridHeight - 1;
+      finishChanged = true;
+    }
+    if (store.finishNode.col > store.gridWidth - 1) {
+      store.finishPosition[1] = store.gridWidth - 1;
+      finishChanged = true;
+    }
+
+    if (startChanged) {
+      this.toggleKeyPosition(
+        store.startPosition[0],
+        store.startPosition[1],
+        store.start
+      );
+    }
+    if (finishChanged) {
+      this.toggleKeyPosition(
+        store.finishPosition[0],
+        store.finishPosition[1],
+        store.finish
+      );
+    }
+
     const modGrid = store.grid;
 
     if (!grewVertically) {
       modGrid.splice(store.gridHeight, oldGridHeight - store.gridHeight);
-      console.log(
-        "Splice from: " +
-          store.gridHeight +
-          " to: " +
-          (oldGridHeight - store.gridHeight)
-      );
     }
     if (!grewHorizontally) {
       for (let row = 0; row < store.gridHeight; row++) {
@@ -240,20 +310,26 @@ export default class PathfindingVisualizer extends Component {
         }
       }
     }
+
     store.grid.replace(modGrid);
+
     requestAnimationFrame(() => {
-      this.drawGrid;
+      this.drawGrid();
+      let grid = document.getElementById("grid");
     });
+  }
+
+  calculateNodeSize(grid) {
+    store.nodeWidth = grid.firstElementChild.firstElementChild.getBoundingClientRect().width;
+    store.nodeHeight = grid.firstElementChild.firstElementChild.getBoundingClientRect().height;
   }
 
   handleNodeSelect(direction) {
     let index = store.clickNodeIndex;
     let length = store.clickableNodeTypes.length;
     if (index + direction < 0) {
-      // 0 + 1
       index = length - 1;
     } else if (index + direction > length - 1) {
-      // 11 + 1
       index = 0;
     } else {
       index += direction;
@@ -264,15 +340,26 @@ export default class PathfindingVisualizer extends Component {
 
   handleMouseUp() {
     store.mouseButton = -1;
+    store.clickNodeType = store.previousClickNodeType;
   }
 
   // Toggle the node, set the previous node location, then draw the node.
   handleMouseDown(mouseButton) {
     let row = store.mousePosition[0];
     let col = store.mousePosition[1];
-    let nodeType = this.handleMouseButton(mouseButton);
+    let node = store.grid[row][col];
+    if (node.nodeType == store.start) {
+      store.previousClickNodeType = store.clickNodeType;
+      store.clickNodeType = store.start;
+    } else if (node.nodeType == store.finish) {
+      store.previousClickNodeType = store.clickNodeType;
+      store.clickNodeType = store.finish;
+    } else {
+      this.handleMouseButton(mouseButton);
+      store.previousClickNodeType = store.clickNodeType;
+    }
+    this.toggleNodeType(row, col);
 
-    this.toggleNodeType(row, col, nodeType);
     store.mouseButton = mouseButton;
     store.previousNode = [row, col];
     this.drawNode(store.grid[row][col]);
@@ -282,22 +369,33 @@ export default class PathfindingVisualizer extends Component {
     if (store.mouseButton === -1) {
       return;
     } else {
-      let nodeType = this.handleMouseButton(store.mouseButton);
+      if (!isNaN(row) && !isNaN(col)) {
+        this.toggleNodeType(row, col);
+        this.drawNode(store.grid[row][col]);
+        store.previousNode = [row, col];
+      }
+    }
+  }
 
-      this.toggleNodeType(row, col, nodeType);
-      this.drawNode(store.grid[row][col]);
-      store.previousNode = [row, col];
+  handleMouseLeave(oldRow, oldCol, oldNodeType) {
+    if (store.mouseButton === -1) {
+      return;
+    } else if (
+      store.clickNodeType == store.start ||
+      store.clickNodeType == store.finish
+    ) {
+      if (!isNaN(oldRow) && !isNaN(oldCol)) {
+        this.toggleNodeType(oldRow, oldCol, oldNodeType);
+        this.drawNode(store.grid[oldRow][oldCol]);
+      }
     }
   }
 
   handleMouseButton(button) {
-    let nodeType;
     if (button === 0) {
-      nodeType = store.clickNodeType;
     } else if (button === 2) {
-      nodeType = store.air;
+      store.clickNodeType = store.air;
     }
-    return nodeType;
   }
 
   handleMiddleMouseDown() {
@@ -305,11 +403,13 @@ export default class PathfindingVisualizer extends Component {
     let col = store.mousePosition[1];
     let nodeType = store.grid[row][col].nodeType;
     store.clickNodeType = nodeType;
+    store.previousClickNodeType = nodeType;
     store.clickableNodeIndexFromNodeType(nodeType);
   }
 
-  toggleNodeType(row, col, mouseNodeType) {
-    switch (store.clickNodeType) {
+  toggleNodeType(row, col, nodeType) {
+    nodeType = nodeType == undefined ? store.clickNodeType : nodeType;
+    switch (nodeType) {
       case store.start:
         this.toggleKeyPosition(row, col, store.start);
         break;
@@ -317,7 +417,7 @@ export default class PathfindingVisualizer extends Component {
         this.toggleKeyPosition(row, col, store.finish);
         break;
       default:
-        setNodeType(row, col, mouseNodeType);
+        setNodeType(row, col, nodeType);
         break;
     }
   }
@@ -328,12 +428,12 @@ export default class PathfindingVisualizer extends Component {
     let oldCol;
     if (target.nodeType != store.start && target.nodeType != store.finish) {
       if (nodeType == store.start) {
-        oldRow = store.startPosition[0];
-        oldCol = store.startPosition[1];
+        oldRow = store.startNode.row;
+        oldCol = store.startNode.col;
         store.startPosition = [row, col];
       } else {
-        oldRow = store.finishPosition[0];
-        oldCol = store.finishPosition[1];
+        oldRow = store.finishNode.row;
+        oldCol = store.finishNode.col;
         store.finishPosition = [row, col];
       }
 
@@ -346,9 +446,24 @@ export default class PathfindingVisualizer extends Component {
     }
   }
 
+  updateShortestPath() {
+    if (store.pathDrawn) {
+      clearTimeout(updatePathTimer);
+      updatePathTimer = setTimeout(() => {
+        let animationSpeed = store.currentAnimationSpeed;
+        store.currentAnimationSpeed = store.animationSpeed.instant;
+        this.visualizeAlgorithm(store.algorithm);
+        requestAnimationFrame(() => {
+          store.currentAnimationSpeed = animationSpeed;
+        });
+      }, 1);
+    }
+  }
+
   visualizeAlgorithm(algorithm) {
+    this.gridStateManager(0);
     this.resetDistances();
-    this.init(false);
+    store.pathDrawn = true;
     switch (algorithm) {
       case 1:
         //this.visualizeDijkstra(startNode, finishNode);
@@ -370,7 +485,22 @@ export default class PathfindingVisualizer extends Component {
         this.findPath(dijkstra, "Dijkstra's", getShortestDijkstraPath);
         break;
     }
-    this.resetDistances();
+  }
+
+  resetDistances() {
+    for (let row of store.grid) {
+      for (let node of row) {
+        node.distance = Infinity;
+        node.isVisited = false;
+        node.isShortest = false;
+        node.parent = null;
+        node.neighbor = null;
+        node.closed = false;
+        node.fScore = Infinity;
+        node.hScore = Infinity;
+        node.gScore = Infinity;
+      }
+    }
   }
 
   findPath(algorithm, name, shortestPath) {
@@ -389,7 +519,7 @@ export default class PathfindingVisualizer extends Component {
     const nodesInShortestPathOrder = shortestPath(finishNode);
     this.renderTextToConsole(
       name,
-      visitedNodesInOrder,
+      visitedNodesInOrder == undefined ? [] : visitedNodesInOrder,
       nodesInShortestPathOrder,
       start,
       end,
@@ -424,65 +554,132 @@ export default class PathfindingVisualizer extends Component {
     consoleElement.innerHTML += openingTag + content + closingTag;
     consoleElement.scrollTo(0, consoleElement.scrollHeight);
   }
-  resetDistances() {
-    for (let row of store.grid) {
-      for (let node of row) {
-        node.distance = Infinity;
-        node.isVisited = false;
-        node.isShortest = false;
-        node.parent = null;
-        node.neighbor = null;
-        node.closed = false;
-        node.fScore = Infinity;
-        node.hScore = Infinity;
-        node.gScore = Infinity;
-      }
-    }
-  }
 
   animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder) {
-    for (let i = 0; i <= visitedNodesInOrder.length; i++) {
-      if (i === visitedNodesInOrder.length) {
-        setTimeout(() => {
-          this.animateShortestPath(nodesInShortestPathOrder);
-        }, 10 * i);
+    if (store.currentAnimationSpeed == 0) {
+      for (let i = 0; i < visitedNodesInOrder.length; i++) {
+        this.createPath(visitedNodesInOrder[i], NODE_VISITED);
+      }
+      for (let j = 0; j < nodesInShortestPathOrder.length; j++) {
+        this.createPath(nodesInShortestPathOrder[j], NODE_SHORTEST_PATH);
+      }
+    } else {
+      if (store.onlyDrawShortestPath) {
+        this.shortestPathAnimation(
+          0,
+          store.currentAnimationSpeed,
+          nodesInShortestPathOrder,
+          this
+        );
         return;
       }
-      setTimeout(() => {
-        const node = visitedNodesInOrder[i];
-        if (i === visitedNodesInOrder.length - 1) {
-          if (nodesInShortestPathOrder.length > 1) {
-          } else {
-            this.createPath(node, NODE_VISITED);
-          }
-        } else {
-          this.createPath(node, NODE_VISITED);
-        }
-      }, 10 * i);
-    }
-  }
-  animateShortestPath(nodesInShortestPathOrder) {
-    for (let i = 0; i < nodesInShortestPathOrder.length - 1; i++) {
-      setTimeout(() => {
-        const node = nodesInShortestPathOrder[i];
-        this.createPath(node, NODE_SHORTEST_PATH);
-      }, 50 * i);
+      this.pathAnimation(
+        0,
+        store.currentAnimationSpeed,
+        visitedNodesInOrder,
+        nodesInShortestPathOrder,
+        this
+      );
     }
   }
 
-  init(clearBoard) {
+  pathAnimation(
+    index,
+    animationSpeed,
+    visitedNodesInOrder,
+    nodesInShortestPathOrder,
+    context
+  ) {
+    if (index === visitedNodesInOrder.length) {
+      context.shortestPathAnimation(
+        0,
+        animationSpeed,
+        nodesInShortestPathOrder,
+        context
+      );
+    } else {
+      const node = visitedNodesInOrder[index];
+      if (index === visitedNodesInOrder.length - 1) {
+      } else {
+        context.createPath(node, NODE_VISITED);
+      }
+      // f(n), delay, arg_0, ..., arg_n
+      pathAnimationTimer = setTimeout(
+        context.pathAnimation,
+        animationSpeed,
+        ++index,
+        animationSpeed,
+        visitedNodesInOrder,
+        nodesInShortestPathOrder,
+        context
+      );
+    }
+  }
+  shortestPathAnimation(
+    index,
+    animationSpeed,
+    nodesInShortestPathOrder,
+    context
+  ) {
+    if (index >= nodesInShortestPathOrder.length - 1) {
+      return;
+    }
+    const node = nodesInShortestPathOrder[index];
+    context.createPath(node, NODE_SHORTEST_PATH);
+    // f(n), delay, arg_0, ..., arg_n
+    shortestPathAnimationTimer = setTimeout(
+      context.shortestPathAnimation,
+      animationSpeed,
+      ++index,
+      animationSpeed,
+      nodesInShortestPathOrder,
+      context
+    );
+  }
+
+  gridStateManager(clearFlag) {
+    switch (clearFlag) {
+      case 0:
+        // clear paths
+        this.clearAllPaths();
+        break;
+      case 1:
+        // clear board
+        this.clearBoard();
+        this.clearAllPaths();
+        break;
+      case 2:
+        // reset board
+        this.clearBoard();
+        this.clearAllPaths();
+        this.setup();
+        break;
+      default:
+        break;
+    }
+    store.pathDrawn = false;
+  }
+
+  clearAllPaths() {
     for (let row = 0; row < store.gridHeight; row++) {
       for (let col = 0; col < store.gridWidth; col++) {
         let node = store.grid[row][col];
         this.removePath(node, NODE_VISITED);
         this.removePath(node, NODE_SHORTEST_PATH);
-
-        if (clearBoard) {
-          setNodeType(row, col, store.air);
-        }
+        clearTimeout(pathAnimationTimer);
+        clearTimeout(shortestPathAnimationTimer);
       }
     }
-    this.drawGrid(clearBoard);
+  }
+
+  clearBoard() {
+    for (let row = 0; row < store.gridHeight; row++) {
+      for (let col = 0; col < store.gridWidth; col++) {
+        let node = store.grid[row][col];
+        setNodeType(row, col, store.air);
+      }
+    }
+    this.drawGrid();
   }
   createPath(node, newClass) {
     document.getElementById(
@@ -490,9 +687,9 @@ export default class PathfindingVisualizer extends Component {
     ).firstChild.className += ` ${newClass}`;
   }
   removePath(node, newClass) {
-    document.getElementById(
-      `node-${node.row}-${node.col}`
-    ).firstChild.className = `path`;
+    document
+      .getElementById(`node-${node.row}-${node.col}`)
+      .firstChild.classList.remove(newClass);
   }
 
   removeClassFromNode(node, classToRemove) {
@@ -508,15 +705,11 @@ export default class PathfindingVisualizer extends Component {
     ).className = `node ${nodeType.class}`;
   }
 
-  drawGrid(clearBoard) {
+  drawGrid() {
     for (let row = 0; row < store.gridHeight; row++) {
       for (let col = 0; col < store.gridWidth; col++) {
         let node = store.grid[row][col];
         this.drawNode(node);
-        if (clearBoard) {
-          this.removePath(node, NODE_VISITED);
-          this.removePath(node, NODE_SHORTEST_PATH);
-        }
       }
     }
   }
@@ -539,32 +732,20 @@ export default class PathfindingVisualizer extends Component {
   }
 
   handleTerrainGeneration(terrain) {
-    this.init(true);
+    this.gridStateManager(1);
     const nodesToAnimate = terrain();
     this.animateTerrain(nodesToAnimate);
   }
 
   animateTerrain(nodesToAnimate) {
-    var speedMod;
-    switch (store.terrain) {
-      case 0:
-      case 1:
-        speedMod = 10;
-        break;
-      case 2:
-        speedMod = 5;
-        break;
-      case 3:
-        speedMod = 2;
-        break;
-    }
+    let speedMod = store.terrain == 0 || store.terrain == 1 ? 1 : 0;
     for (let i = 0; i < nodesToAnimate.length; i++) {
       let row = nodesToAnimate[i][0];
       let col = nodesToAnimate[i][1];
       let nodeType = nodesToAnimate[i][2];
       setTimeout(() => {
         this.drawNode(store.grid[row][col], nodeType);
-      }, speedMod * i);
+      }, store.currentAnimationSpeed * speedMod * i);
       setNodeType(row, col, nodeType);
     }
   }
@@ -578,11 +759,9 @@ export default class PathfindingVisualizer extends Component {
         algorithm={this.state.algorithm}
       ></Toolbar>
     );
-
     return (
       <>
         {toolBar}
-
         <div
           id="grid"
           key={store.gridId}
@@ -595,15 +774,8 @@ export default class PathfindingVisualizer extends Component {
             return (
               <div key={rowIdx} className="row" id={`row-${rowIdx}`}>
                 {row.map((node, nodeIdx) => {
-                  const { row, col, isWall } = node;
-                  return (
-                    <Node
-                      key={nodeIdx}
-                      row={row}
-                      col={col}
-                      isWall={isWall}
-                    ></Node>
-                  );
+                  const { row, col } = node;
+                  return <Node key={nodeIdx} row={row} col={col}></Node>;
                 })}
               </div>
             );
@@ -626,20 +798,20 @@ const getInitialGrid = () => {
   return output;
 };
 
-// Need to change from just setting a boolean for the node type
-// to an actual node type we can track. This should fix pf issues.
 const createNode = (row, col) => {
   return {
     row,
     col,
+    closed: false,
     distance: Infinity,
-    isVisited: false,
-    isShortest: false,
     fScore: Infinity,
     gScore: Infinity,
     hScore: Infinity,
-    parent: null,
-    nodeType: store.nodeType
+    isShortest: false,
+    isVisited: false,
+    neighbor: null,
+    nodeType: store.nodeType,
+    parent: null
   };
 };
 
@@ -651,6 +823,12 @@ const setNodeType = (row, col, nodeType) => {
 };
 
 const setKeyNode = (row, col, nodeType) => {
+  let node = store.grid[row][col];
+  if (nodeType == store.start) {
+    store.startNode = node;
+  } else if (nodeType == store.finish) {
+    store.finishNode = node;
+  }
   store.grid[row][col].nodeType = nodeType;
 };
 

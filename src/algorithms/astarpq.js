@@ -9,6 +9,7 @@ export function AStarPQ(grid, startNode, finishNode, width, height) {
   startNode.fScore = startNode.hScore;
 
   openSet.push(startNode);
+
   while (openSet.size() > 0) {
     var currentNode = openSet.popMin();
 
@@ -16,7 +17,9 @@ export function AStarPQ(grid, startNode, finishNode, width, height) {
     if (currentNode == finishNode) {
       return computeVisitedNodes(visitedNodesInOrder);
     }
+
     currentNode.closed = true;
+
     for (let neighbor of getNeighbors(grid, currentNode, width, height)) {
       if (neighbor.nodeType.walkable === false || neighbor.closed) {
         continue;
@@ -25,11 +28,14 @@ export function AStarPQ(grid, startNode, finishNode, width, height) {
 
       if (tentative_gScore < neighbor.gScore) {
         neighbor.gScore = tentative_gScore;
+        // let start = performance.now();
         neighbor.hScore = heuristic_cost_estimate(
           startNode,
           neighbor,
           finishNode
         );
+        // let end = performance.now();
+        // console.log("ASPQ TOOK " + (end - start));
         neighbor.fScore = neighbor.gScore + neighbor.hScore;
         neighbor.parent = currentNode;
         if (!openSet.find(neighbor)) {

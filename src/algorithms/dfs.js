@@ -14,7 +14,7 @@ export function DFS(grid, startNode, finishNode, width, height) {
     }
 
     for (let neighbor of getNeighbors(grid, currentNode, width, height)) {
-      if (neighbor.isWall) {
+      if (neighbor.nodeType.walkable == false) {
         continue;
       }
       if (!neighbor.isVisited) {

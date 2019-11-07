@@ -13,7 +13,7 @@ export function BFS(grid, startNode, finishNode, width, height) {
       return getVisitedNodes(visitedNodes);
     }
     for (let neighbor of getNeighbors(grid, currentNode, width, height)) {
-      if (neighbor.isWall) {
+      if (neighbor.nodeType.walkable == false) {
         continue;
       }
       if (!neighbor.isVisited) {

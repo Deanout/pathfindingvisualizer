@@ -23,7 +23,7 @@ export default function TerrainSlider(props) {
 
   const handleSliderChange = (event, newValue) => {
     setValue(newValue);
-
+    store.nodeSize = newValue;
     clearTimeout(resizeTimer);
     setResizeTimer(
       setTimeout(() => {
@@ -36,8 +36,14 @@ export default function TerrainSlider(props) {
   const handleInputChange = event => {
     let newValue = event.target.value === "" ? "" : Number(event.target.value);
     setValue(newValue);
-    store.resetNodeSize(newValue);
-    props.pfv.resizeGrid();
+    store.nodeSize = newValue;
+    clearTimeout(resizeTimer);
+    setResizeTimer(
+      setTimeout(() => {
+        store.resetNodeSize(newValue);
+        props.pfv.resizeGrid();
+      }, 1000)
+    );
   };
 
   const handleBlur = () => {
@@ -62,9 +68,9 @@ export default function TerrainSlider(props) {
             value={typeof value === "number" ? value : 25}
             onChange={handleSliderChange}
             aria-labelledby="input-slider"
-            step={1}
+            step={10}
             min={10}
-            max={200}
+            max={100}
           />
         </Grid>
         <Grid item>

@@ -1,12 +1,26 @@
 .node {
   display: flex;
   flex: 1;
-  border-right: 1px solid rgb(175, 200, 250);
-  border-bottom: 1px solid rgb(175, 200, 250);
+  pointer-events: auto;
 }
 
 .path {
+  display: flex;
+  flex-direction: column;
   flex: 1;
+  border-right: 1px solid rgb(175, 200, 250);
+  border-bottom: 1px solid rgb(175, 200, 250);
+  pointer-events: none;
+}
+.path-row {
+  display: flex;
+  flex: 1;
+  flex-direction: row;
+  pointer-events: none;
+}
+.path-score {
+  flex: 1;
+  pointer-events: none;
 }
 
 .node:hover {

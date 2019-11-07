@@ -27,14 +27,35 @@ class GridStore {
   @observable algorithm = 0;
   @observable mouseButton = -1;
   @observable startPosition = [0, 0];
+  @observable startNode;
+  @observable finishNode;
   @observable finishPosition = [0, 1];
-  @observable mousePosition = [-1, -1];
-  @observable previousNode = [-1, -1];
   @observable gridWidth = 5;
   @observable gridHeight = 5;
-  @observable nodeWidth = 50;
-  @observable nodeHeight = 50;
+  // Change to control the default grid size.
+  @observable nodeSize = 25;
+  @observable nodeWidth = this.nodeSize;
+  @observable nodeHeight = this.nodeSize;
+
+  @observable debugCounter = 0;
   @observable gridId = 0;
+  @observable gridScale = 1;
+  @observable pathDrawn = false;
+  @observable currentPathIndex = 0;
+  @observable currentShortestPathIndex = 0;
+
+  @observable mousePosition = [-1, -1];
+  @observable previousNode = [-1, -1];
+
+  @observable animationSpeed = {
+    crawl: 500,
+    slow: 50,
+    med: 25,
+    fast: 10,
+    ultra: 1,
+    instant: 0
+  };
+  @observable currentAnimationSpeed = this.animationSpeed.fast;
 
   @action resetNodeSize(newValue) {
     this.nodeWidth = newValue;
@@ -147,6 +168,8 @@ class GridStore {
   @observable nodeType = this.air;
   @observable clickNodeType = this.wall;
   @observable clickNodeIndex = 1;
+  @observable previousClickNodeType = this.clickNodeType;
+  @observable nodeTypeAtMousePosition = this.air;
 
   // UI Variables
   @observable consoleBottom = 0;

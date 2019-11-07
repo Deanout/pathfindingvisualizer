@@ -7,6 +7,7 @@ import Button from "@material-ui/core/Button";
 import { styled } from "@material-ui/core/styles";
 import AlgorithmSelect from "./algorithmselect.jsx";
 import TerrainSelect from "./terrainselect.jsx";
+import ClearBoardSelect from "./clearboardselect.jsx";
 import NodeTypeSelect from "./nodetypeselect.jsx";
 import ConfigPanel from "./configpanel/configpanel.jsx";
 import TerrainSlider from "./terrainslider.jsx";
@@ -22,7 +23,8 @@ const PfvToolbar = styled(Toolbar)({
   border: 0,
   borderRadius: 3,
   boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)",
-  color: "white"
+  color: "white",
+  zIndex: 10000
 });
 
 const PfvBrand = styled(Typography)({
@@ -108,7 +110,9 @@ export default class ToolBar extends Component {
         makeTerrainClicked={store.terrain}
       ></TerrainSelect>
     );
-
+    var clearBoardSelect = (
+      <ClearBoardSelect pfv={this.props.pfv}></ClearBoardSelect>
+    );
     var configPanel = (
       <ConfigPanel
         algorithm={this.state.algorithm}
@@ -137,19 +141,19 @@ export default class ToolBar extends Component {
       <div>
         {configPanel}
 
-        <div onMouseEnter={() => (pfv.state.mouseIsPressed = false)}>
-          <AppBar position="static">
+        <div>
+          <AppBar position="fixed" id="AppBar">
             <PfvToolbar>
               <Grid container spacing={1}>
-                <Grid item xs={6} sm={3} md={3} lg={1}>
+                <Grid item xs={6} sm={5} md={3} lg={3} xl={2}>
                   <PfvBrand variant="h6" m="auto">
                     <a href="/">Pathfinding Visualizer</a>
                   </PfvBrand>
                 </Grid>
-                <Grid item xs={6} sm={3} md={2} lg={1}>
+                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   {algorithmSelect}
                 </Grid>
-                <Grid item xs={6} sm={3} md={2} lg={1}>
+                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   <PfvVisualizeAlgorithmButton
                     color="inherit"
                     onClick={() => {
@@ -160,10 +164,10 @@ export default class ToolBar extends Component {
                     Visualize
                   </PfvVisualizeAlgorithmButton>
                 </Grid>
-                <Grid item xs={6} sm={3} md={2} lg={1}>
+                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   {terrainSelect}
                 </Grid>
-                <Grid item xs={6} sm={3} md={2} lg={1}>
+                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   <PfvVisualizeAlgorithmButton
                     color="inherit"
                     onClick={() => {
@@ -175,15 +179,10 @@ export default class ToolBar extends Component {
                   </PfvVisualizeAlgorithmButton>
                 </Grid>
 
-                <Grid item xs={6} sm={3} md={2} lg={1}>
-                  <PfvConfigButton
-                    color="inherit"
-                    onClick={() => pfv.init(true)}
-                  >
-                    Clear Board
-                  </PfvConfigButton>
+                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
+                  {clearBoardSelect}
                 </Grid>
-                <Grid item xs={6} sm={3} md={2} lg={1}>
+                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   <PfvConfigButton
                     color="inherit"
                     onClick={this.toggleConfigPanel}
@@ -191,10 +190,10 @@ export default class ToolBar extends Component {
                     Terrain Settings
                   </PfvConfigButton>
                 </Grid>
-                <Grid item xs={6} sm={3} md={2} lg={1}>
+                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   {nodeTypeSelect}
                 </Grid>
-                <Grid item xs={6} sm={3} md={2} lg={1}>
+                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   {terrainSlider}
                 </Grid>
               </Grid>

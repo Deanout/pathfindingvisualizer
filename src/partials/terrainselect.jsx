@@ -75,7 +75,7 @@ export default function TerrainSelect(props) {
               <em>Terrain</em>
             </MenuItem>
             <MenuItem value={1}>Recursive Walls</MenuItem>
-            <MenuItem value={2}>Simplex Walls</MenuItem>
+            <MenuItem value={2}>Simplex Terrain</MenuItem>
             <MenuItem value={3}>Random Walls</MenuItem>
           </Select>
         </Tooltip>

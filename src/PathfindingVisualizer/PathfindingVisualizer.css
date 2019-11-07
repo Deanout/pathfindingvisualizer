@@ -9,9 +9,9 @@ body,
   margin: auto;
   display: flex;
   flex-direction: column;
-  z-index: 1;
   border-left: 1px solid rgb(175, 200, 250);
   border-top: 1px solid rgb(175, 200, 250);
+  pointer-events: none;
 }
 
 .row {
@@ -19,6 +19,7 @@ body,
   flex-grow: 1;
   height: auto;
   flex-direction: row;
+  pointer-events: none;
 }
 
 .console {
