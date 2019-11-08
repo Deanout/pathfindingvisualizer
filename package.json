@@ -15,6 +15,7 @@
     "@material-ui/lab": "^4.0.0-alpha.30",
     "mobx": "^5.14.2",
     "mobx-react": "^6.1.4",
+    "normalize.css": "^8.0.1",
     "react": "^16.11.0",
     "react-dnd": "^9.4.0",
     "react-dnd-html5-backend": "^9.4.0",

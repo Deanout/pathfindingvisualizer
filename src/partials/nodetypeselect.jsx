@@ -33,6 +33,7 @@ const useStyles = makeStyles(theme => ({
     fontSize: 15
   },
   nodeButton: {
+    width: 110,
     background: "#194B4B",
     "&:hover": {
       background: "#194B4B"
@@ -112,6 +113,7 @@ export default function NodeTypeSelect(props) {
           anchorEl={anchorRef.current}
           transition
           disablePortal
+          style={{ zIndex: 9999 }}
         >
           {({ TransitionProps, placement }) => (
             <Grow
@@ -123,7 +125,7 @@ export default function NodeTypeSelect(props) {
             >
               <Paper id="menu-list-grow">
                 <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList style={{ zIndex: 420 }}>
+                  <MenuList>
                     {props.nodeTypes.map((option, index) => (
                       <MenuItem
                         key={option.name}

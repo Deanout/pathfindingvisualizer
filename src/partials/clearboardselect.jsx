@@ -115,6 +115,7 @@ export default function ClearBoardSelect(props) {
           anchorEl={anchorRef.current}
           transition
           disablePortal
+          style={{ zIndex: 9999 }}
         >
           {({ TransitionProps, placement }) => (
             <Grow
@@ -126,7 +127,7 @@ export default function ClearBoardSelect(props) {
             >
               <Paper id="menu-list-grow">
                 <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList style={{ zIndex: 420 }}>
+                  <MenuList>
                     {options.map((option, index) => (
                       <MenuItem
                         key={option}
