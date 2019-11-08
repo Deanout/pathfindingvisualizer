@@ -9,14 +9,19 @@ import store from "../store/gridstore";
 
 const useStyles = makeStyles({
   root: {
-    width: 250
+    width: 140,
+    height: 32
   },
   input: {
-    width: 42,
-    color: "#fff"
+    width: 20,
+    color: "#fff",
+    padding: 0,
+    marginBottom: 0
   },
   slider: {
-    color: "#fff"
+    color: "#fff",
+    width: 100,
+    padding: 0
   }
 });
 
@@ -60,11 +65,11 @@ export default function TerrainSlider(props) {
 
   return (
     <div className={classes.root}>
-      <Typography id="input-slider" gutterBottom>
+      <Typography variant="body2" id="input-slider">
         Node Size
       </Typography>
-      <Grid container spacing={2} alignItems="center">
-        <Grid item xs>
+      <Grid container spacing={2}>
+        <Grid item xs={8}>
           <Slider
             className={classes.slider}
             value={typeof value === "number" ? value : 25}
@@ -75,7 +80,7 @@ export default function TerrainSlider(props) {
             max={100}
           />
         </Grid>
-        <Grid item>
+        <Grid item xs={4}>
           <Input
             className={classes.input}
             value={value}

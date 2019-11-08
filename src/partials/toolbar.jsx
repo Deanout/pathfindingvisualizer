@@ -140,7 +140,7 @@ export default class ToolBar extends Component {
           <AppBar position="fixed" id="AppBar">
             <PfvToolbar>
               <Grid container spacing={1}>
-                <Grid item xs={6} sm={5} md={3} lg={3} xl={2}>
+                <Grid item xs={12} sm={5} md={3} lg={3} xl={2}>
                   <PfvBrand variant="h6" m="auto">
                     <a href="/">Pathfinding Visualizer</a>
                   </PfvBrand>
