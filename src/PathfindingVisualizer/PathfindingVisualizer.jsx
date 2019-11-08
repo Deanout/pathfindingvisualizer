@@ -15,10 +15,7 @@ import { randomWalls } from "../algorithms/randomwalls.js";
 
 import "./pathfindingvisualizer.css";
 
-// Constants used to retrieve class names of different node types.
-
 const NODE_VISITED = `node-visited`;
-
 const NODE_SHORTEST_PATH = `node-shortest-path`;
 
 var shortestPathAnimationTimer;
@@ -195,9 +192,6 @@ export default class PathfindingVisualizer extends Component {
     );
     this.initializeKeyNodes();
 
-    // Get the initial grid with start and finish node positions, and assign it to
-    // the MobX grid.
-
     store.grid.replace(getInitialGrid());
     setKeyNode(store.startPosition[0], store.startPosition[1], store.start);
     setKeyNode(store.finishPosition[0], store.finishPosition[1], store.finish);
@@ -315,7 +309,6 @@ export default class PathfindingVisualizer extends Component {
 
     requestAnimationFrame(() => {
       this.drawGrid();
-      let grid = document.getElementById("grid");
     });
   }
 
@@ -355,8 +348,8 @@ export default class PathfindingVisualizer extends Component {
       store.previousClickNodeType = store.clickNodeType;
       store.clickNodeType = store.finish;
     } else {
-      this.handleMouseButton(mouseButton);
       store.previousClickNodeType = store.clickNodeType;
+      this.handleMouseButton(mouseButton);
     }
     this.toggleNodeType(row, col);
 
@@ -465,6 +458,7 @@ export default class PathfindingVisualizer extends Component {
     this.resetDistances();
     store.pathDrawn = true;
     switch (algorithm) {
+      case 0:
       case 1:
         //this.visualizeDijkstra(startNode, finishNode);
         this.findPath(dijkstra, "Dijkstra's", getShortestDijkstraPath);
@@ -541,6 +535,9 @@ export default class PathfindingVisualizer extends Component {
   ) {
     let time = (end - start).toFixed(2).toString();
     let content =
+      "[" +
+      store.consoleLineNumber +
+      "] " +
       algorithm +
       " visited " +
       total.length +
@@ -553,6 +550,7 @@ export default class PathfindingVisualizer extends Component {
     let consoleElement = document.getElementById("console");
     consoleElement.innerHTML += openingTag + content + closingTag;
     consoleElement.scrollTo(0, consoleElement.scrollHeight);
+    store.consoleLineNumber++;
   }
 
   animateAlgorithm(visitedNodesInOrder, nodesInShortestPathOrder) {
@@ -644,11 +642,15 @@ export default class PathfindingVisualizer extends Component {
         this.clearAllPaths();
         break;
       case 1:
+        // clear paths
+        this.clearAllPaths();
+        break;
+      case 2:
         // clear board
         this.clearBoard();
         this.clearAllPaths();
         break;
-      case 2:
+      case 3:
         // reset board
         this.clearBoard();
         this.clearAllPaths();
@@ -716,6 +718,7 @@ export default class PathfindingVisualizer extends Component {
 
   generateTerrain(terrain) {
     switch (terrain) {
+      case 0:
       case 1:
         this.handleTerrainGeneration(recursiveWallBuilder);
         break;
@@ -732,7 +735,7 @@ export default class PathfindingVisualizer extends Component {
   }
 
   handleTerrainGeneration(terrain) {
-    this.gridStateManager(1);
+    this.gridStateManager(2);
     const nodesToAnimate = terrain();
     this.animateTerrain(nodesToAnimate);
   }

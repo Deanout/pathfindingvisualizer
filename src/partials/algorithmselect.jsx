@@ -1,109 +1,153 @@
-import React, { useEffect } from "react";
+import React from "react";
+import Grid from "@material-ui/core/Grid";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
+import ButtonGroup from "@material-ui/core/ButtonGroup";
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
+import Grow from "@material-ui/core/Grow";
+import Paper from "@material-ui/core/Paper";
+import Popper from "@material-ui/core/Popper";
 import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import InputBase from "@material-ui/core/InputBase";
-import Tooltip from "@material-ui/core/Tooltip";
-
-const BootstrapInput = withStyles(theme => ({
-  root: {
-    width: 140
-  },
-  input: {
-    borderRadius: 4,
-    position: "relative",
-    backgroundColor: "#194B4B",
-    color: "white",
-    border: "1px solid #ced4da",
-    fontSize: 16,
-    transition: theme.transitions.create(["border-color", "box-shadow"]),
-    fontFamily: ["Open Sans", "sans-serif"].join(","),
-    "&:focus": {
-      borderRadius: 4,
-      borderColor: "#80bdff",
-      boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)",
-      backgroundColor: "#4B4B4B",
-      color: "white"
-    }
-  }
-}))(InputBase);
+import MenuList from "@material-ui/core/MenuList";
+import Typography from "@material-ui/core/Typography";
+import store from "../store/gridstore";
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    flexWrap: "wrap"
+  algorithmButtonGroup: {
+    height: 32,
+    maxWidth: 140,
+    margin: theme.spacing(1),
+    borderRadius: 4,
+    border: "1px solid #ced4da",
+    background: "#3EC3FF",
+    color: "#FFF",
+    fontFamily: ["Open Sans", "sans-serif"].join(","),
+    "& span": {
+      height: 0
+    }
   },
-  margin: {
-    margin: theme.spacing(1)
+  algorithmLabel: {
+    fontFamily: ["Open Sans", "sans-serif"].join(","),
+    textTransform: "capitalize",
+    fontSize: 15,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap"
+  },
+  algorithmButton: {
+    width: 110,
+    background: "#194B4B",
+    "&:hover": {
+      background: "#194B4B"
+    },
+    padding: 2
+  },
+  algorithmButtonArrow: {
+    background: "#194B4B",
+    color: "#000",
+    "&:hover": {
+      background: "#194B4B",
+      color: "#000"
+    }
   }
 }));
 
 export default function AlgorithmSelect(props) {
   const classes = useStyles();
-  const [algorithm, setAlgorithm] = React.useState(0);
-  const [mouseAlgorithm, setMouseAlgorithm] = React.useState(algorithm);
   const [open, setOpen] = React.useState(false);
-  var textStyle = {
-    overflow: "hidden",
-    textOverflow: "ellipsis",
-    whiteSpace: "nowrap"
+  const anchorRef = React.useRef(null);
+  const [selectedIndex, setSelectedIndex] = React.useState(props.algorithm);
+
+  const handleClick = () => {
+    props.pfv.visualizeAlgorithm(selectedIndex);
   };
 
-  var toolTips = [];
+  const handleMenuItemClick = (event, index) => {
+    setSelectedIndex(index);
+    setOpen(false);
+    store.algorithm = index;
+    props.pfv.visualizeAlgorithm(index);
+  };
 
-  const handleTooltipClose = () => {
+  const handleToggle = () => {
+    setOpen(prevOpen => !prevOpen);
+  };
+
+  const handleClose = event => {
+    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+      return;
+    }
+
     setOpen(false);
   };
 
-  const handleTooltipOpen = () => {
-    setOpen(true);
-  };
-  const handleMouseAlgorithm = input => {
-    if (mouseAlgorithm != input) {
-      setMouseAlgorithm(input);
-    }
-  };
-  const handleChange = event => {
-    setAlgorithm(event.target.value);
-    props.algorithmHandler(event.target.value);
-  };
-
   return (
-    <Tooltip
-      title={store.algorithms[mouseAlgorithm].summary}
-      placement="right"
-      enterDelay={500}
+    <Grid
+      container
+      direction="column"
+      alignItems="center"
+      style={{ margin: "auto" }}
     >
-      <form className={classes.root} autoComplete="off">
-        <FormControl className={classes.margin}>
-          <Select
-            value={props.visualizeClicked}
-            onChange={handleChange}
-            input={<BootstrapInput name="algorithm" id="algorithm" />}
+      <Grid item xs={12}>
+        <ButtonGroup
+          variant="contained"
+          color="inherit"
+          ref={anchorRef}
+          aria-label="split button"
+          className={classes.algorithmButtonGroup}
+        >
+          <Button onClick={handleClick} className={classes.algorithmButton}>
+            <Typography className={classes.algorithmLabel}>
+              {props.algorithms[props.algorithm].name}
+            </Typography>
+          </Button>
+          <Button
+            size="small"
+            aria-owns={open ? "menu-list-grow" : undefined}
+            aria-haspopup="true"
+            onClick={handleToggle}
+            className={classes.algorithmButtonArrow}
           >
-            <MenuItem value={0} onMouseEnter={() => handleMouseAlgorithm(0)}>
-              <em>Algorithm</em>
-            </MenuItem>
-
-            <MenuItem value={1} onMouseEnter={() => handleMouseAlgorithm(1)}>
-              <div style={textStyle}>Dijkstra's Algorithm</div>
-            </MenuItem>
-
-            <MenuItem value={2} onMouseEnter={() => handleMouseAlgorithm(2)}>
-              <div style={textStyle}>A* Search</div>
-            </MenuItem>
-            <MenuItem value={3} onMouseEnter={() => handleMouseAlgorithm(3)}>
-              <div style={textStyle}>Breadth First Search</div>
-            </MenuItem>
-            <MenuItem value={4} onMouseEnter={() => handleMouseAlgorithm(4)}>
-              <div style={textStyle}>Depth First Search</div>
-            </MenuItem>
-            <MenuItem value={5} onMouseEnter={() => handleMouseAlgorithm(5)}>
-              <div style={textStyle}>A* Priority Queue</div>
-            </MenuItem>
-          </Select>
-        </FormControl>
-      </form>
-    </Tooltip>
+            <ArrowDropDownIcon />
+          </Button>
+        </ButtonGroup>
+        <Popper
+          open={open}
+          anchorEl={anchorRef.current}
+          transition
+          disablePortal
+          style={{ zIndex: 9999 }}
+        >
+          {({ TransitionProps, placement }) => (
+            <Grow
+              {...TransitionProps}
+              style={{
+                transformOrigin:
+                  placement === "bottom" ? "center top" : "center bottom"
+              }}
+            >
+              <Paper id="menu-list-grow">
+                <ClickAwayListener onClickAway={handleClose}>
+                  <MenuList>
+                    {props.algorithms.map((option, index) => (
+                      <MenuItem
+                        key={option.name + index}
+                        selected={index === props.algorithm}
+                        onClick={event => handleMenuItemClick(event, index)}
+                      >
+                        <Typography className={classes.algorithmLabel}>
+                          {option.name}
+                        </Typography>
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </ClickAwayListener>
+              </Paper>
+            </Grow>
+          )}
+        </Popper>
+      </Grid>
+    </Grid>
   );
 }

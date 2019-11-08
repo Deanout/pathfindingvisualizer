@@ -4,20 +4,19 @@ import Header from "@material-ui/core/CardHeader";
 import Collapse from "@material-ui/core/Collapse";
 import IconButton from "@material-ui/core/IconButton";
 import MinimizeIcon from "@material-ui/icons/Minimize";
+import AddIcon from "@material-ui/icons/Add";
+import CloseIcon from "@material-ui/icons/Close";
 import { styled } from "@material-ui/core/styles";
 import { observer } from "mobx-react";
 import NoiseWallsConfig from "./noisewallsconfig.jsx";
 import store from "../../store/gridstore.js";
+import { classes } from "istanbul-lib-coverage";
 
-const theme = {
-  spacing: 8
-};
 const PanelCard = styled(Card)({
-  height: 32,
+  maxHeight: 400,
   maxWidth: "100%",
   width: 350,
   fontSize: 12,
-  zIndex: 9,
   fontFamily: ["Open Sans", "sans-serif"],
   textTransform: "capitalize",
   color: "white",
@@ -25,7 +24,7 @@ const PanelCard = styled(Card)({
 });
 
 const PanelHeader = styled(Header)({
-  zIndex: 10,
+  zIndex: 10000,
   cursor: "move",
   backgroundColor: "#194B4B",
   color: "#fff",
@@ -105,14 +104,28 @@ export default class ConfigPanel extends Component {
               onMouseOver={() => this.setDraggable("mouse")}
               onTouchMove={() => this.setDraggable("touch")}
               action={
-                <IconButton
-                  aria-label="minimize"
-                  onClick={() => {
-                    this.handleMinimizeClick(!store.configPanel.minimize);
-                  }}
-                >
-                  <MinimizeIcon />
-                </IconButton>
+                <div>
+                  <IconButton
+                    aria-label="minimize"
+                    onClick={() => {
+                      this.handleMinimizeClick(!store.configPanel.minimize);
+                    }}
+                  >
+                    {store.configPanel.minimize ? (
+                      <MinimizeIcon />
+                    ) : (
+                      <AddIcon />
+                    )}
+                  </IconButton>
+                  <IconButton
+                    aria-label="exit"
+                    onClick={() => {
+                      this.props.configPanelHandler();
+                    }}
+                  >
+                    <CloseIcon />
+                  </IconButton>
+                </div>
               }
               title="Simplex Terrain Settings"
             ></PanelHeader>

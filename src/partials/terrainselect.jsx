@@ -1,85 +1,153 @@
 import React from "react";
+import Grid from "@material-ui/core/Grid";
 import { makeStyles, withStyles } from "@material-ui/core/styles";
+import Button from "@material-ui/core/Button";
+import ButtonGroup from "@material-ui/core/ButtonGroup";
+import ArrowDropDownIcon from "@material-ui/icons/ArrowDropDown";
+import ClickAwayListener from "@material-ui/core/ClickAwayListener";
+import Grow from "@material-ui/core/Grow";
+import Paper from "@material-ui/core/Paper";
+import Popper from "@material-ui/core/Popper";
 import MenuItem from "@material-ui/core/MenuItem";
-import FormControl from "@material-ui/core/FormControl";
-import Select from "@material-ui/core/Select";
-import InputBase from "@material-ui/core/InputBase";
-import Tooltip from "@material-ui/core/Tooltip";
-
-const BootstrapInput = withStyles(theme => ({
-  root: {
-    width: 140
-  },
-  input: {
-    borderRadius: 4,
-    position: "relative",
-    backgroundColor: "#194B4B",
-    color: "white",
-    border: "1px solid #ced4da",
-    fontSize: 16,
-    transition: theme.transitions.create(["border-color", "box-shadow"]),
-    // Use the system font instead of the default Roboto font.
-    fontFamily: ["Open Sans", "sans-serif"].join(","),
-    "&:focus": {
-      borderRadius: 4,
-      borderColor: "#80bdff",
-      boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)",
-      backgroundColor: "#4B4B4B",
-      color: "white"
-    }
-  }
-}))(InputBase);
+import MenuList from "@material-ui/core/MenuList";
+import Typography from "@material-ui/core/Typography";
+import store from "../store/gridstore";
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    flexWrap: "wrap"
+  terrainButtonGroup: {
+    height: 32,
+    maxWidth: 140,
+    margin: theme.spacing(1),
+    borderRadius: 4,
+    border: "1px solid #ced4da",
+    background: "#3EC3FF",
+    color: "#FFF",
+    fontFamily: ["Open Sans", "sans-serif"].join(","),
+    "& span": {
+      height: 0
+    }
   },
-  margin: {
-    margin: theme.spacing(1)
+  terrainLabel: {
+    fontFamily: ["Open Sans", "sans-serif"].join(","),
+    textTransform: "capitalize",
+    fontSize: 15,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap"
+  },
+  terrainButton: {
+    width: 110,
+    background: "#194B4B",
+    "&:hover": {
+      background: "#194B4B"
+    },
+    padding: 2
+  },
+  terrainButtonArrow: {
+    background: "#194B4B",
+    color: "#000",
+    "&:hover": {
+      background: "#194B4B",
+      color: "#000"
+    }
   }
 }));
 
 export default function TerrainSelect(props) {
   const classes = useStyles();
-  const [terrain, setTerrain] = React.useState(0);
   const [open, setOpen] = React.useState(false);
+  const anchorRef = React.useRef(null);
+  const [selectedIndex, setSelectedIndex] = React.useState(props.terrain);
 
-  const handleTooltipClose = () => {
+  const handleClick = () => {
+    props.pfv.generateTerrain(selectedIndex);
+  };
+
+  const handleMenuItemClick = (event, index) => {
+    setSelectedIndex(index);
+    setOpen(false);
+    store.terrain = index;
+    props.pfv.generateTerrain(index);
+  };
+
+  const handleToggle = () => {
+    setOpen(prevOpen => !prevOpen);
+  };
+
+  const handleClose = event => {
+    if (anchorRef.current && anchorRef.current.contains(event.target)) {
+      return;
+    }
+
     setOpen(false);
   };
 
-  const handleTooltipOpen = () => {
-    setOpen(true);
-  };
-  const handleChange = event => {
-    setTerrain(event.target.value);
-    props.terrainHandler(event.target.value);
-  };
-
   return (
-    <form className={classes.root} autoComplete="off">
-      <FormControl className={classes.margin}>
-        <Tooltip
-          open={open}
-          title="Select a terrain generator. This will overwrite any changes to the current grid and create a terrain based on the algorithm. The default is an animated, recursively generated maze."
+    <Grid
+      container
+      direction="column"
+      alignItems="center"
+      style={{ margin: "auto" }}
+    >
+      <Grid item xs={12}>
+        <ButtonGroup
+          variant="contained"
+          color="inherit"
+          ref={anchorRef}
+          aria-label="split button"
+          className={classes.terrainButtonGroup}
         >
-          <Select
-            value={props.makeTerrainClicked}
-            onChange={handleChange}
-            onMouseEnter={handleTooltipOpen}
-            onMouseLeave={handleTooltipClose}
-            onMouseDown={handleTooltipClose}
-            input={<BootstrapInput name="terrain" id="terrain" />}
+          <Button onClick={handleClick} className={classes.terrainButton}>
+            <Typography className={classes.terrainLabel}>
+              {props.terrains[props.terrain].name}
+            </Typography>
+          </Button>
+          <Button
+            size="small"
+            aria-owns={open ? "menu-list-grow" : undefined}
+            aria-haspopup="true"
+            onClick={handleToggle}
+            className={classes.terrainButtonArrow}
           >
-            <MenuItem value={0}>
-              <em>Terrain</em>
-            </MenuItem>
-            <MenuItem value={1}>Recursive Walls</MenuItem>
-            <MenuItem value={2}>Simplex Terrain</MenuItem>
-            <MenuItem value={3}>Random Walls</MenuItem>
-          </Select>
-        </Tooltip>
-      </FormControl>
-    </form>
+            <ArrowDropDownIcon />
+          </Button>
+        </ButtonGroup>
+        <Popper
+          open={open}
+          anchorEl={anchorRef.current}
+          transition
+          disablePortal
+          style={{ zIndex: 9999 }}
+        >
+          {({ TransitionProps, placement }) => (
+            <Grow
+              {...TransitionProps}
+              style={{
+                transformOrigin:
+                  placement === "bottom" ? "center top" : "center bottom"
+              }}
+            >
+              <Paper id="menu-list-grow">
+                <ClickAwayListener onClickAway={handleClose}>
+                  <MenuList>
+                    {props.terrains.map((option, index) => (
+                      <MenuItem
+                        key={option.name + index}
+                        selected={index === props.terrain}
+                        onClick={event => handleMenuItemClick(event, index)}
+                      >
+                        <Typography className={classes.terrainLabel}>
+                          {option.name}
+                        </Typography>
+                      </MenuItem>
+                    ))}
+                  </MenuList>
+                </ClickAwayListener>
+              </Paper>
+            </Grow>
+          )}
+        </Popper>
+      </Grid>
+    </Grid>
   );
 }

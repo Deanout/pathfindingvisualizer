@@ -14,7 +14,7 @@ import Typography from "@material-ui/core/Typography";
 import store from "../store/gridstore";
 
 const useStyles = makeStyles(theme => ({
-  nodeButtonGroup: {
+  clearButtonGroup: {
     height: 32,
     maxWidth: 140,
     margin: theme.spacing(1),
@@ -27,20 +27,24 @@ const useStyles = makeStyles(theme => ({
       height: 0
     }
   },
-  nodeLabel: {
+  clearLabel: {
     fontFamily: ["Open Sans", "sans-serif"].join(","),
     textTransform: "capitalize",
-    fontSize: 15
+    fontSize: 15,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap"
   },
-  nodeButton: {
+  clearButton: {
     width: 110,
     padding: 0,
     background: "#194B4B",
     "&:hover": {
       background: "#194B4B"
-    }
+    },
+    padding: 2
   },
-  nodeButtonArrow: {
+  clearButtonArrow: {
     background: "#194B4B",
     color: "#000",
     "&:hover": {
@@ -50,7 +54,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const options = ["Clear Path", "Clear Board", "Reset Board"];
+const options = ["Reset", "Clear Path", "Clear Board", "Reset Board"];
 
 export default function ClearBoardSelect(props) {
   const classes = useStyles();
@@ -93,10 +97,10 @@ export default function ClearBoardSelect(props) {
           color="inherit"
           ref={anchorRef}
           aria-label="split button"
-          className={classes.nodeButtonGroup}
+          className={classes.clearButtonGroup}
         >
-          <Button onClick={handleClick} className={classes.nodeButton}>
-            <Typography className={classes.nodeLabel}>
+          <Button onClick={handleClick} className={classes.clearButton}>
+            <Typography className={classes.clearLabel}>
               {options[selectedIndex]}
             </Typography>
           </Button>
@@ -105,7 +109,7 @@ export default function ClearBoardSelect(props) {
             aria-owns={open ? "menu-list-grow" : undefined}
             aria-haspopup="true"
             onClick={handleToggle}
-            className={classes.nodeButtonArrow}
+            className={classes.clearButtonArrow}
           >
             <ArrowDropDownIcon />
           </Button>
@@ -130,11 +134,11 @@ export default function ClearBoardSelect(props) {
                   <MenuList>
                     {options.map((option, index) => (
                       <MenuItem
-                        key={option}
+                        key={option + index}
                         selected={index === selectedIndex}
                         onClick={event => handleMenuItemClick(event, index)}
                       >
-                        <Typography className={classes.nodeLabel}>
+                        <Typography className={classes.clearLabel}>
                           {option}
                         </Typography>
                       </MenuItem>

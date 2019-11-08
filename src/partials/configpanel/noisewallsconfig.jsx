@@ -29,10 +29,12 @@ const useStyles = makeStyles(theme => ({
     height: "auto",
     maxHeight: 175,
     maxWidth: 350,
-    backgroundColor: "black"
+    backgroundColor: "black",
+    resize: "vertical"
   },
   cardContent: {
     maxHeight: 175,
+    resize: "vertical",
     overflow: "auto"
   }
 }));

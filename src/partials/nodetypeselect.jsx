@@ -30,14 +30,18 @@ const useStyles = makeStyles(theme => ({
   nodeLabel: {
     fontFamily: ["Open Sans", "sans-serif"].join(","),
     textTransform: "capitalize",
-    fontSize: 15
+    fontSize: 15,
+    overflow: "hidden",
+    textOverflow: "ellipsis",
+    whiteSpace: "nowrap"
   },
   nodeButton: {
     width: 110,
     background: "#194B4B",
     "&:hover": {
       background: "#194B4B"
-    }
+    },
+    padding: 2
   },
   nodeButtonArrow: {
     background: "#194B4B",
@@ -128,7 +132,7 @@ export default function NodeTypeSelect(props) {
                   <MenuList>
                     {props.nodeTypes.map((option, index) => (
                       <MenuItem
-                        key={option.name}
+                        key={option.name + index}
                         selected={index === props.clickNodeIndex}
                         onClick={event => handleMenuItemClick(event, index)}
                       >

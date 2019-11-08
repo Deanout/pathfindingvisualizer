@@ -12,7 +12,11 @@ const useStyles = makeStyles({
     width: 250
   },
   input: {
-    width: 42
+    width: 42,
+    color: "#fff"
+  },
+  slider: {
+    color: "#fff"
   }
 });
 
@@ -60,11 +64,9 @@ export default function TerrainSlider(props) {
         Node Size
       </Typography>
       <Grid container spacing={2} alignItems="center">
-        <Grid item>
-          <VolumeUp />
-        </Grid>
         <Grid item xs>
           <Slider
+            className={classes.slider}
             value={typeof value === "number" ? value : 25}
             onChange={handleSliderChange}
             aria-labelledby="input-slider"

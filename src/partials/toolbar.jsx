@@ -24,7 +24,7 @@ const PfvToolbar = styled(Toolbar)({
   borderRadius: 3,
   boxShadow: "0 3px 5px 2px rgba(255, 105, 135, .3)",
   color: "white",
-  zIndex: 10000
+  zIndex: 9999
 });
 
 const PfvBrand = styled(Typography)({
@@ -38,19 +38,6 @@ const PfvBrand = styled(Typography)({
   },
   "& a:hover": {
     color: "#ddd"
-  }
-});
-
-const PfvVisualizeAlgorithmButton = styled(Button)({
-  margin: theme.spacing,
-  height: 32,
-  width: 140,
-  fontSize: 15,
-  fontFamily: ["Open Sans", "sans-serif"],
-  textTransform: "capitalize",
-  background: "#3EC3FF",
-  "& span": {
-    height: 0
   }
 });
 
@@ -77,6 +64,7 @@ export default class ToolBar extends Component {
     };
     this.algorithmHandler = this.algorithmHandler.bind(this);
     this.terrainHandler = this.terrainHandler.bind(this);
+    this.configPanelHandler = this.configPanelHandler.bind(this);
   }
 
   componentDidCatch(error, errorInfo) {
@@ -95,36 +83,43 @@ export default class ToolBar extends Component {
     store.configPanel.toggle = !store.configPanel.toggle;
     store.configPanel.minimize = store.configPanel.toggle;
   }
+  configPanelHandler() {
+    this.toggleConfigPanel();
+  }
 
   render() {
     const { pfv } = this.state;
     const algorithmSelect = (
       <AlgorithmSelect
+        algorithms={store.algorithms}
         algorithmHandler={this.algorithmHandler}
-        visualizeClicked={store.algorithm}
+        algorithm={store.algorithm}
+        pfv={this.state.pfv}
       ></AlgorithmSelect>
     );
     const terrainSelect = (
       <TerrainSelect
+        terrains={store.terrains}
         terrainHandler={this.terrainHandler}
-        makeTerrainClicked={store.terrain}
+        terrain={store.terrain}
+        pfv={this.state.pfv}
       ></TerrainSelect>
     );
     var clearBoardSelect = (
-      <ClearBoardSelect pfv={this.props.pfv}></ClearBoardSelect>
+      <ClearBoardSelect pfv={this.state.pfv}></ClearBoardSelect>
     );
     var configPanel = (
       <ConfigPanel
         algorithm={this.state.algorithm}
         toggleClicked={store.configPanel.toggle}
         pfv={pfv}
+        configPanelHandler={this.configPanelHandler}
       ></ConfigPanel>
     );
-    var nodeTypes = store.clickableNodeTypes;
 
     var nodeTypeSelect = (
       <NodeTypeSelect
-        nodeTypes={nodeTypes}
+        nodeTypes={store.clickableNodeTypes}
         clickNodeType={store.clickNodeType}
         clickNodeIndex={store.clickNodeIndex}
       ></NodeTypeSelect>
@@ -134,7 +129,7 @@ export default class ToolBar extends Component {
       <TerrainSlider
         width={store.nodeWidth}
         height={store.nodeHeight}
-        pfv={this.props.pfv}
+        pfv={this.state.pfv}
       ></TerrainSlider>
     );
     return (
@@ -153,34 +148,16 @@ export default class ToolBar extends Component {
                 <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   {algorithmSelect}
                 </Grid>
-                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
-                  <PfvVisualizeAlgorithmButton
-                    color="inherit"
-                    onClick={() => {
-                      pfv.visualizeAlgorithm(store.algorithm);
-                      store.algorithm === 0 ? (store.algorithm = 1) : "";
-                    }}
-                  >
-                    Visualize
-                  </PfvVisualizeAlgorithmButton>
-                </Grid>
+
                 <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   {terrainSelect}
-                </Grid>
-                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
-                  <PfvVisualizeAlgorithmButton
-                    color="inherit"
-                    onClick={() => {
-                      pfv.generateTerrain(store.terrain);
-                      store.terrain === 0 ? (store.terrain = 1) : "";
-                    }}
-                  >
-                    Make Terrain
-                  </PfvVisualizeAlgorithmButton>
                 </Grid>
 
                 <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   {clearBoardSelect}
+                </Grid>
+                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
+                  {nodeTypeSelect}
                 </Grid>
                 <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   <PfvConfigButton
@@ -190,9 +167,7 @@ export default class ToolBar extends Component {
                     Terrain Settings
                   </PfvConfigButton>
                 </Grid>
-                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
-                  {nodeTypeSelect}
-                </Grid>
+
                 <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
                   {terrainSlider}
                 </Grid>
