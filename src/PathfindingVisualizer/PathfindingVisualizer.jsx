@@ -12,7 +12,6 @@ import { observer } from "mobx-react";
 import { recursiveWallBuilder } from "../algorithms/recursivewalls.js";
 import { simplexTerrain } from "../algorithms/noisewalls.js";
 import { randomWalls } from "../algorithms/randomwalls.js";
-import { toJS } from "mobx";
 
 import "./pathfindingvisualizer.css";
 
@@ -70,12 +69,12 @@ export default class PathfindingVisualizer extends Component {
       (window.innerHeight - store.consoleBottom) / store.nodeHeight <
         store.gridHeight - 1
     ) {
+      this.initializeGridSizes();
+      store.resetNodeSize(store.nodeSize);
       clearTimeout(resizeTimer);
       resizeTimer = setTimeout(() => {
-        store.resetNodeSize(store.nodeSize);
-        this.initializeGridSizes();
         this.resizeGrid();
-      }, 250);
+      }, 5);
     }
   };
   onMouseDown = event => {

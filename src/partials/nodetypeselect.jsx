@@ -149,13 +149,17 @@ export default function NodeTypeSelect(props) {
                         selected={index === props.clickNodeIndex}
                         onClick={event => handleMenuItemClick(event, index)}
                       >
-                        <Grid container>
-                          <Grid item xs={8}>
-                            <Typography className={classes.nodeLabel}>
-                              {option.name}
-                            </Typography>
+                        {index === 0 ? (
+                          ""
+                        ) : (
+                          <Grid container>
+                            <Grid item xs={8}>
+                              <Typography className={classes.nodeLabel}>
+                                {"[" + option.weight + "] " + option.name}
+                              </Typography>
+                            </Grid>
                           </Grid>
-                        </Grid>
+                        )}
                       </MenuItem>
                     ))}
                   </MenuList>

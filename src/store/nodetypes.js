@@ -42,18 +42,18 @@ export class NodeTypes {
     5
   ]);
 
-  @observable grass = new NodeType("Grass", 0.4, 0.7, 10, "node-grass", true, [
+  @observable grass = new NodeType("Grass", 0.4, 0.7, 5, "node-grass", true, [
     85,
     125,
     70
   ]);
 
-  @observable sand = new NodeType("Sand", 0.35, 0.4, 15, "node-sand", true, [
+  @observable sand = new NodeType("Sand", 0.35, 0.4, 7, "node-sand", true, [
     195,
     175,
     125
   ]);
-  @observable stone = new NodeType("Stone", 0.7, 0.8, 100, "node-stone", true, [
+  @observable stone = new NodeType("Stone", 0.7, 0.8, 25, "node-stone", true, [
     175,
     175,
     175
@@ -63,7 +63,7 @@ export class NodeTypes {
     "Granite",
     0.8,
     0.9,
-    250,
+    50,
     "node-granite",
     true,
     [140, 140, 140]
@@ -72,7 +72,7 @@ export class NodeTypes {
     "Water",
     0.25,
     0.35,
-    100,
+    50,
     "node-water",
     true,
     [0, 110, 255]
@@ -82,12 +82,12 @@ export class NodeTypes {
     "Water Deep",
     0,
     0.25,
-    250,
+    100,
     "node-water-deep",
     true,
     [0, 65, 150]
   );
-  @observable snow = new NodeType("snow", 0.9, 1, 150, "node-snow", true, [
+  @observable snow = new NodeType("snow", 0.9, 1, 75, "node-snow", true, [
     200,
     215,
     225
