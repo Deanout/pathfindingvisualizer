@@ -12,6 +12,7 @@ import { observer } from "mobx-react";
 import { recursiveWallBuilder } from "../algorithms/recursivewalls.js";
 import { simplexTerrain } from "../algorithms/noisewalls.js";
 import { randomWalls } from "../algorithms/randomwalls.js";
+import { toJS } from "mobx";
 
 import "./pathfindingvisualizer.css";
 
@@ -29,7 +30,7 @@ export default class PathfindingVisualizer extends Component {
     super();
     this.state = {};
   }
-
+  // Need to clean up these handlers now that the logic exists
   componentDidMount() {
     this.setup();
     var grid = document.getElementById("grid");
@@ -57,6 +58,9 @@ export default class PathfindingVisualizer extends Component {
     document.removeEventListener("touchup", this.onMouseUp, false);
     grid.removeEventListener("touchdown", this.onMouseDown, false);
   }
+  // Need to fix resize speed. Although resizing should be cheaper
+  // than a refresh, it appears to run much more slowly. Should figure
+  // out where the bottleneck is here.
   onResize = event => {
     if (
       window.innerWidth / store.nodeWidth > store.gridWidth + 1 ||
@@ -71,8 +75,7 @@ export default class PathfindingVisualizer extends Component {
         store.resetNodeSize(store.nodeSize);
         this.initializeGridSizes();
         this.resizeGrid();
-        this.drawGrid();
-      }, 100);
+      }, 250);
     }
   };
   onMouseDown = event => {
@@ -160,7 +163,7 @@ export default class PathfindingVisualizer extends Component {
 
         let oldRow = store.mousePosition[0];
         let oldCol = store.mousePosition[1];
-        if ((row != oldRow || col != oldCol) && (!isNaN(row) && !isNaN(col))) {
+        if ((row != oldRow || col != oldCol) && !isNaN(row) && !isNaN(col)) {
           row = Math.clamp(row, 0, store.gridHeight - 1);
           col = Math.clamp(col, 0, store.gridWidth - 1);
           store.mousePosition = [row, col];
@@ -243,8 +246,6 @@ export default class PathfindingVisualizer extends Component {
     store.gridHeight = Math.floor(
       (window.innerHeight - store.consoleBottom) / store.nodeHeight
     );
-    var grewVertically = oldGridHeight > store.gridHeight ? false : true;
-    var grewHorizontally = oldGridWidth > store.gridWidth ? false : true;
 
     let startChanged = false;
     let finishChanged = false;
@@ -281,39 +282,29 @@ export default class PathfindingVisualizer extends Component {
       );
     }
 
-    const modGrid = store.grid;
+    const modGrid = [];
+    let rowLimit = Math.min(store.gridHeight, oldGridHeight);
+    let colLimit = Math.min(store.gridWidth, oldGridWidth);
 
-    if (!grewVertically) {
-      modGrid.splice(store.gridHeight, oldGridHeight - store.gridHeight);
+    for (let row = 0; row < rowLimit; row++) {
+      let currentRow = [];
+      for (let col = 0; col < colLimit; col++) {
+        currentRow.push(store.grid[row][col]);
+      }
+      modGrid.push(currentRow);
     }
-    if (!grewHorizontally) {
-      for (let row = 0; row < store.gridHeight; row++) {
-        modGrid[row].splice(store.gridWidth, oldGridWidth - store.gridWidth);
+
+    for (let row = 0; row < oldGridHeight; row++) {
+      for (let col = oldGridWidth; col < store.gridWidth; col++) {
+        modGrid[row].push(createNode(row, col));
       }
     }
-    if (grewVertically && !grewHorizontally) {
-      for (let row = oldGridHeight; row < store.gridHeight; row++) {
-        let currentRow = [];
-        for (let col = 0; col < oldGridWidth; col++) {
-          currentRow.push(createNode(row, col));
-        }
-        modGrid.push(currentRow);
+    for (let row = oldGridHeight; row < store.gridHeight; row++) {
+      let currentRow = [];
+      for (let col = 0; col < store.gridWidth; col++) {
+        currentRow.push(createNode(row, col));
       }
-    }
-    if (grewVertically && grewHorizontally) {
-      for (let row = 0; row < store.gridHeight; row++) {
-        if (row < oldGridHeight) {
-          for (let col = oldGridWidth; col < store.gridWidth; col++) {
-            modGrid[row].push(createNode(row, col));
-          }
-        } else {
-          let currentRow = [];
-          for (let col = 0; col < store.gridWidth; col++) {
-            currentRow.push(createNode(row, col));
-          }
-          modGrid.push(currentRow);
-        }
-      }
+      modGrid.push(currentRow);
     }
 
     store.grid.replace(modGrid);
