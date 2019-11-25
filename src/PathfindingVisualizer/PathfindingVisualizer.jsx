@@ -102,13 +102,13 @@ export default class PathfindingVisualizer extends Component {
   onKeyDown = event => {
     switch (event.key.toLowerCase()) {
       case "s":
-        store.clickNodeType = store.start;
+        store.clickNodeType = store.nodeTypes.start;
         break;
       case "w":
-        store.clickNodeType = store.wall;
+        store.clickNodeType = store.nodeTypes.wall;
         break;
       case "f":
-        store.clickNodeType = store.finish;
+        store.clickNodeType = store.nodeTypes.finish;
         break;
       case " ":
         event.preventDefault();
@@ -169,13 +169,16 @@ export default class PathfindingVisualizer extends Component {
 
           this.handleMouseEnter(row, col);
 
-          if (oldNodeType != store.start && oldNodeType != store.finish) {
+          if (
+            oldNodeType != store.nodeTypes.start &&
+            oldNodeType != store.nodeTypes.finish
+          ) {
             this.handleMouseLeave(oldRow, oldCol, oldNodeType);
           }
           if (
             store.mouseButton === 0 &&
-            (store.clickNodeType == store.start ||
-              store.clickNodeType == store.finish)
+            (store.clickNodeType == store.nodeTypes.start ||
+              store.clickNodeType == store.nodeTypes.finish)
           ) {
             this.updateShortestPath();
           }
@@ -193,8 +196,16 @@ export default class PathfindingVisualizer extends Component {
     this.initializeKeyNodes();
 
     store.grid.replace(getInitialGrid());
-    setKeyNode(store.startPosition[0], store.startPosition[1], store.start);
-    setKeyNode(store.finishPosition[0], store.finishPosition[1], store.finish);
+    setKeyNode(
+      store.startPosition[0],
+      store.startPosition[1],
+      store.nodeTypes.start
+    );
+    setKeyNode(
+      store.finishPosition[0],
+      store.finishPosition[1],
+      store.nodeTypes.finish
+    );
     window.requestAnimationFrame(() => {
       this.drawGrid();
     });
@@ -259,14 +270,14 @@ export default class PathfindingVisualizer extends Component {
       this.toggleKeyPosition(
         store.startPosition[0],
         store.startPosition[1],
-        store.start
+        store.nodeTypes.start
       );
     }
     if (finishChanged) {
       this.toggleKeyPosition(
         store.finishPosition[0],
         store.finishPosition[1],
-        store.finish
+        store.nodeTypes.finish
       );
     }
 
@@ -341,12 +352,12 @@ export default class PathfindingVisualizer extends Component {
     let row = store.mousePosition[0];
     let col = store.mousePosition[1];
     let node = store.grid[row][col];
-    if (node.nodeType == store.start) {
+    if (node.nodeType == store.nodeTypes.start) {
       store.previousClickNodeType = store.clickNodeType;
-      store.clickNodeType = store.start;
-    } else if (node.nodeType == store.finish) {
+      store.clickNodeType = store.nodeTypes.start;
+    } else if (node.nodeType == store.nodeTypes.finish) {
       store.previousClickNodeType = store.clickNodeType;
-      store.clickNodeType = store.finish;
+      store.clickNodeType = store.nodeTypes.finish;
     } else {
       store.previousClickNodeType = store.clickNodeType;
       this.handleMouseButton(mouseButton);
@@ -374,8 +385,8 @@ export default class PathfindingVisualizer extends Component {
     if (store.mouseButton === -1) {
       return;
     } else if (
-      store.clickNodeType == store.start ||
-      store.clickNodeType == store.finish
+      store.clickNodeType == store.nodeTypes.start ||
+      store.clickNodeType == store.nodeTypes.finish
     ) {
       if (!isNaN(oldRow) && !isNaN(oldCol)) {
         this.toggleNodeType(oldRow, oldCol, oldNodeType);
@@ -387,7 +398,7 @@ export default class PathfindingVisualizer extends Component {
   handleMouseButton(button) {
     if (button === 0) {
     } else if (button === 2) {
-      store.clickNodeType = store.air;
+      store.clickNodeType = store.nodeTypes.air;
     }
   }
 
@@ -403,11 +414,11 @@ export default class PathfindingVisualizer extends Component {
   toggleNodeType(row, col, nodeType) {
     nodeType = nodeType == undefined ? store.clickNodeType : nodeType;
     switch (nodeType) {
-      case store.start:
-        this.toggleKeyPosition(row, col, store.start);
+      case store.nodeTypes.start:
+        this.toggleKeyPosition(row, col, store.nodeTypes.start);
         break;
-      case store.finish:
-        this.toggleKeyPosition(row, col, store.finish);
+      case store.nodeTypes.finish:
+        this.toggleKeyPosition(row, col, store.nodeTypes.finish);
         break;
       default:
         setNodeType(row, col, nodeType);
@@ -419,8 +430,11 @@ export default class PathfindingVisualizer extends Component {
     let target = store.grid[row][col];
     let oldRow;
     let oldCol;
-    if (target.nodeType != store.start && target.nodeType != store.finish) {
-      if (nodeType == store.start) {
+    if (
+      target.nodeType != store.nodeTypes.start &&
+      target.nodeType != store.nodeTypes.finish
+    ) {
+      if (nodeType == store.nodeTypes.start) {
         oldRow = store.startNode.row;
         oldCol = store.startNode.col;
         store.startPosition = [row, col];
@@ -430,7 +444,7 @@ export default class PathfindingVisualizer extends Component {
         store.finishPosition = [row, col];
       }
 
-      setKeyNode(oldRow, oldCol, store.air);
+      setKeyNode(oldRow, oldCol, store.nodeTypes.air);
       setKeyNode(row, col, nodeType);
 
       // Now we need to turn off the previous start node's class.
@@ -513,7 +527,7 @@ export default class PathfindingVisualizer extends Component {
     const nodesInShortestPathOrder = shortestPath(finishNode);
     this.renderTextToConsole(
       name,
-      visitedNodesInOrder == undefined ? [] : visitedNodesInOrder,
+      visitedNodesInOrder,
       nodesInShortestPathOrder,
       start,
       end,
@@ -588,7 +602,7 @@ export default class PathfindingVisualizer extends Component {
     nodesInShortestPathOrder,
     context
   ) {
-    if (index === visitedNodesInOrder.length) {
+    if (index > visitedNodesInOrder.length) {
       context.shortestPathAnimation(
         0,
         animationSpeed,
@@ -597,7 +611,7 @@ export default class PathfindingVisualizer extends Component {
       );
     } else {
       const node = visitedNodesInOrder[index];
-      if (index === visitedNodesInOrder.length - 1) {
+      if (index === visitedNodesInOrder.length) {
       } else {
         context.createPath(node, NODE_VISITED);
       }
@@ -678,7 +692,7 @@ export default class PathfindingVisualizer extends Component {
     for (let row = 0; row < store.gridHeight; row++) {
       for (let col = 0; col < store.gridWidth; col++) {
         let node = store.grid[row][col];
-        setNodeType(row, col, store.air);
+        setNodeType(row, col, store.nodeTypes.air);
       }
     }
     this.drawGrid();
@@ -767,7 +781,6 @@ export default class PathfindingVisualizer extends Component {
         {toolBar}
         <div
           id="grid"
-          key={store.gridId}
           onContextMenu={event => {
             event.preventDefault();
             return false;
@@ -813,23 +826,26 @@ const createNode = (row, col) => {
     isShortest: false,
     isVisited: false,
     neighbor: null,
-    nodeType: store.nodeType,
+    nodeType: store.defaultNodeType,
     parent: null
   };
 };
 
 const setNodeType = (row, col, nodeType) => {
   let node = store.grid[row][col];
-  if (node.nodeType != store.start && node.nodeType != store.finish) {
+  if (
+    node.nodeType != store.nodeTypes.start &&
+    node.nodeType != store.nodeTypes.finish
+  ) {
     node.nodeType = nodeType;
   }
 };
 
 const setKeyNode = (row, col, nodeType) => {
   let node = store.grid[row][col];
-  if (nodeType == store.start) {
+  if (nodeType == store.nodeTypes.start) {
     store.startNode = node;
-  } else if (nodeType == store.finish) {
+  } else if (nodeType == store.nodeTypes.finish) {
     store.finishNode = node;
   }
   store.grid[row][col].nodeType = nodeType;

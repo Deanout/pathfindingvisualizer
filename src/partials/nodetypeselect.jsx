@@ -11,9 +11,17 @@ import Popper from "@material-ui/core/Popper";
 import MenuItem from "@material-ui/core/MenuItem";
 import MenuList from "@material-ui/core/MenuList";
 import Typography from "@material-ui/core/Typography";
+import Slider from "@material-ui/core/Slider";
+import Input from "@material-ui/core/Input";
 import store from "../store/gridstore";
 
 const useStyles = makeStyles(theme => ({
+  menuList: {
+    resize: "vertical",
+    overflow: "auto",
+    height: 220,
+    width: 140
+  },
   nodeButtonGroup: {
     height: 32,
     maxWidth: 140,
@@ -31,7 +39,6 @@ const useStyles = makeStyles(theme => ({
     fontFamily: ["Open Sans", "sans-serif"].join(","),
     textTransform: "capitalize",
     fontSize: 15,
-    overflow: "hidden",
     textOverflow: "ellipsis",
     whiteSpace: "nowrap"
   },
@@ -61,8 +68,11 @@ export default function NodeTypeSelect(props) {
     props.clickNodeIndex
   );
 
-  const handleClick = () => {};
-
+  const handleClick = (event, index) => {
+    setSelectedIndex(index);
+    store.clickNodeType = props.nodeTypes[index];
+    store.clickNodeIndex = index;
+  };
   const handleMenuItemClick = (event, index) => {
     setSelectedIndex(index);
     setOpen(false);
@@ -78,7 +88,6 @@ export default function NodeTypeSelect(props) {
     if (anchorRef.current && anchorRef.current.contains(event.target)) {
       return;
     }
-
     setOpen(false);
   };
 
@@ -97,7 +106,10 @@ export default function NodeTypeSelect(props) {
           aria-label="split button"
           className={classes.nodeButtonGroup}
         >
-          <Button onClick={handleClick} className={classes.nodeButton}>
+          <Button
+            onClick={event => handleClick(event, props.clickNodeIndex)}
+            className={classes.nodeButton}
+          >
             <Typography className={classes.nodeLabel}>
               {props.nodeTypes[props.clickNodeIndex].name}
             </Typography>
@@ -118,6 +130,7 @@ export default function NodeTypeSelect(props) {
           transition
           disablePortal
           style={{ zIndex: 9999 }}
+          className={classes.menuList}
         >
           {({ TransitionProps, placement }) => (
             <Grow
@@ -136,9 +149,13 @@ export default function NodeTypeSelect(props) {
                         selected={index === props.clickNodeIndex}
                         onClick={event => handleMenuItemClick(event, index)}
                       >
-                        <Typography className={classes.nodeLabel}>
-                          {option.name}
-                        </Typography>
+                        <Grid container>
+                          <Grid item xs={8}>
+                            <Typography className={classes.nodeLabel}>
+                              {option.name}
+                            </Typography>
+                          </Grid>
+                        </Grid>
                       </MenuItem>
                     ))}
                   </MenuList>

@@ -2,30 +2,31 @@ var nodesToAnimate = [];
 export function recursiveWallBuilder() {
   const coords = [];
   nodesToAnimate = [];
-  const wall = store.wall;
+  const wall = store.nodeTypes.wall;
+  const air = store.nodeTypes.air;
 
   for (let row = 0; row < store.gridHeight; row++) {
     let currentRow = [];
     for (let col = 0; col < store.gridWidth; col++) {
-      currentRow.push(store.air);
+      currentRow.push(air);
     }
     coords.push(currentRow);
   }
   for (let i = 0; i < store.gridWidth; i++) {
     nodesToAnimate.push([0, i, wall]);
-    coords[0][i] = store.wall;
+    coords[0][i] = wall;
   }
   for (let i = 1; i < store.gridHeight; i++) {
     nodesToAnimate.push([i, store.gridWidth - 1, wall]);
-    coords[i][store.gridWidth - 1] = store.wall;
+    coords[i][store.gridWidth - 1] = wall;
   }
   for (let i = store.gridWidth - 2; i >= 0; i--) {
     nodesToAnimate.push([store.gridHeight - 1, i, wall]);
-    coords[store.gridHeight - 1][i] = store.wall;
+    coords[store.gridHeight - 1][i] = wall;
   }
   for (let i = store.gridHeight - 2; i > 0; i--) {
     nodesToAnimate.push([i, 0, wall]);
-    coords[i][0] = store.wall;
+    coords[i][0] = wall;
   }
 
   const walls = helper(
@@ -34,18 +35,17 @@ export function recursiveWallBuilder() {
     store.gridWidth - 1,
     0,
     store.gridHeight - 1,
-    store.wall,
-    store.air
+    wall,
+    air
   );
-  walls[store.startPosition[0]][store.startPosition[1]] = store.air;
-  walls[store.finishPosition[0]][store.finishPosition[1]] = store.air;
+  walls[store.startPosition[0]][store.startPosition[1]] = air;
+  walls[store.finishPosition[0]][store.finishPosition[1]] = air;
   return nodesToAnimate;
 }
 
-function helper(inputCoords, x1, x2, y1, y2, WALL, AIR) {
+function helper(inputCoords, x1, x2, y1, y2, wall, air) {
   let width = x2 - x1;
   let height = y2 - y1;
-  const wall = store.wall;
 
   if (width >= height) {
     // Vertical bisection
@@ -57,11 +57,11 @@ function helper(inputCoords, x1, x2, y1, y2, WALL, AIR) {
       let first = false;
       let second = false;
 
-      if (inputCoords[y2][bisection] === AIR) {
+      if (inputCoords[y2][bisection] === air) {
         passage = max;
         first = true;
       }
-      if (inputCoords[y1][bisection] === AIR) {
+      if (inputCoords[y1][bisection] === air) {
         passage = min;
         second = true;
       }
@@ -69,17 +69,17 @@ function helper(inputCoords, x1, x2, y1, y2, WALL, AIR) {
       for (let i = y1 + 1; i < y2; i++) {
         if (first && second) {
           if (i === max || i === min) {
-            inputCoords[i][bisection] = AIR;
+            inputCoords[i][bisection] = air;
           }
         } else if (i === passage) {
-          inputCoords[i][bisection] = AIR;
+          inputCoords[i][bisection] = air;
         } else {
           nodesToAnimate.push([i, bisection, wall]);
-          inputCoords[i][bisection] = WALL;
+          inputCoords[i][bisection] = wall;
         }
       }
-      helper(inputCoords, x1, bisection, y1, y2, WALL, AIR);
-      helper(inputCoords, bisection, x2, y1, y2, WALL, AIR);
+      helper(inputCoords, x1, bisection, y1, y2, wall, air);
+      helper(inputCoords, bisection, x2, y1, y2, wall, air);
     }
   } else {
     if (y2 - y1 > 3) {
@@ -90,11 +90,11 @@ function helper(inputCoords, x1, x2, y1, y2, WALL, AIR) {
       let first = false;
       let second = false;
 
-      if (inputCoords[bisection][x2] === AIR) {
+      if (inputCoords[bisection][x2] === air) {
         passage = max;
         first = true;
       }
-      if (inputCoords[bisection][x1] === AIR) {
+      if (inputCoords[bisection][x1] === air) {
         passage = min;
         second = true;
       }
@@ -102,17 +102,17 @@ function helper(inputCoords, x1, x2, y1, y2, WALL, AIR) {
       for (let i = x1 + 1; i < x2; i++) {
         if (first && second) {
           if (i === max || i === min) {
-            inputCoords[bisection][i] = AIR;
+            inputCoords[bisection][i] = air;
           }
         } else if (i === passage) {
-          inputCoords[bisection][i] = AIR;
+          inputCoords[bisection][i] = air;
         } else {
           nodesToAnimate.push([bisection, i, wall]);
-          inputCoords[bisection][i] = WALL;
+          inputCoords[bisection][i] = wall;
         }
       }
-      helper(inputCoords, x1, x2, y1, bisection, WALL, AIR);
-      helper(inputCoords, x1, x2, bisection, y2, WALL, AIR);
+      helper(inputCoords, x1, x2, y1, bisection, wall, air);
+      helper(inputCoords, x1, x2, bisection, y2, wall, air);
     }
   }
 

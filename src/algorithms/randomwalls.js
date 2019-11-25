@@ -1,7 +1,7 @@
 export function randomWalls() {
   const wallsToBuild = [];
-  const wall = store.wall;
-  const grass = store.grass;
+  const wall = store.nodeTypes.wall;
+  const grass = store.nodeTypes.grass;
 
   for (let row = 0; row < store.gridHeight; row++) {
     for (let col = 0; col < store.gridWidth; col++) {

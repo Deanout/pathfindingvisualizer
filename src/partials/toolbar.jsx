@@ -119,7 +119,7 @@ export default class ToolBar extends Component {
 
     var nodeTypeSelect = (
       <NodeTypeSelect
-        nodeTypes={store.clickableNodeTypes}
+        nodeTypes={store.nodeTypes.list}
         clickNodeType={store.clickNodeType}
         clickNodeIndex={store.clickNodeIndex}
       ></NodeTypeSelect>

@@ -23,9 +23,10 @@ export function simplexTerrain() {
         frequency *= lacunarity;
       }
       let scaled2D = scaleBetween(total, 0, 1, -maxValue, maxValue);
-
-      for (let i = 0; i < store.nodeTypes.length; i++) {
-        let nodeType = store.nodeTypes[i];
+      // Start at 5:
+      // 0 is default, 1 is air, 2 is wall, 3 is start, 4 is finish
+      for (let i = 5; i < store.nodeTypes.list.length; i++) {
+        let nodeType = store.nodeTypes.list[i];
 
         if (
           scaled2D <= nodeType.minThreshold ||

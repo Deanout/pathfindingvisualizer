@@ -103,8 +103,8 @@ export default function NoiseWallsConfig(props) {
               rgb = [0, 0, 0];
             }
           } else {
-            for (let i = 0; i < store.nodeTypes.length; i++) {
-              let nodeType = store.nodeTypes[i];
+            for (let i = 5; i < store.nodeTypes.list.length; i++) {
+              let nodeType = store.nodeTypes.list[i];
               if (
                 scaled2D <= nodeType.minThreshold ||
                 scaled2D > nodeType.maxThreshold

@@ -1,5 +1,6 @@
 import { observable, computed, action } from "mobx";
 import { Simplex } from "./simplex.js";
+import { NodeTypes } from "./nodetypes.js";
 
 /*
  * Initialize the MobX Grid here, so that the first render call is not null.
@@ -10,19 +11,9 @@ import { Simplex } from "./simplex.js";
  * previousNode: Used to limit the mouse function calls
  */
 class GridStore {
-  @observable nodeTypes = [];
-  constructor() {
-    this.nodeTypes.push(
-      this.waterDeep,
-      this.water,
-      this.sand,
-      this.grass,
-      this.stone,
-      this.granite,
-      this.snow
-    );
-  }
+  constructor() {}
   @observable grid = [];
+  @observable nodeTypes = new NodeTypes();
   @observable terrain = 0;
   @observable algorithm = 0;
   @observable mouseButton = -1;
@@ -38,7 +29,6 @@ class GridStore {
   @observable nodeHeight = this.nodeSize;
 
   @observable debugCounter = 0;
-  @observable gridId = 0;
   @observable gridScale = 1;
   @observable pathDrawn = false;
   @observable currentPathIndex = 0;
@@ -65,112 +55,11 @@ class GridStore {
 
   @observable simplex = new Simplex();
 
-  // Node types:
-  @observable air = {
-    name: "air",
-    minThreshold: 0,
-    maxThreshold: 1,
-    weight: 1,
-    class: "",
-    walkable: true,
-    rgb: [255, 255, 255]
-  };
-  @observable wall = {
-    name: "wall",
-    minThreshold: 0,
-    maxThreshold: 1,
-    weight: Infinity,
-    class: "node-wall",
-    walkable: false,
-    rgb: [12, 53, 71]
-  };
-  @observable start = {
-    name: "start",
-    minThreshold: 0,
-    maxThreshold: 1,
-    weight: 1,
-    class: "node-start",
-    walkable: true,
-    rgb: [0, 150, 5]
-  };
-  @observable finish = {
-    name: "finish",
-    minThreshold: 0,
-    maxThreshold: 1,
-    weight: 1,
-    class: "node-finish",
-    walkable: true,
-    rgb: [150, 0, 5]
-  };
-  @observable waterDeep = {
-    name: "waterDeep",
-    minThreshold: 0,
-    maxThreshold: 0.25,
-    weight: 250,
-    class: "node-water-deep",
-    walkable: true,
-    rgb: [0, 65, 150]
-  };
-  @observable water = {
-    name: "water",
-    minThreshold: 0.25,
-    maxThreshold: 0.35,
-    weight: 100,
-    class: "node-water",
-    walkable: true,
-    rgb: [0, 110, 255]
-  };
-  @observable sand = {
-    name: "sand",
-    minThreshold: 0.35,
-    maxThreshold: 0.4,
-    weight: 15,
-    class: "node-sand",
-    walkable: true,
-    rgb: [195, 175, 125]
-  };
-  @observable grass = {
-    name: "grass",
-    minThreshold: 0.4,
-    maxThreshold: 0.7,
-    weight: 10,
-    class: "node-grass",
-    walkable: true,
-    rgb: [85, 125, 70]
-  };
-  @observable stone = {
-    name: "stone",
-    minThreshold: 0.7,
-    maxThreshold: 0.8,
-    weight: 100,
-    class: "node-stone",
-    walkable: true,
-    rgb: [175, 175, 175]
-  };
-  @observable granite = {
-    name: "granite",
-    minThreshold: 0.8,
-    maxThreshold: 0.9,
-    weight: 250,
-    class: "node-granite",
-    walkable: true,
-    rgb: [140, 140, 140]
-  };
-  @observable snow = {
-    name: "snow",
-    minThreshold: 0.9,
-    maxThreshold: 1,
-    weight: 150,
-    class: "node-snow",
-    walkable: true,
-    rgb: [200, 215, 225]
-  };
-
-  @observable nodeType = this.air;
-  @observable clickNodeType = this.wall;
+  @observable defaultNodeType = this.nodeTypes.air;
+  @observable clickNodeType = this.nodeTypes.wall;
   @observable clickNodeIndex = 0;
-  @observable previousClickNodeType = this.clickNodeType;
-  @observable nodeTypeAtMousePosition = this.air;
+  @observable previousClickNodeType = this.nodeTypes.wall;
+  @observable nodeTypeAtMousePosition = this.nodeTypes.air;
 
   // UI Variables
   @observable consoleBottom = 0;
@@ -180,23 +69,10 @@ class GridStore {
     minimize: true,
     panelID: 0
   };
-  // Could probably refactor this and save on computing it more
-  // than once.
-  @computed get clickableNodeTypes() {
-    var modifiedNodeTypes = this.nodeTypes.slice();
-    var wall = this.wall;
-    wall.name = "Node Type";
-    modifiedNodeTypes.unshift(this.finish);
-    modifiedNodeTypes.unshift(this.start);
-    modifiedNodeTypes.unshift(this.wall);
-    modifiedNodeTypes.unshift(this.air);
-    modifiedNodeTypes.unshift(wall);
-    return modifiedNodeTypes;
-  }
 
-  @action clickableNodeIndexFromNodeType(nodeType) {
-    for (let i = 0; i < this.clickableNodeTypes.length; i++) {
-      if (nodeType === this.clickableNodeTypes[i]) {
+  @action clickableNodeIndexFromNodeType(nodeTypeToCheck) {
+    for (let i = 0; i < this.nodeTypes.clickable.length; i++) {
+      if (nodeTypeToCheck === this.nodeTypes.clickable[i]) {
         this.clickNodeIndex = i;
       }
     }
@@ -227,7 +103,7 @@ class GridStore {
         "Breadth First Search (BFS) is an unweighted algorithm that starts at the root and explores each node at the current depth before proceeding to the next depth level's nodes. This algorithm guarantees an unweighted shortest path. If you have weights, however, it will ignore them and possibly provide a false shortest path."
     },
     {
-      name: "DFS",
+      name: "Depth First Search",
       summary:
         "Depth First Search (DFS) is an unweighted algorithm that starts at the root node and explores as far as possible along each branch before backtracking. While it probably won't provide the shortest path, if there are too many branches per layer for BFS to run efficiently, it may be advantagous to utilize DFS to evaluate some of the branches in their entirety instead of attempting to evaluate all of them."
     },

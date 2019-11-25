@@ -23,11 +23,10 @@ export function BFS(grid, startNode, finishNode, width, height) {
       }
     }
   }
+  return getVisitedNodes(visitedNodes);
 }
 
 function getVisitedNodes(visitedNodes) {
-  visitedNodes.shift();
-  visitedNodes.pop();
   return visitedNodes;
 }
 

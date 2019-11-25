@@ -23,10 +23,10 @@ export function DFS(grid, startNode, finishNode, width, height) {
       }
     }
   }
+  return getVisitedNodes(visitedNodes);
 }
 
 function getVisitedNodes(visitedNodes) {
-  visitedNodes.shift();
   return visitedNodes;
 }
 
