@@ -71,13 +71,6 @@ class GridStore {
   };
 
   @action clickableNodeIndexFromNodeType(nodeTypeToCheck) {
-    // this.nodeTypes.find((nodeType, index) => {
-    //   if (nodeTypeToCheck === nodeType) {
-    //     this.clickNodeIndex = index;
-    //     return true;
-    //   }
-    // });
-
     for (let i = 0; i < this.nodeTypes.list.length; i++) {
       if (nodeTypeToCheck === this.nodeTypes.list[i]) {
         this.clickNodeIndex = i;

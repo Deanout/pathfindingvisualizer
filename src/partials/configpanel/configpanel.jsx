@@ -31,6 +31,7 @@ const PanelHeader = styled(Header)({
   height: 32,
   padding: 0,
   fontSize: 10,
+  width: 350,
   "& span": {
     fontSize: 15
   },
@@ -93,7 +94,7 @@ export default class ConfigPanel extends Component {
             top: store.consoleBottom,
             position: "absolute",
             left: 0,
-            zIndex: 8,
+            zIndex: 100000,
             maxWidth: "100%"
           }}
         >
@@ -103,6 +104,7 @@ export default class ConfigPanel extends Component {
               draggable="true"
               onMouseOver={() => this.setDraggable("mouse")}
               onTouchMove={() => this.setDraggable("touch")}
+              style={{ width: 350 }}
               action={
                 <div>
                   <IconButton
@@ -164,8 +166,8 @@ export default class ConfigPanel extends Component {
       if (source == "touch") {
         if (e.touches.length == 1) {
           // Only deal with one finger
-          pos3 = e.touches[0].pageX;
-          pos4 = e.touches[0].pageY;
+          pos3 = e.touches[0].clientX;
+          pos4 = e.touches[0].clientY;
         }
         document.ontouchend = closeDragElement;
         document.ontouchmove = elementDrag;
@@ -185,10 +187,10 @@ export default class ConfigPanel extends Component {
       // calculate the new cursor position:
       if (source == "touch") {
         if (e.touches.length == 1) {
-          pos1 = pos3 - e.touches[0].pageX;
-          pos2 = pos4 - e.touches[0].pageY;
-          pos3 = e.touches[0].pageX;
-          pos4 = e.touches[0].pageY;
+          pos1 = pos3 - e.touches[0].clientX;
+          pos2 = pos4 - e.touches[0].clientY;
+          pos3 = e.touches[0].clientX;
+          pos4 = e.touches[0].clientY;
         }
       } else {
         e = e || window.event;
@@ -198,10 +200,20 @@ export default class ConfigPanel extends Component {
         pos3 = e.clientX;
         pos4 = e.clientY;
       }
-
+      // Clamp element's new position:
+      let newTop = Math.clamp(
+        element.offsetTop - pos2,
+        0,
+        document.body.offsetHeight - 32
+      );
+      let newLeft = Math.clamp(
+        element.offsetLeft - pos1,
+        0,
+        document.body.clientWidth - 350
+      );
       // set the element's new position:
-      element.style.top = element.offsetTop - pos2 + "px";
-      element.style.left = element.offsetLeft - pos1 + "px";
+      element.style.top = newTop + "px";
+      element.style.left = newLeft + "px";
     }
 
     function closeDragElement() {

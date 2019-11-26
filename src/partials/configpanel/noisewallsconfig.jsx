@@ -174,7 +174,7 @@ export default function NoiseWallsConfig(props) {
       className={classes.collapse}
     >
       {<canvas id="noisewallscanvas" className={classes.noisePreview}></canvas>}
-      <Grid container alignItems="flex-start" spacing={1}>
+      <Grid container alignItems="flex-start">
         <Grid item xs={9} style={{ height: 32 }}></Grid>
 
         <Grid item xs={2} style={{ height: 32 }}>

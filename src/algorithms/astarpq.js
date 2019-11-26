@@ -28,14 +28,11 @@ export function AStarPQ(grid, startNode, finishNode, width, height) {
 
       if (tentative_gScore < neighbor.gScore) {
         neighbor.gScore = tentative_gScore;
-        // let start = performance.now();
         neighbor.hScore = heuristic_cost_estimate(
           startNode,
           neighbor,
           finishNode
         );
-        // let end = performance.now();
-        // console.log("ASPQ TOOK " + (end - start));
         neighbor.fScore = neighbor.gScore + neighbor.hScore;
         neighbor.parent = currentNode;
         if (!openSet.find(neighbor)) {
