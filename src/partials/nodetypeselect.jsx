@@ -17,7 +17,6 @@ import store from "../store/gridstore";
 
 const useStyles = makeStyles(theme => ({
   menuList: {
-    resize: "vertical",
     overflow: "auto",
     height: 220,
     width: 140
@@ -74,10 +73,10 @@ export default function NodeTypeSelect(props) {
     store.clickNodeIndex = index;
   };
   const handleMenuItemClick = (event, index) => {
-    setSelectedIndex(index);
+    setSelectedIndex(index + 1);
     setOpen(false);
-    store.clickNodeType = props.nodeTypes[index];
-    store.clickNodeIndex = index;
+    store.clickNodeType = props.nodeTypes[index + 1];
+    store.clickNodeIndex = index + 1;
   };
 
   const handleToggle = () => {
@@ -143,23 +142,19 @@ export default function NodeTypeSelect(props) {
               <Paper id="menu-list-grow">
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList>
-                    {props.nodeTypes.map((option, index) => (
+                    {props.nodeTypes.slice(1).map((option, index) => (
                       <MenuItem
                         key={option.name + index}
-                        selected={index === props.clickNodeIndex}
+                        selected={index === props.clickNodeIndex - 1}
                         onClick={event => handleMenuItemClick(event, index)}
                       >
-                        {index === 0 ? (
-                          ""
-                        ) : (
-                          <Grid container>
-                            <Grid item xs={8}>
-                              <Typography className={classes.nodeLabel}>
-                                {"[" + option.weight + "] " + option.name}
-                              </Typography>
-                            </Grid>
+                        <Grid container>
+                          <Grid item xs={8}>
+                            <Typography className={classes.nodeLabel}>
+                              {"[" + option.weight + "] " + option.name}
+                            </Typography>
                           </Grid>
-                        )}
+                        </Grid>
                       </MenuItem>
                     ))}
                   </MenuList>
