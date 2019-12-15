@@ -43,7 +43,7 @@ const PaintedIcon = styled(ToggleOff)({
   color: "grey"
 });
 
-export default function NoiseWallsConfig(props) {
+export default function NoiseConfig(props) {
   const [rawNoise, setRawNoise] = React.useState(false);
   const classes = useStyles();
 

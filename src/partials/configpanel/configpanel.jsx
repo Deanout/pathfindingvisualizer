@@ -8,7 +8,7 @@ import AddIcon from "@material-ui/icons/Add";
 import CloseIcon from "@material-ui/icons/Close";
 import { styled } from "@material-ui/core/styles";
 import { observer } from "mobx-react";
-import NoiseWallsConfig from "./noisewallsconfig.jsx";
+import NoiseConfig from "./noiseconfig.jsx";
 import store from "../../store/gridstore.js";
 import { classes } from "istanbul-lib-coverage";
 
@@ -76,15 +76,15 @@ export default class ConfigPanel extends Component {
       store.simplex.persistence.value,
       store.simplex.lacunarity.value
     ];
-    var noiseWallsConfig = (
-      <NoiseWallsConfig
+    var noiseConfig = (
+      <NoiseConfig
         noiseWallsRedrawRequestHandler={this.noiseWallsRedrawRequestHandler}
         minimize={store.configPanel.minimize}
         fields={fields}
         gridWidth={store.gridWidth}
         gridHeight={store.gridHeight}
         pfv={this.state.pfv}
-      ></NoiseWallsConfig>
+      ></NoiseConfig>
     );
     return (
       <Collapse in={store.configPanel.toggle} timeout="auto" unmountOnExit>
@@ -131,7 +131,7 @@ export default class ConfigPanel extends Component {
               }
               title="Simplex Terrain Settings"
             ></PanelHeader>
-            {noiseWallsConfig}
+            {noiseConfig}
           </PanelCard>
         </div>
       </Collapse>
