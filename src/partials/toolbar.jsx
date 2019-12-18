@@ -125,13 +125,6 @@ export default class ToolBar extends Component {
       ></NodeTypeSelect>
     );
 
-    var terrainSlider = (
-      <TerrainSlider
-        width={store.nodeWidth}
-        height={store.nodeHeight}
-        pfv={this.state.pfv}
-      ></TerrainSlider>
-    );
     return (
       <div>
         {configPanel}
@@ -164,12 +157,8 @@ export default class ToolBar extends Component {
                     color="inherit"
                     onClick={this.toggleConfigPanel}
                   >
-                    Terrain Settings
+                    Settings
                   </PfvConfigButton>
-                </Grid>
-
-                <Grid item xs={6} sm={3} md={2} lg={2} xl={1}>
-                  {terrainSlider}
                 </Grid>
               </Grid>
             </PfvToolbar>

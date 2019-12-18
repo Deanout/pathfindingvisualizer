@@ -9,8 +9,12 @@ import CloseIcon from "@material-ui/icons/Close";
 import { styled } from "@material-ui/core/styles";
 import { observer } from "mobx-react";
 import NoiseConfig from "./noiseconfig.jsx";
+import AlgorithmConfig from "./algorithmconfig.jsx";
 import store from "../../store/gridstore.js";
 import { classes } from "istanbul-lib-coverage";
+import ConfigToggleButtons from "./configtogglebuttons.jsx";
+import GridConfig from "./gridconfig.jsx";
+import NodeConfig from "./nodeconfig.jsx";
 
 const PanelCard = styled(Card)({
   maxHeight: 400,
@@ -47,8 +51,15 @@ export default class ConfigPanel extends Component {
   constructor(props) {
     super();
     this.state = {
-      pfv: props.pfv
+      pfv: props.pfv,
+      nodes: store.nodeTypes.list
     };
+    this.nodeConfigHandler = this.nodeConfigHandler.bind(this);
+  }
+
+  nodeConfigHandler(nodeID, weight) {
+    store.nodeTypes.list[nodeID].weight = weight;
+    this.setState({ nodes: store.nodeTypes.list });
   }
 
   handleMinimizeClick(input) {
@@ -68,24 +79,8 @@ export default class ConfigPanel extends Component {
       this.setDraggable("mouse");
       this.setDraggable("touch");
     });
-    var fields = [
-      store.simplex.threshold.value,
-      store.simplex.seed.value,
-      store.simplex.scale.value,
-      store.simplex.octave.value,
-      store.simplex.persistence.value,
-      store.simplex.lacunarity.value
-    ];
-    var noiseConfig = (
-      <NoiseConfig
-        noiseWallsRedrawRequestHandler={this.noiseWallsRedrawRequestHandler}
-        minimize={store.configPanel.minimize}
-        fields={fields}
-        gridWidth={store.gridWidth}
-        gridHeight={store.gridHeight}
-        pfv={this.state.pfv}
-      ></NoiseConfig>
-    );
+
+    var configToggleButtons = <ConfigToggleButtons></ConfigToggleButtons>;
     return (
       <Collapse in={store.configPanel.toggle} timeout="auto" unmountOnExit>
         <div
@@ -131,12 +126,71 @@ export default class ConfigPanel extends Component {
               }
               title="Simplex Terrain Settings"
             ></PanelHeader>
-            {noiseConfig}
+            {configToggleButtons}
+            {this.switchConfig()}
           </PanelCard>
         </div>
       </Collapse>
     );
   }
+  switchConfig() {
+    var noiseFields = [
+      store.simplex.threshold.value,
+      store.simplex.seed.value,
+      store.simplex.scale.value,
+      store.simplex.octave.value,
+      store.simplex.persistence.value,
+      store.simplex.lacunarity.value
+    ];
+
+    var algorithmConfig = (
+      <AlgorithmConfig
+        minimize={store.configPanel.minimize}
+        animSpeed={store.currentAnimationSpeed}
+        pfv={this.state.pfv}
+      ></AlgorithmConfig>
+    );
+    var noiseConfig = (
+      <NoiseConfig
+        noiseWallsRedrawRequestHandler={this.noiseWallsRedrawRequestHandler}
+        minimize={store.configPanel.minimize}
+        fields={noiseFields}
+        gridWidth={store.gridWidth}
+        gridHeight={store.gridHeight}
+        pfv={this.state.pfv}
+      ></NoiseConfig>
+    );
+    var gridConfig = (
+      <GridConfig
+        minimize={store.configPanel.minimize}
+        pfv={this.state.pfv}
+      ></GridConfig>
+    );
+    var nodeConfig = (
+      <NodeConfig
+        pfv={this.state.pfv}
+        nodes={this.state.nodes}
+        minimize={store.configPanel.minimize}
+        nodeConfigHandler={this.nodeConfigHandler}
+      ></NodeConfig>
+    );
+    switch (store.configPanel.menuOption) {
+      case "Algorithm":
+        return algorithmConfig;
+        return;
+      case "Terrain":
+        return noiseConfig;
+      case "Nodes":
+        return nodeConfig;
+      case "Grid":
+        return gridConfig;
+      case "Other":
+        return;
+      default:
+        return;
+    }
+  }
+
   dragElement(element, source) {
     var pos1 = 0,
       pos2 = 0,

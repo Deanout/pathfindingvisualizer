@@ -5,21 +5,7 @@ import Typography from "@material-ui/core/Typography";
 import Slider from "@material-ui/core/Slider";
 import Input from "@material-ui/core/Input";
 
-const useStyles = makeStyles({
-  root: {
-    width: 140,
-    height: 32,
-    margin: "auto"
-  },
-  input: {
-    color: "#fff",
-    margin: "auto",
-    width: 50
-  },
-  slider: {
-    color: "#fff"
-  }
-});
+const useStyles = makeStyles({});
 
 export default function TerrainSlider(props) {
   const classes = useStyles();
@@ -64,7 +50,7 @@ export default function TerrainSlider(props) {
       <Typography variant="body2" id="input-slider">
         Node Size
       </Typography>
-      <Grid container spacing={2}>
+      <Grid container>
         <Grid item xs={8}>
           <Slider
             className={classes.slider}

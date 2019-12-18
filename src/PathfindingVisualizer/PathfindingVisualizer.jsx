@@ -57,9 +57,7 @@ export default class PathfindingVisualizer extends Component {
     document.removeEventListener("touchup", this.onMouseUp, false);
     grid.removeEventListener("touchdown", this.onMouseDown, false);
   }
-  // Need to fix resize speed. Although resizing should be cheaper
-  // than a refresh, it appears to run much more slowly. Should figure
-  // out where the bottleneck is here.
+  // Still broken on mobile resize
   onResize = event => {
     if (
       window.innerWidth / store.nodeWidth > store.gridWidth + 1 ||

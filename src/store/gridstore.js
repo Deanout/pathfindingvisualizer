@@ -65,9 +65,9 @@ class GridStore {
   @observable consoleBottom = 0;
 
   @observable configPanel = {
-    toggle: false,
+    toggle: true,
     minimize: true,
-    panelID: 0
+    menuOption: "Nodes"
   };
 
   @action clickableNodeIndexFromNodeType(nodeTypeToCheck) {
