@@ -67,7 +67,7 @@ class GridStore {
   @observable configPanel = {
     toggle: true,
     minimize: true,
-    menuOption: "Nodes"
+    menuOption: "Algorithm"
   };
 
   @action clickableNodeIndexFromNodeType(nodeTypeToCheck) {
@@ -82,6 +82,7 @@ class GridStore {
   @computed get algorithmName() {
     return this.algorithms[this.algorithm].name;
   }
+  @observable directionOrder = [1, 2, 3, 4];
   @observable algorithms = [
     {
       name: "Algorithms",
@@ -91,7 +92,10 @@ class GridStore {
     {
       name: "Dijkstra's Algorithm",
       summary:
-        "Dijkstra's is a weighted algorithm that is guaranteed to find the shortest path even if some of the tiles are easier or more difficult to move through. An example might be taking the road or cutting through a muddy field."
+        "Dijkstra's is a weighted algorithm that is guaranteed to find the shortest path even if some of the tiles are easier or more difficult to move through. An example might be taking the road or cutting through a muddy field.",
+      config: {
+        dataStructure: "array"
+      }
     },
     {
       name: "A* Search",

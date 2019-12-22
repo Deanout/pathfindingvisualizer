@@ -177,7 +177,6 @@ export default class ConfigPanel extends Component {
     switch (store.configPanel.menuOption) {
       case "Algorithm":
         return algorithmConfig;
-        return;
       case "Terrain":
         return noiseConfig;
       case "Nodes":

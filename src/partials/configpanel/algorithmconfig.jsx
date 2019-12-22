@@ -7,6 +7,10 @@ import Input from "@material-ui/core/Input";
 import Collapse from "@material-ui/core/Collapse";
 import Typography from "@material-ui/core/Typography";
 import store from "../../store/gridstore";
+import Tooltip from "@material-ui/core/Tooltip";
+import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
+import DijkstraSelect from "./dijkstraselect.jsx";
+import DirectionConfig from "./directionconfig.jsx";
 
 const useStyles = makeStyles(theme => ({
   collapse: {
@@ -33,7 +37,10 @@ const useStyles = makeStyles(theme => ({
 
 export default function AlgorithmConfig(props) {
   const [animSpeed, setAnimSpeed] = React.useState(props.animSpeed);
+
   const classes = useStyles();
+  var dijkstraSelect = <DijkstraSelect></DijkstraSelect>;
+  var directionsConfig = <DirectionConfig></DirectionConfig>;
 
   const handleChange = (event, newValue) => {
     let value = isNaN(event.target.value) ? newValue : event.target.value;
@@ -54,6 +61,7 @@ export default function AlgorithmConfig(props) {
       className={classes.collapse}
     >
       <CardContent className={classes.cardContent}>
+        <Typography>All Algorithms</Typography>
         <Grid container alignItems="center">
           <Grid item xs={3}>
             <Typography
@@ -90,7 +98,37 @@ export default function AlgorithmConfig(props) {
               }}
             />
           </Grid>
+          <Grid item xs={12}>
+            <Tooltip title="List of directions that the algorithms may or may not explore. Enabling only the default 4 results in manhattan traversal, while enabling all eight results in fully diagonal movement. Other combinations will result in niche movement restrictions.">
+              <Typography>Neighbor Visit Order</Typography>
+            </Tooltip>
+            <hr style={{ width: 50 }} />
+            {directionsConfig}
+          </Grid>
         </Grid>
+        <Typography>Algorithm Specific Settings</Typography>
+        {store.algorithms.slice(1).map((algo, algoID) => {
+          return (
+            <Grid container style={{ margin: 0 }} key={algoID} direction="row">
+              <Grid item xs={8}>
+                <Typography style={{ textAlign: "left" }}>
+                  {algo.name}
+                </Typography>
+              </Grid>
+              <Grid item xs={4}>
+                <Tooltip title={algo.summary} className={classes.tooltip}>
+                  <HelpOutlineIcon fontSize="small" />
+                </Tooltip>
+              </Grid>
+              <Grid item xs={4}>
+                Data Structure
+              </Grid>
+              <Grid item xs={8}>
+                {dijkstraSelect}
+              </Grid>
+            </Grid>
+          );
+        })}
       </CardContent>
     </Collapse>
   );

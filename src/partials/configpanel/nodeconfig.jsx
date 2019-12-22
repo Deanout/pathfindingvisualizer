@@ -32,12 +32,14 @@ const useStyles = makeStyles(theme => ({
   },
   uiNode: {
     height: 20,
-    width: 20
+    width: 20,
+    marginLeft: 5
   }
 }));
 
 export default function NoiseConfig(props) {
   const [nodes, setNodes] = React.useState(props.nodes);
+
   const classes = useStyles();
 
   const handleChange = (event, newValue, nodeID) => {
@@ -52,6 +54,12 @@ export default function NoiseConfig(props) {
   };
 
   const handleKeyDown = event => {};
+
+  const handleNodeClick = nodeID => {
+    console.log(nodes[nodeID]);
+    store.clickNodeIndex = nodeID;
+    store.clickNodeType = nodes[nodeID];
+  };
   return (
     <Collapse
       in={props.minimize}
@@ -62,7 +70,9 @@ export default function NoiseConfig(props) {
       <CardContent className={classes.cardContent}>
         <Typography>Node Weights</Typography>
         {props.nodes.map((node, nodeID) => {
-          return node.weight === Infinity ? (
+          return node.weight === Infinity ||
+            node.name == store.nodeTypes.start.name ||
+            node.name == store.nodeTypes.finish.name ? (
             ""
           ) : (
             <Grid container alignItems="center" key={nodeID}>
@@ -71,8 +81,10 @@ export default function NoiseConfig(props) {
                   className={classes.uiNode}
                   style={{
                     backgroundColor: `rgb(${node.rgb[0]}, ${node.rgb[1]}, ${node.rgb[2]})`,
-                    border: "1px solid black"
+                    border: "1px solid black",
+                    cursor: "crosshair"
                   }}
+                  onClick={() => handleNodeClick(nodeID)}
                 ></div>
               </Grid>
               <Grid item xs={3}>
