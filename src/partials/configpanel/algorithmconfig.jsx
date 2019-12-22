@@ -98,7 +98,7 @@ export default function AlgorithmConfig(props) {
               }}
             />
           </Grid>
-          <Grid item xs={12}>
+          <Grid item xs={12} style={{ marginBottom: 16 }}>
             <Tooltip title="List of directions that the algorithms may or may not explore. Enabling only the default 4 results in manhattan traversal, while enabling all eight results in fully diagonal movement. Other combinations will result in niche movement restrictions.">
               <Typography>Neighbor Visit Order</Typography>
             </Tooltip>
