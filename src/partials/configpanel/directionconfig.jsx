@@ -17,7 +17,8 @@ const useStyles = makeStyles(theme => ({
     maxWidth: 360,
     backgroundColor: theme.palette.background.paper,
     minHeight: 128,
-    fontFamily: ["Open Sans", "sans-serif"]
+    fontFamily: ["Open Sans", "sans-serif"],
+    padding: 8
   }
 }));
 var enabledDirections;
@@ -31,13 +32,18 @@ export default function DirectionConfig() {
   enabledDirections = window.enabledDirections = (
     <List dense className={classes.root} id="enabledDirections">
       <Tooltip title="List of enabled directions that the algorithms may explore. Enabling only the default 4 results in manhattan traversal, while enabling all eight results in fully diagonal movement. Other combinations will result in niche movement restrictions.">
-        <Typography>Enabled</Typography>
+        <Typography
+          onClick={event => handleDirectionChange(event, "Enable")}
+          style={{ cursor: "pointer" }}
+        >
+          Enabled
+        </Typography>
       </Tooltip>
       <hr style={{ width: 50 }} />
       <ListItem
         style={{
-          margin: "8px",
           padding: 0,
+          margin: "5px 0px 5px 0px",
           boxShadow: "1px 1px 1px 1px #777"
         }}
         data-direction={1}
@@ -60,8 +66,8 @@ export default function DirectionConfig() {
 
       <ListItem
         style={{
-          margin: "8px",
           padding: 0,
+          margin: "5px 0px 5px 0px",
           boxShadow: "1px 1px 1px 1px #777"
         }}
         data-direction={2}
@@ -82,8 +88,8 @@ export default function DirectionConfig() {
       </ListItem>
       <ListItem
         style={{
-          margin: "8px",
           padding: 0,
+          margin: "5px 0px 5px 0px",
           boxShadow: "1px 1px 1px 1px #777"
         }}
         data-direction={3}
@@ -104,8 +110,8 @@ export default function DirectionConfig() {
       </ListItem>
       <ListItem
         style={{
-          margin: "8px",
           padding: 0,
+          margin: "5px 0px 5px 0px",
           boxShadow: "1px 1px 1px 1px #777"
         }}
         data-direction={4}
@@ -130,13 +136,18 @@ export default function DirectionConfig() {
   disabledDirections = (
     <List dense className={classes.root} id="disabledDirections">
       <Tooltip title="List of disabled directions that the algorithms may explore. Disabling only the default 4 results in manhattan traversal, while Disabling none results in fully diagonal movement. Other combinations will result in niche movement restrictions.">
-        <Typography>Disabled</Typography>
+        <Typography
+          onClick={event => handleDirectionChange(event, "Disable")}
+          style={{ cursor: "pointer" }}
+        >
+          Disabled
+        </Typography>
       </Tooltip>
       <hr style={{ width: 50 }} />
       <ListItem
         style={{
-          margin: "8px",
           padding: 0,
+          margin: "5px 0px 5px 0px",
           boxShadow: "1px 1px 1px 1px #777"
         }}
         data-direction={5}
@@ -157,8 +168,8 @@ export default function DirectionConfig() {
       </ListItem>
       <ListItem
         style={{
-          margin: "8px",
           padding: 0,
+          margin: "5px 0px 5px 0px",
           boxShadow: "1px 1px 1px 1px #777"
         }}
         data-direction={6}
@@ -179,8 +190,8 @@ export default function DirectionConfig() {
       </ListItem>
       <ListItem
         style={{
-          margin: "8px",
           padding: 0,
+          margin: "5px 0px 5px 0px",
           boxShadow: "1px 1px 1px 1px #777"
         }}
         data-direction={7}
@@ -201,8 +212,8 @@ export default function DirectionConfig() {
       </ListItem>
       <ListItem
         style={{
-          margin: "8px",
           padding: 0,
+          margin: "5px 0px 5px 0px",
           boxShadow: "1px 1px 1px 1px #777"
         }}
         data-direction={8}
@@ -243,25 +254,25 @@ export default function DirectionConfig() {
         <Grid item xs={4}>
           <Button
             color="inherit"
+            onClick={event => handleDirectionChange(event, "Manhattan")}
+          >
+            Manhattan
+          </Button>
+        </Grid>
+        <Grid item xs={4}>
+          <Button
+            color="inherit"
+            onClick={event => handleDirectionChange(event, "Chebyshev")}
+          >
+            Chebyshev
+          </Button>
+        </Grid>
+        <Grid item xs={4}>
+          <Button
+            color="inherit"
             onClick={event => handleDirectionChange(event, "Reset")}
           >
             Reset
-          </Button>
-        </Grid>
-        <Grid item xs={4}>
-          <Button
-            color="inherit"
-            onClick={event => handleDirectionChange(event, "Enable")}
-          >
-            Enable All
-          </Button>
-        </Grid>
-        <Grid item xs={4}>
-          <Button
-            color="inherit"
-            onClick={event => handleDirectionChange(event, "Disable")}
-          >
-            Disable All
           </Button>
         </Grid>
       </Grid>
@@ -309,10 +320,17 @@ const handleDirectionChange = (event, action) => {
       store.directionOrder.replace([1, 2, 3, 4, 5, 6, 7, 8]);
       setAllItems("enabled");
       break;
-
     case "disable":
       store.directionOrder.replace([1, 2, 3, 4, 5, 6, 7, 8]);
       setAllItems("disabled");
+      break;
+    case "manhattan":
+      store.directionOrder.replace([1, 2, 3, 4, 5, 6, 7, 8]);
+      defaultEnabledItems();
+      break;
+    case "chebyshev":
+      store.directionOrder.replace([1, 2, 3, 4, 5, 6, 7, 8]);
+      setAllItems("enabled");
       break;
     case "default":
       console.log("No action associated with this list handler input.");
