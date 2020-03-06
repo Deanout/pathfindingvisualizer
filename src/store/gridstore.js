@@ -87,7 +87,8 @@ class GridStore {
     {
       name: "Algorithms",
       summary:
-        "Select pathfinding algorithm. The default is Dijkstra's, which is a weighted algorithm that is guaranteed to find the shortest path even if some of the tiles are easier or more difficult to move through. An example might be taking the road or cutting through a muddy field."
+        "Select pathfinding algorithm. The default is Dijkstra's, which is a weighted algorithm that is guaranteed to find the shortest path even if some of the tiles are easier or more difficult to move through. An example might be taking the road or cutting through a muddy field.",
+      dataStructure: "array"
     },
     {
       name: "Dijkstra's Algorithm",
@@ -100,17 +101,23 @@ class GridStore {
     {
       name: "A* Search",
       summary:
-        "A* is a weighted, informed algorithm which uses a heuristic to estimate the distance to the finish node. If this heuristic is admissable (never overestimates the cost), A* is guaranteed to return the lowest cost path. If the heuristic, h(x) <= lengthOfEdge(x,y) + h(y) for every edge(x,y), h is considered monotone or consistent, meaning it is equivalent to Dijkstra's with a reduced cost."
+        "A* is a weighted, informed algorithm which uses a heuristic to estimate the distance to the finish node. If this heuristic is admissable (never overestimates the cost), A* is guaranteed to return the lowest cost path. If the heuristic, h(x) <= lengthOfEdge(x,y) + h(y) for every edge(x,y), h is considered monotone or consistent, meaning it is equivalent to Dijkstra's with a reduced cost.",
+      config: {
+        heuristic: 0.001,
+        dataStructure: "array"
+      }
     },
     {
       name: "Breadth First Search",
       summary:
-        "Breadth First Search (BFS) is an unweighted algorithm that starts at the root and explores each node at the current depth before proceeding to the next depth level's nodes. This algorithm guarantees an unweighted shortest path. If you have weights, however, it will ignore them and possibly provide a false shortest path."
+        "Breadth First Search (BFS) is an unweighted algorithm that starts at the root and explores each node at the current depth before proceeding to the next depth level's nodes. This algorithm guarantees an unweighted shortest path. If you have weights, however, it will ignore them and possibly provide a false shortest path.",
+      dataStructure: "array"
     },
     {
       name: "Depth First Search",
       summary:
-        "Depth First Search (DFS) is an unweighted algorithm that starts at the root node and explores as far as possible along each branch before backtracking. While it probably won't provide the shortest path, if there are too many branches per layer for BFS to run efficiently, it may be advantagous to utilize DFS to evaluate some of the branches in their entirety instead of attempting to evaluate all of them."
+        "Depth First Search (DFS) is an unweighted algorithm that starts at the root node and explores as far as possible along each branch before backtracking. While it probably won't provide the shortest path, if there are too many branches per layer for BFS to run efficiently, it may be advantagous to utilize DFS to evaluate some of the branches in their entirety instead of attempting to evaluate all of them.",
+      dataStructure: "array"
     },
     {
       name: "A* Optimized",

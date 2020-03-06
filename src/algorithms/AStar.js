@@ -1,3 +1,4 @@
+var activeHeuristic = false;
 export function AStar(grid, startNode, finishNode, width, height) {
   // Should be a Priority Queue.
   const openSet = [];
@@ -100,24 +101,27 @@ function getNeighbors(grid, currentNode, width, height) {
         if (row < height - 1) {
           neighbors.push(grid[row + 1][col]);
         }
-
         break;
       case 5:
+        activeHeuristic = true;
         if (row > 0 && col > 0) {
           neighbors.push(grid[row - 1][col - 1]);
         }
         break;
       case 6:
+        activeHeuristic = true;
         if (row > 0 && col < width - 1) {
           neighbors.push(grid[row - 1][col + 1]);
         }
         break;
       case 7:
+        activeHeuristic = true;
         if (row < height - 1 && col > 0) {
           neighbors.push(grid[row + 1][col - 1]);
         }
         break;
       case 8:
+        activeHeuristic = true;
         if (row < height - 1 && col < width - 1) {
           neighbors.push(grid[row + 1][col + 1]);
         }
@@ -135,7 +139,17 @@ function getNeighbors(grid, currentNode, width, height) {
 function heuristic_cost_estimate(current, finish) {
   const dx = Math.abs(current.col - finish.col);
   const dy = Math.abs(current.row - finish.row);
-  var heuristic = dx + dy;
+  // Fix this dean
+
+  var heuristic;
+  if (activeHeuristic) {
+    heuristic = Math.max(dx, dy) + 1.4 * Math.min(dx, dy);
+  } else {
+    heuristic = dx + dy;
+  }
+
+  heuristic = heuristic * (1 + store.algorithms[2].config.heuristic);
+
   return heuristic;
 }
 

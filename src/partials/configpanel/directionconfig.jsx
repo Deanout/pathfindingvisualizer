@@ -15,19 +15,23 @@ const useStyles = makeStyles(theme => ({
   root: {
     width: "100%",
     maxWidth: 360,
-    backgroundColor: theme.palette.background.paper,
+    backgroundColor: "rgba(255,255,255,.75)",
     minHeight: 128,
     fontFamily: ["Open Sans", "sans-serif"],
     padding: 8
+  },
+  listItem: {
+    cursor: "grab",
+    padding: 0,
+    margin: "5px 0px 5px 0px",
+    boxShadow: "1px 1px 1px 1px #777"
   }
 }));
 var enabledDirections;
 var disabledDirections;
-var defaultEnabledDirections;
-var defaultDisabledDirections;
 export default function DirectionConfig() {
   const classes = useStyles();
-  const [directions, setDirections] = React.useState([1, 2, 3, 4]);
+  const [directions, setDirections] = React.useState(store.directionOrder);
 
   enabledDirections = window.enabledDirections = (
     <List dense className={classes.root} id="enabledDirections">
@@ -40,15 +44,7 @@ export default function DirectionConfig() {
         </Typography>
       </Tooltip>
       <hr style={{ width: 50 }} />
-      <ListItem
-        style={{
-          padding: 0,
-          margin: "5px 0px 5px 0px",
-          boxShadow: "1px 1px 1px 1px #777"
-        }}
-        data-direction={1}
-        className="listItem"
-      >
+      <ListItem data-direction={1} className={classes.listItem}>
         <Grid
           container
           direction="row"
@@ -64,14 +60,7 @@ export default function DirectionConfig() {
         </Grid>
       </ListItem>
 
-      <ListItem
-        style={{
-          padding: 0,
-          margin: "5px 0px 5px 0px",
-          boxShadow: "1px 1px 1px 1px #777"
-        }}
-        data-direction={2}
-      >
+      <ListItem data-direction={2} className={classes.listItem}>
         <Grid
           direction="row"
           container
@@ -86,14 +75,7 @@ export default function DirectionConfig() {
           </Grid>
         </Grid>
       </ListItem>
-      <ListItem
-        style={{
-          padding: 0,
-          margin: "5px 0px 5px 0px",
-          boxShadow: "1px 1px 1px 1px #777"
-        }}
-        data-direction={3}
-      >
+      <ListItem data-direction={3} className={classes.listItem}>
         <Grid
           direction="row"
           container
@@ -108,14 +90,7 @@ export default function DirectionConfig() {
           </Grid>
         </Grid>
       </ListItem>
-      <ListItem
-        style={{
-          padding: 0,
-          margin: "5px 0px 5px 0px",
-          boxShadow: "1px 1px 1px 1px #777"
-        }}
-        data-direction={4}
-      >
+      <ListItem data-direction={4} className={classes.listItem}>
         <Grid
           direction="row"
           container
@@ -144,14 +119,7 @@ export default function DirectionConfig() {
         </Typography>
       </Tooltip>
       <hr style={{ width: 50 }} />
-      <ListItem
-        style={{
-          padding: 0,
-          margin: "5px 0px 5px 0px",
-          boxShadow: "1px 1px 1px 1px #777"
-        }}
-        data-direction={5}
-      >
+      <ListItem data-direction={5} className={classes.listItem}>
         <Grid
           direction="row"
           container
@@ -166,14 +134,7 @@ export default function DirectionConfig() {
           </Grid>
         </Grid>
       </ListItem>
-      <ListItem
-        style={{
-          padding: 0,
-          margin: "5px 0px 5px 0px",
-          boxShadow: "1px 1px 1px 1px #777"
-        }}
-        data-direction={6}
-      >
+      <ListItem data-direction={6} className={classes.listItem}>
         <Grid
           direction="row"
           container
@@ -188,14 +149,7 @@ export default function DirectionConfig() {
           </Grid>
         </Grid>
       </ListItem>
-      <ListItem
-        style={{
-          padding: 0,
-          margin: "5px 0px 5px 0px",
-          boxShadow: "1px 1px 1px 1px #777"
-        }}
-        data-direction={7}
-      >
+      <ListItem data-direction={7} className={classes.listItem}>
         <Grid
           direction="row"
           container
@@ -210,14 +164,7 @@ export default function DirectionConfig() {
           </Grid>
         </Grid>
       </ListItem>
-      <ListItem
-        style={{
-          padding: 0,
-          margin: "5px 0px 5px 0px",
-          boxShadow: "1px 1px 1px 1px #777"
-        }}
-        data-direction={8}
-      >
+      <ListItem data-direction={8} className={classes.listItem}>
         <Grid
           direction="row"
           container
@@ -234,8 +181,9 @@ export default function DirectionConfig() {
       </ListItem>
     </List>
   );
-  defaultEnabledDirections = window.defaultEnabledDirections = enabledDirections;
-  defaultDisabledDirections = disabledDirections;
+  requestAnimationFrame(() => {
+    setSelectedItems(store.directionOrder);
+  });
   return (
     <Grid
       direction="row"
@@ -243,6 +191,18 @@ export default function DirectionConfig() {
       justify="flex-start"
       alignItems="flex-start"
     >
+      <Grid item xs={12}>
+        <Tooltip title="List of directions that the algorithms may or may not explore. Enabling only the default 4 results in manhattan traversal, while enabling all eight results in fully diagonal movement. Other combinations will result in niche movement restrictions.">
+          <Typography
+            align="center"
+            onClick={event => handleDirectionChange(event, "Reset")}
+            style={{ cursor: "pointer" }}
+          >
+            Neighbor Visit Order
+          </Typography>
+        </Tooltip>
+        <hr style={{ width: 50 }} />
+      </Grid>
       <Grid item xs={5}>
         {enabledDirections}
       </Grid>
@@ -251,7 +211,7 @@ export default function DirectionConfig() {
         {disabledDirections}
       </Grid>
       <Grid container alignItems="center">
-        <Grid item xs={4}>
+        <Grid item xs={6}>
           <Button
             color="inherit"
             onClick={event => handleDirectionChange(event, "Manhattan")}
@@ -259,20 +219,12 @@ export default function DirectionConfig() {
             Manhattan
           </Button>
         </Grid>
-        <Grid item xs={4}>
+        <Grid item xs={6}>
           <Button
             color="inherit"
             onClick={event => handleDirectionChange(event, "Chebyshev")}
           >
-            Chebyshev
-          </Button>
-        </Grid>
-        <Grid item xs={4}>
-          <Button
-            color="inherit"
-            onClick={event => handleDirectionChange(event, "Reset")}
-          >
-            Reset
+            Diagonal
           </Button>
         </Grid>
       </Grid>
@@ -321,11 +273,11 @@ const handleDirectionChange = (event, action) => {
       setAllItems("enabled");
       break;
     case "disable":
-      store.directionOrder.replace([1, 2, 3, 4, 5, 6, 7, 8]);
+      store.directionOrder.replace([]);
       setAllItems("disabled");
       break;
     case "manhattan":
-      store.directionOrder.replace([1, 2, 3, 4, 5, 6, 7, 8]);
+      store.directionOrder.replace([1, 2, 3, 4]);
       defaultEnabledItems();
       break;
     case "chebyshev":
@@ -335,6 +287,20 @@ const handleDirectionChange = (event, action) => {
     case "default":
       console.log("No action associated with this list handler input.");
       break;
+  }
+};
+
+const setSelectedItems = selected => {
+  let enabled = document.getElementById("enabledDirections");
+  let disabled = document.getElementById("disabledDirections");
+
+  for (let i = 0; i < selected.length; i++) {
+    let element = document.querySelector(`[data-direction~="${selected[i]}"]`);
+    enabled.appendChild(element);
+  }
+  for (let i = 1; i < disabledDirections.length; i++) {
+    let element = document.querySelector(`[data-direction~="${i}"]`);
+    disabled.appendChild(element);
   }
 };
 

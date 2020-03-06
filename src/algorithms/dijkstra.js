@@ -1,3 +1,6 @@
+import store from "../store/gridstore";
+import queue, { Queue } from "../datastructures/queue.js";
+
 /* Dijkstra's algorithm takes three parameters:
  * grid - The list of nodes you could potentially visit
  * startNode - The initial node that you are traveling from
@@ -22,13 +25,25 @@
  * 1 + weight, or simply the weight, and everything works the same.
  */
 export function dijkstra(grid, startNode, finishNode) {
+  switch (store.algorithms[1].dataStructure) {
+    default:
+    case "array":
+      return dijkstra_array(grid, startNode, finishNode);
+    case "queue":
+      return dijkstra_queue(grid, startNode, finishNode);
+    case "priority queue":
+      return dijkstra_priority_queue(grid, startNode, finishNode);
+  }
+}
+
+function dijkstra_array(grid, startNode, finishNode) {
   // The list of visited nodes to animate over
   const visitedNodesInOrder = [];
 
   // Set the initial node's distance to 0.
   startNode.distance = 0;
   // The list of unvisited nodes
-  const unvisitedNodes = getAllNodes(grid);
+  const unvisitedNodes = getAllNodesArray(grid);
 
   while (!!unvisitedNodes.length) {
     sortNodesByDistance(unvisitedNodes);
@@ -41,6 +56,34 @@ export function dijkstra(grid, startNode, finishNode) {
     }
     closestNode.isVisited = true;
     visitedNodesInOrder.push(closestNode);
+    if (closestNode === finishNode) {
+      return computeVisitedNodes(visitedNodesInOrder);
+    }
+
+    updateUnvisitedNeighbors(closestNode, grid);
+  }
+}
+
+function dijkstra_queue(grid, startNode, finishNode) {
+  // The list of visited nodes to animate over
+  const visitedNodesInOrder = [];
+
+  // Set the initial node's distance to 0.
+  startNode.distance = 0;
+  // The list of unvisited nodes
+  const unvisitedNodes = getAllNodesQueue(grid);
+
+  while (!!unvisitedNodes.length) {
+    sortNodesByDistance(unvisitedNodes);
+    const closestNode = unvisitedNodes.dequeue();
+    if (closestNode.isWall) {
+      continue;
+    }
+    if (closestNode.nodeType.walkable === false) {
+      return computeVisitedNodes(visitedNodesInOrder);
+    }
+    closestNode.isVisited = true;
+    visitedNodesInOrder.enqueue(closestNode);
     if (closestNode === finishNode) {
       return computeVisitedNodes(visitedNodesInOrder);
     }
@@ -128,11 +171,21 @@ function getUnvisitedNeighbors(grid, currentNode, width, height) {
   return neighbors.filter(neighbor => !neighbor.isVisited);
 }
 
-function getAllNodes(grid) {
+function getAllNodesArray(grid) {
   const nodes = [];
   for (const row of grid) {
     for (const node of row) {
       nodes.push(node);
+    }
+  }
+  return nodes;
+}
+
+function getAllNodesQueue(grid) {
+  const nodes = new Queue();
+  for (const row of grid) {
+    for (const node of row) {
+      nodes.enqueue(node);
     }
   }
   return nodes;

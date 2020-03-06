@@ -11,6 +11,8 @@ import Tooltip from "@material-ui/core/Tooltip";
 import HelpOutlineIcon from "@material-ui/icons/HelpOutline";
 import DijkstraSelect from "./dijkstraselect.jsx";
 import DirectionConfig from "./directionconfig.jsx";
+import AStarSelect from "./astarselect.jsx";
+import AStarHeuristicInput from "./astarheuristicinput.jsx";
 
 const useStyles = makeStyles(theme => ({
   collapse: {
@@ -39,8 +41,14 @@ export default function AlgorithmConfig(props) {
   const [animSpeed, setAnimSpeed] = React.useState(props.animSpeed);
 
   const classes = useStyles();
-  var dijkstraSelect = <DijkstraSelect></DijkstraSelect>;
+  var dijkstraSelect = <DijkstraSelect pfv={props.pfv}></DijkstraSelect>;
   var directionsConfig = <DirectionConfig></DirectionConfig>;
+  var aStarSelect = <AStarSelect>;</AStarSelect>;
+  var aStarHeuristicInput = (
+    <AStarHeuristicInput
+      defaultHeuristic={store.algorithms[2].config.heuristic}
+    ></AStarHeuristicInput>
+  );
 
   const handleChange = (event, newValue) => {
     let value = isNaN(event.target.value) ? newValue : event.target.value;
@@ -99,36 +107,65 @@ export default function AlgorithmConfig(props) {
             />
           </Grid>
           <Grid item xs={12} style={{ marginBottom: 16 }}>
-            <Tooltip title="List of directions that the algorithms may or may not explore. Enabling only the default 4 results in manhattan traversal, while enabling all eight results in fully diagonal movement. Other combinations will result in niche movement restrictions.">
-              <Typography>Neighbor Visit Order</Typography>
-            </Tooltip>
-            <hr style={{ width: 50 }} />
             {directionsConfig}
           </Grid>
         </Grid>
         <Typography>Algorithm Specific Settings</Typography>
-        {store.algorithms.slice(1).map((algo, algoID) => {
-          return (
-            <Grid container style={{ margin: 0 }} key={algoID} direction="row">
-              <Grid item xs={8}>
-                <Typography style={{ textAlign: "left" }}>
-                  {algo.name}
-                </Typography>
-              </Grid>
-              <Grid item xs={4}>
-                <Tooltip title={algo.summary} className={classes.tooltip}>
-                  <HelpOutlineIcon fontSize="small" />
-                </Tooltip>
-              </Grid>
-              <Grid item xs={4}>
-                Data Structure
-              </Grid>
-              <Grid item xs={8}>
-                {dijkstraSelect}
-              </Grid>
-            </Grid>
-          );
-        })}
+
+        <Grid container style={{ margin: 0 }} direction="row">
+          <Grid item xs={8}>
+            <Typography style={{ textAlign: "left" }}>
+              {store.algorithms[1].name}
+            </Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Tooltip
+              title={store.algorithms[1].summary}
+              className={classes.tooltip}
+            >
+              <HelpOutlineIcon fontSize="small" />
+            </Tooltip>
+          </Grid>
+          <Grid item xs={4}>
+            Data Structure
+          </Grid>
+          <Grid item xs={8}>
+            {dijkstraSelect}
+          </Grid>
+        </Grid>
+        <Grid container style={{ margin: 0 }} direction="row">
+          <Grid item xs={8}>
+            <Typography style={{ textAlign: "left" }}>
+              {store.algorithms[2].name}
+            </Typography>
+          </Grid>
+          <Grid item xs={4}>
+            <Tooltip
+              title={store.algorithms[2].summary}
+              className={classes.tooltip}
+            >
+              <HelpOutlineIcon fontSize="small" />
+            </Tooltip>
+          </Grid>
+          <Grid item xs={4}>
+            Data Structure
+          </Grid>
+          <Grid item xs={8}>
+            {aStarSelect}
+          </Grid>
+
+          <Grid item xs={12}>
+            {aStarHeuristicInput}
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant="body2" align="justify" style={{ padding: 8 }}>
+              Change heuristic to be heuristic bias, then change heuristic to be
+              configurable in some way. Maybe something like a selection of
+              options, or maybe a way to create your own if that's a thing I
+              could do?
+            </Typography>
+          </Grid>
+        </Grid>
       </CardContent>
     </Collapse>
   );

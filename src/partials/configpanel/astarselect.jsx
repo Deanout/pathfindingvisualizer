@@ -11,7 +11,6 @@ import Popper from "@material-ui/core/Popper";
 import MenuItem from "@material-ui/core/MenuItem";
 import MenuList from "@material-ui/core/MenuList";
 import Typography from "@material-ui/core/Typography";
-import store from "../../store/gridstore";
 
 const useStyles = makeStyles(theme => ({
   clearButtonGroup: {
@@ -54,27 +53,22 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const options = ["array", "queue", "priority queue"];
+const options = ["Array", "Queue", "Priority Queue"];
 
-export default function DijkstraSelect(props) {
+export default function AStarSelect(props) {
   const classes = useStyles();
   const [open, setOpen] = React.useState(false);
   const anchorRef = React.useRef(null);
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
   const handleClick = () => {
-    // Do the thing
+    props.pfv.gridStateManager(selectedIndex);
   };
 
   const handleMenuItemClick = (event, index) => {
-    // Set the thing
-    // Then do the thing
     setSelectedIndex(index);
     setOpen(false);
-    // Run dijkstra
-    store.algorithms[1].dataStructure = options[index];
-    props.pfv.visualizeAlgorithm(1);
-    console.log(store.algorithms[1].dataStructure);
+    props.pfv.gridStateManager(index);
   };
 
   const handleToggle = () => {

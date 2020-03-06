@@ -25,6 +25,9 @@ export class Queue {
   length() {
     return this.items.length;
   }
+  sort() {
+    this.items.sort((nodeA, nodeB) => nodeA.distance - nodeB.distance);
+  }
   printQueue() {
     var output = "";
     for (let i = 0; i < this.items.length; i++) {
