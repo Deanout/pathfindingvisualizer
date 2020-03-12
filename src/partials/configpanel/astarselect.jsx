@@ -53,7 +53,8 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const options = ["Array", "Queue", "Priority Queue"];
+// const options = ["Array", "Queue", "Priority Queue"];
+const options = ["Array"];
 
 export default function AStarSelect(props) {
   const classes = useStyles();
@@ -62,13 +63,14 @@ export default function AStarSelect(props) {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
   const handleClick = () => {
-    props.pfv.gridStateManager(selectedIndex);
+    store.algorithm = 2;
+    props.pfv.visualizeAlgorithm(2);
   };
 
   const handleMenuItemClick = (event, index) => {
     setSelectedIndex(index);
     setOpen(false);
-    props.pfv.gridStateManager(index);
+    store.algorithms[2].dataStructure = options[index];
   };
 
   const handleToggle = () => {

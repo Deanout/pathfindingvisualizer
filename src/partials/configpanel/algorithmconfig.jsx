@@ -43,7 +43,7 @@ export default function AlgorithmConfig(props) {
   const classes = useStyles();
   var dijkstraSelect = <DijkstraSelect pfv={props.pfv}></DijkstraSelect>;
   var directionsConfig = <DirectionConfig></DirectionConfig>;
-  var aStarSelect = <AStarSelect>;</AStarSelect>;
+  var aStarSelect = <AStarSelect pfv={props.pfv}>;</AStarSelect>;
   var aStarHeuristicInput = (
     <AStarHeuristicInput
       defaultHeuristic={store.algorithms[2].config.heuristic}
@@ -156,14 +156,6 @@ export default function AlgorithmConfig(props) {
 
           <Grid item xs={12}>
             {aStarHeuristicInput}
-          </Grid>
-          <Grid item xs={12}>
-            <Typography variant="body2" align="justify" style={{ padding: 8 }}>
-              Change heuristic to be heuristic bias, then change heuristic to be
-              configurable in some way. Maybe something like a selection of
-              options, or maybe a way to create your own if that's a thing I
-              could do?
-            </Typography>
           </Grid>
         </Grid>
       </CardContent>

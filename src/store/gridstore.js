@@ -65,7 +65,7 @@ class GridStore {
   @observable consoleBottom = 0;
 
   @observable configPanel = {
-    toggle: true,
+    toggle: false,
     minimize: true,
     menuOption: "Algorithm"
   };
@@ -118,11 +118,6 @@ class GridStore {
       summary:
         "Depth First Search (DFS) is an unweighted algorithm that starts at the root node and explores as far as possible along each branch before backtracking. While it probably won't provide the shortest path, if there are too many branches per layer for BFS to run efficiently, it may be advantagous to utilize DFS to evaluate some of the branches in their entirety instead of attempting to evaluate all of them.",
       dataStructure: "array"
-    },
-    {
-      name: "A* Optimized",
-      summary:
-        "This is a custom variation of the default A*. Instead of using an array, this uses a priority queue that is implemented through a min-heap."
     }
   ];
 

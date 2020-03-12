@@ -1,4 +1,5 @@
-import { MinHeapPriorityQueue } from "../datastructures/binaryheap.js";
+import { BinaryHeap } from "./binaryheap.js";
+
 export class PriorityQueue {
   constructor() {
     this.heap = new BinaryHeap();
@@ -10,7 +11,7 @@ export class PriorityQueue {
     if (this.isEmpty()) {
       return "Failed to dequeue because: Priority Queue was empty.";
     } else {
-      return this.heap.pop();
+      return this.heap.popMin();
     }
   }
   front() {
@@ -35,6 +36,12 @@ export class PriorityQueue {
   }
   size() {
     return this.heap.size();
+  }
+  setDistance(node, distance) {
+    this.heap.setDistance(node, distance);
+  }
+  setParent(neighbor, parent) {
+    this.heap.setParent(neighbor, parent);
   }
   printPriorityQueue() {}
 }

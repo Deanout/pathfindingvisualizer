@@ -54,7 +54,7 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const options = ["array", "queue", "priority queue"];
+const options = ["array", "queue", "priority queue - WIP"];
 
 export default function DijkstraSelect(props) {
   const classes = useStyles();
@@ -63,18 +63,14 @@ export default function DijkstraSelect(props) {
   const [selectedIndex, setSelectedIndex] = React.useState(0);
 
   const handleClick = () => {
-    // Do the thing
+    store.algorithm = 1;
+    props.pfv.visualizeAlgorithm(1);
   };
 
   const handleMenuItemClick = (event, index) => {
-    // Set the thing
-    // Then do the thing
     setSelectedIndex(index);
     setOpen(false);
-    // Run dijkstra
     store.algorithms[1].dataStructure = options[index];
-    props.pfv.visualizeAlgorithm(1);
-    console.log(store.algorithms[1].dataStructure);
   };
 
   const handleToggle = () => {

@@ -1,17 +1,17 @@
-import { MinHeapPriorityQueue } from "../datastructures/binaryheap.js";
+import { PriorityQueue } from "../datastructures/priorityqueue.js";
 
 export function AStarPQ(grid, startNode, finishNode, width, height) {
-  const openSet = new MinHeapPriorityQueue();
+  const openSet = new PriorityQueue();
   const visitedNodesInOrder = [];
 
   startNode.gScore = 0;
   startNode.hScore = heuristic_cost_estimate(startNode, startNode, finishNode);
   startNode.fScore = startNode.hScore;
 
-  openSet.push(startNode);
+  openSet.enqueue(startNode);
 
   while (openSet.size() > 0) {
-    var currentNode = openSet.popMin();
+    var currentNode = openSet.dequeue();
 
     visitedNodesInOrder.push(currentNode);
     if (currentNode == finishNode) {
@@ -35,8 +35,8 @@ export function AStarPQ(grid, startNode, finishNode, width, height) {
         );
         neighbor.fScore = neighbor.gScore + neighbor.hScore;
         neighbor.parent = currentNode;
-        if (!openSet.find(neighbor)) {
-          openSet.push(neighbor);
+        if (!openSet.containsNode(neighbor)) {
+          openSet.enqueue(neighbor);
         }
       }
     }

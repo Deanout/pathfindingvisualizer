@@ -1,5 +1,6 @@
 import store from "../store/gridstore";
-import queue, { Queue } from "../datastructures/queue.js";
+import { Queue } from "../datastructures/queue.js";
+import { PriorityQueue } from "../datastructures/priorityqueue.js";
 
 /* Dijkstra's algorithm takes three parameters:
  * grid - The list of nodes you could potentially visit
@@ -83,12 +84,42 @@ function dijkstra_queue(grid, startNode, finishNode) {
       return computeVisitedNodes(visitedNodesInOrder);
     }
     closestNode.isVisited = true;
-    visitedNodesInOrder.enqueue(closestNode);
+    visitedNodesInOrder.push(closestNode);
     if (closestNode === finishNode) {
       return computeVisitedNodes(visitedNodesInOrder);
     }
 
     updateUnvisitedNeighbors(closestNode, grid);
+  }
+}
+
+function dijkstra_priority_queue(grid, startNode, finishNode) {
+  // The list of visited nodes to animate over
+  const visitedNodesInOrder = [];
+
+  // Set the initial node's distance to 0.
+  startNode.distance = 0;
+  // The list of unvisited nodes
+  const unvisitedNodes = getAllNodesPriorityQueue(grid);
+
+  while (!!unvisitedNodes.size()) {
+    // // Obviously remove this later, but need to fix binheap sort first.
+    // sortNodesByDistance(unvisitedNodes);
+    const closestNode = unvisitedNodes.dequeue();
+
+    if (closestNode.isWall) {
+      continue;
+    }
+    if (closestNode.nodeType.walkable === false) {
+      return computeVisitedNodes(visitedNodesInOrder);
+    }
+    closestNode.isVisited = true;
+    visitedNodesInOrder.push(closestNode);
+    if (closestNode === finishNode) {
+      return computeVisitedNodes(visitedNodesInOrder);
+    }
+
+    updateUnvisitedNeighborsPQ(closestNode, grid, unvisitedNodes);
   }
 }
 
@@ -113,7 +144,21 @@ function updateUnvisitedNeighbors(node, grid) {
     neighbor.parent = node;
   }
 }
-
+function updateUnvisitedNeighborsPQ(node, grid, priorityQueue) {
+  const unvisitedNeighbors = getUnvisitedNeighbors(
+    grid,
+    node,
+    store.gridWidth,
+    store.gridHeight
+  );
+  for (const neighbor of unvisitedNeighbors) {
+    priorityQueue.setDistance(
+      neighbor,
+      node.distance + neighbor.nodeType.weight
+    );
+    priorityQueue.setParent(neighbor, node);
+  }
+}
 function getUnvisitedNeighbors(grid, currentNode, width, height) {
   const neighbors = [];
   const row = currentNode.row;
@@ -183,6 +228,16 @@ function getAllNodesArray(grid) {
 
 function getAllNodesQueue(grid) {
   const nodes = new Queue();
+  for (const row of grid) {
+    for (const node of row) {
+      nodes.enqueue(node);
+    }
+  }
+  return nodes;
+}
+
+function getAllNodesPriorityQueue(grid) {
+  const nodes = new PriorityQueue();
   for (const row of grid) {
     for (const node of row) {
       nodes.enqueue(node);
